@@ -1,0 +1,13 @@
+DataPrism change log
+====================
+
+2026-01-20
+- Init log file for PM review.
+- UI import: drag-and-drop enabled for image extensions; added Browse files… button that opens a file dialog and reuses drop handler.
+- UI list: hooked center view to PhotoDataModel with QTableView; dropped/browsed files are added into the model, placeholder hides when list has data.
+- EXIF: MainWindow now wires ExifToolWorker via QThread; new imports trigger queued EXIF reads, results populate PhotoDataModel; worker errors logged; thread stops on window destruction.
+- Inspector: right panel now shows selected photo info (file, camera, lens, date, status) with live updates when selection or EXIF results change.
+- EXIF decoding: ExifTool worker now decodes stdout/stderr as UTF-8 with errors=replace and guards JSON parse errors to avoid GBK UnicodeDecodeError; timeout bumped to 15s.
+- Fonts: removed explicit "System" font to let Qt use default Windows font and silence DirectWrite warnings.
+- Inspector thumbnail: added 180x180 preview in inspector; loads QPixmap from file, caches per photo, clears when no selection.
+- UI aesthetics (v0.2.0): upgraded table to 52px rows, no grid, macOS colors; status column now shows colored dots (green/blue/red/gray); sidebar buttons have 10px radius with gradients; inspector uses Consolas monospace for data, hierarchical labels, 200px thumbnail with separator; global Big Sur theme (#f5f5f7 background).
