@@ -1,3 +1,46 @@
+# Project: DataPrism (README_FOR_AI.md) - v0.2.1 Metadata & UI Refresh
+
+## 1. Requirement: Expanding Metadata Columns / 需求：扩展元数据列
+The current 5-column layout is insufficient for professional workflows. We need to implement a more comprehensive `PhotoDataModel`.
+[cite_start]目前的 5 列布局不足以支撑专业工作流。我们需要实现一个更全面的 `PhotoDataModel`。 [cite: 3, 4]
+
+### A. New Default Columns / 新增默认列
+1. **Exposure (曝光)**: Combine `Aperture`, `ShutterSpeed`, and `ISO` into visible fields.
+   将“光圈”、“快门”、“ISO”设为可见字段。
+2. **Film Info (胶片信息)**: Add `Film Stock` field (e.g., Kodak Portra 400).
+   增加“胶卷型号”字段。
+3. **Advanced Gear (高级器材)**: Include `Focal Length` and `Serial Number` in the model for optional display.
+   [cite_start]在模型中包含“焦距”和“序列号”以备选显示。 
+
+### B. UI Presentation Logic / UI 表现逻辑
+- **Multi-line Rows / 多行行显示**: Support displaying Camera and Lens within a single cell using different font weights.
+  支持在单个单元格内使用不同字重显示相机和镜头。
+- **Unit Formatting / 单位格式化**: 
+    - Shutter speed should be formatted as `1/125s`. / 快门速度格式化为 `1/125s`。
+    - Aperture should prepend `f/`. / 光圈前缀 `f/`。
+- [cite_start]**Placeholder Handling / 占位处理**: If data is missing (common in film scans), display a subtle `--` instead of `N/A`. [cite: 4]
+  如果数据缺失（胶片扫描常见），显示淡色的 `--` 而非 `N/A`。
+
+## 2. Updated Communication & Version Consensus / 沟通与版本共识
+
+### v0.2.1 - Metadata Depth / 元数据深度 (2026-01-20)
+- **Consensus / 共识**: 
+    - Shift from "General EXIF" to "Photography-Centric Data".
+      从“通用 EXIF”转向“以摄影为中心的数据”。
+    - Implement customized table headers (Right-click to show/hide columns).
+      实现自定义表头（右键显示/隐藏列）。
+
+## 3. Implementation Tasks for AI / AI 开发任务
+- **Model Update**: Update `PhotoItem` class in `src/core/photo_model.py` to include these new fields.
+  [cite_start]更新 `src/core/photo_model.py` 中的 `PhotoItem` 类以包含这些新字段。 [cite: 3]
+- **Worker Update**: Ensure `ExifToolWorker` extracts these specific tags during the initial scan.
+  [cite_start]确保 `ExifToolWorker` 在初步扫描期间提取这些特定的标签。 [cite: 5, 7]
+- **View Delegate**: Use a custom `QStyledItemDelegate` for better rendering of the exposure info.
+  [cite_start]使用自定义 `QStyledItemDelegate` 以更好地渲染曝光信息。 [cite: 3]
+
+---
+*End of README_FOR_AI.md*
+
 # Project: DataPrism (README_FOR_AI.md) - v0.2.0 Update
 
 ## 1. Project Status Review / 项目进度审查 (2026-01-20)

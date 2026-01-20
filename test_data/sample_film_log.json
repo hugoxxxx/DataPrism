@@ -1,0 +1,40 @@
+{
+  "frames": [
+    {
+      "frame_number": 1,
+      "timestamp": "2024-01-15 14:23:45",
+      "camera": "Canon AE-1",
+      "lens": "Canon FD 50mm f/1.8",
+      "film": "Kodak Portra 400",
+      "aperture": "f/2.8",
+      "shutter_speed": "1/125",
+      "iso": 400,
+      "focal_length": "50mm",
+      "notes": "Golden hour portrait"
+    },
+    {
+      "frame_number": 2,
+      "timestamp": "2024-01-15 14:28:12",
+      "camera": "Canon AE-1",
+      "lens": "Canon FD 50mm f/1.8",
+      "film": "Kodak Portra 400",
+      "aperture": "f/4",
+      "shutter_speed": "1/250",
+      "iso": 400,
+      "focal_length": "50mm",
+      "notes": "Street scene"
+    },
+    {
+      "frame_number": 3,
+      "timestamp": "2024-01-15 14:35:20",
+      "camera": "Canon AE-1",
+      "lens": "Canon FD 50mm f/1.8",
+      "film": "Kodak Portra 400",
+      "aperture": "f/1.8",
+      "shutter_speed": "1/500",
+      "iso": 400,
+      "focal_length": "50mm",
+      "notes": "Close-up detail"
+    }
+  ]
+}

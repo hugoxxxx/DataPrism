@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 
+from src.utils.i18n import tr
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,6 +29,14 @@ class PhotoItem:
     thumbnail: Optional[QPixmap] = None  # Cached thumbnail
     status: str = "pending"  # Status: pending, loaded, modified, error
     is_modified: bool = False
+    
+    # Extended metadata fields / 扩展元数据字段
+    aperture: Optional[str] = None  # e.g., "2.8"
+    shutter_speed: Optional[str] = None  # e.g., "1/125"
+    iso: Optional[str] = None  # e.g., "400"
+    film_stock: Optional[str] = None  # e.g., "Kodak Portra 400"
+    focal_length: Optional[str] = None  # e.g., "80mm"
+    serial_number: Optional[str] = None
 
 
 class PhotoDataModel(QAbstractTableModel):
@@ -43,7 +53,7 @@ class PhotoDataModel(QAbstractTableModel):
     
     # Column definitions
     # 列定义
-    COLUMNS = ["File", "Camera", "Lens", "Date", "Status"]
+    COLUMNS = ["File", "Camera", "Lens", "Aperture", "Shutter", "ISO", "Date", "Status"]
     
     def __init__(self, parent=None):
         """Initialize model / 初始化模型"""
@@ -63,7 +73,7 @@ class PhotoDataModel(QAbstractTableModel):
     def headerData(self, section: int, orientation: Qt.Orientation, role: int) -> Any:
         """Return header data / 返回标题数据"""
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
-            return self.COLUMNS[section]
+            return tr(self.COLUMNS[section])
         return None
     
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
@@ -85,21 +95,37 @@ class PhotoDataModel(QAbstractTableModel):
                 return photo.file_name
             elif col == 1:  # Camera
                 if photo.exif_data is None:
-                    return "Loading..."  # Trigger lazy load
-                return photo.exif_data.get("Model", "N/A")
+                    return tr("Loading...")  # Trigger lazy load
+                return photo.exif_data.get("Model", "--")
             elif col == 2:  # Lens
                 if photo.exif_data is None:
-                    return "Loading..."
-                return photo.exif_data.get("LensModel", "N/A")
-            elif col == 3:  # Date
+                    return tr("Loading...")
+                return photo.exif_data.get("LensModel", "--")
+            elif col == 3:  # Aperture
                 if photo.exif_data is None:
-                    return "Loading..."
-                return photo.exif_data.get("DateTimeOriginal", "N/A")
-            elif col == 4:  # Status
+                    return tr("Loading...")
+                if photo.aperture:
+                    return f"f/{photo.aperture}"
+                return "--"
+            elif col == 4:  # Shutter
+                if photo.exif_data is None:
+                    return tr("Loading...")
+                if photo.shutter_speed:
+                    return f"{photo.shutter_speed}s"
+                return "--"
+            elif col == 5:  # ISO
+                if photo.exif_data is None:
+                    return tr("Loading...")
+                return photo.iso or "--"
+            elif col == 6:  # Date
+                if photo.exif_data is None:
+                    return tr("Loading...")
+                return photo.exif_data.get("DateTimeOriginal", "--")
+            elif col == 7:  # Status
                 # Return empty string - we'll show dot in DecorationRole
                 return ""
         
-        elif role == Qt.ItemDataRole.DecorationRole and col == 4:
+        elif role == Qt.ItemDataRole.DecorationRole and col == 7:
             # Show colored dot based on status
             color_map = {
                 "pending": QColor("#999999"),  # Gray
@@ -121,14 +147,14 @@ class PhotoDataModel(QAbstractTableModel):
             painter.end()
             return pixmap
         
-        elif role == Qt.ItemDataRole.ToolTipRole and col == 4:
+        elif role == Qt.ItemDataRole.ToolTipRole and col == 7:
             # Tooltip for status column
             status_key = "modified" if photo.is_modified else photo.status
             tooltip_map = {
-                "pending": "Pending EXIF read",
-                "loaded": "EXIF loaded",
-                "modified": "Modified",
-                "error": "Error loading EXIF"
+                "pending": tr("Pending EXIF read"),
+                "loaded": tr("EXIF loaded"),
+                "modified": tr("Modified"),
+                "error": tr("Error loading EXIF")
             }
             return tooltip_map.get(status_key, "Unknown")
         
@@ -171,11 +197,75 @@ class PhotoDataModel(QAbstractTableModel):
                 photo.exif_data = exif_data
                 photo.status = "loaded"
                 
+                # Parse and cache exposure data / 解析并缓存曝光数据
+                self._parse_exposure_data(photo, exif_data)
+                
                 # Notify view of data change
                 # 通知视图数据已更改
                 index = self.index(idx, 0)
                 self.dataChanged.emit(index, self.index(idx, len(self.COLUMNS) - 1))
                 break
+    
+    def _parse_exposure_data(self, photo: PhotoItem, exif_data: Dict[str, Any]) -> None:
+        """
+        Parse and format exposure data from EXIF
+        从 EXIF 解析并格式化曝光数据
+        """
+        # Aperture / 光圈
+        if "FNumber" in exif_data:
+            try:
+                f_num = float(exif_data["FNumber"])
+                photo.aperture = f"{f_num:.1f}"
+            except:
+                photo.aperture = str(exif_data["FNumber"])
+        elif "Aperture" in exif_data:
+            photo.aperture = str(exif_data["Aperture"])
+        
+        # Shutter Speed / 快门速度
+        if "ExposureTime" in exif_data:
+            exp_time = exif_data["ExposureTime"]
+            if isinstance(exp_time, str) and "/" in exp_time:
+                photo.shutter_speed = exp_time
+            else:
+                try:
+                    exp_float = float(exp_time)
+                    if exp_float >= 1:
+                        photo.shutter_speed = f"{exp_float:.1f}"
+                    else:
+                        # Convert to fraction
+                        denom = int(1 / exp_float)
+                        photo.shutter_speed = f"1/{denom}"
+                except:
+                    photo.shutter_speed = str(exp_time)
+        elif "ShutterSpeed" in exif_data:
+            photo.shutter_speed = str(exif_data["ShutterSpeed"])
+        
+        # ISO
+        if "ISO" in exif_data:
+            photo.iso = str(exif_data["ISO"])
+        
+        # Focal Length / 焦距
+        if "FocalLength" in exif_data:
+            focal = exif_data["FocalLength"]
+            if isinstance(focal, str) and "mm" in focal:
+                photo.focal_length = focal
+            else:
+                try:
+                    focal_float = float(focal)
+                    photo.focal_length = f"{focal_float:.0f}mm"
+                except:
+                    photo.focal_length = str(focal)
+        
+        # Serial Number / 序列号
+        if "SerialNumber" in exif_data:
+            photo.serial_number = str(exif_data["SerialNumber"])
+        
+        # Film Stock (可能在 ImageDescription 或自定义字段)
+        if "ImageDescription" in exif_data:
+            desc = exif_data["ImageDescription"]
+            # Simple heuristic: if description contains film brand names
+            if any(brand in str(desc).lower() for brand in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
+                photo.film_stock = str(desc)
     
     def mark_modified(self, file_path: str) -> None:
         """

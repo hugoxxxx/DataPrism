@@ -134,3 +134,92 @@ class ExifToolWorker(QObject):
             self.error_occurred.emit(f"Write error: {str(e)}")
         finally:
             self.finished.emit()
+    
+    def batch_write_exif(self, write_tasks: List[Dict[str, Any]]) -> None:
+        """
+        Batch write EXIF data to multiple files asynchronously
+        异步批量写入 EXIF 数据到多个文件
+        
+        Args:
+            write_tasks: List of dicts with 'file_path' and 'exif_data' / 包含 'file_path' 和 'exif_data' 的字典列表
+        """
+        try:
+            total_tasks = len(write_tasks)
+            results = []
+            
+            for idx, task in enumerate(write_tasks):
+                file_path = task.get('file_path')
+                exif_data = task.get('exif_data', {})
+                
+                if not file_path or not exif_data:
+                    results.append({
+                        "status": "error",
+                        "file": file_path,
+                        "message": "Invalid task data"
+                    })
+                    continue
+                
+                try:
+                    # Build exiftool command / 构建 exiftool 命令
+                    cmd = [self.exiftool_path, "-overwrite_original"]
+                    
+                    for tag, value in exif_data.items():
+                        if value:  # Only write non-empty values
+                            cmd.append(f"-{tag}={value}")
+                    
+                    cmd.append(file_path)
+                    
+                    result = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=False,
+                        timeout=10
+                    )
+                    
+                    stdout = result.stdout.decode("utf-8", errors="replace")
+                    stderr = result.stderr.decode("utf-8", errors="replace")
+                    
+                    if result.returncode == 0:
+                        results.append({
+                            "status": "success",
+                            "file": file_path,
+                            "message": "EXIF written"
+                        })
+                    else:
+                        results.append({
+                            "status": "error",
+                            "file": file_path,
+                            "message": stderr or "Write failed"
+                        })
+                
+                except subprocess.TimeoutExpired:
+                    results.append({
+                        "status": "error",
+                        "file": file_path,
+                        "message": "Timeout"
+                    })
+                except Exception as e:
+                    results.append({
+                        "status": "error",
+                        "file": file_path,
+                        "message": str(e)
+                    })
+                
+                # Emit progress / 发出进度信号
+                progress = int((idx + 1) / total_tasks * 100)
+                self.progress.emit(progress)
+            
+            # Emit results / 发出结果
+            self.result_ready.emit({
+                "batch_write": True,
+                "results": results,
+                "total": total_tasks,
+                "success": sum(1 for r in results if r['status'] == 'success'),
+                "failed": sum(1 for r in results if r['status'] == 'error')
+            })
+        
+        except Exception as e:
+            self.error_occurred.emit(f"Batch write failed: {str(e)}")
+        finally:
+            self.finished.emit()
+
