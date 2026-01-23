@@ -95,6 +95,38 @@ class ExifToolWorker(QObject):
         finally:
             self.finished.emit()
     
+    def read_exif_sync(self, file_path: str) -> Dict[str, Any]:
+        """
+        Read EXIF data from file synchronously / 同步读取文件的EXIF数据
+        
+        Args:
+            file_path: Path to image file / 图像文件路径
+            
+        Returns:
+            Dictionary of EXIF data / EXIF数据字典
+        """
+        try:
+            cmd = [self.exiftool_path, "-j", "-a", "-G", file_path]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=False,
+                timeout=5
+            )
+            
+            stdout = result.stdout.decode("utf-8", errors="replace")
+            
+            if result.returncode == 0:
+                data = json.loads(stdout)
+                if data and len(data) > 0:
+                    return data[0]
+            
+            return {}
+        
+        except Exception as e:
+            logger.error(f"Error reading EXIF sync: {e}")
+            return {}
+    
     def write_exif(self, file_path: str, exif_data: Dict[str, Any]) -> None:
         """
         Write EXIF data to file asynchronously
@@ -164,7 +196,7 @@ class ExifToolWorker(QObject):
                     cmd = [self.exiftool_path, "-overwrite_original"]
                     
                     for tag, value in exif_data.items():
-                        if value:  # Only write non-empty values
+                        if value is not None and str(value).strip():  # Write non-empty values
                             cmd.append(f"-{tag}={value}")
                     
                     cmd.append(file_path)

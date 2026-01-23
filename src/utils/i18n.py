@@ -97,6 +97,48 @@ class TranslationManager:
             "Log Lens": {"zh": "日志镜头", "en": "Log Lens"},
             "Log Date": {"zh": "日志日期", "en": "Log Date"},
             "Writing EXIF data...": {"zh": "写入 EXIF 数据...", "en": "Writing EXIF data..."},
+            
+            # Metadata Editor Dialog / 元数据编辑对话框
+            "Metadata Editor": {"zh": "元数据编辑器", "en": "Metadata Editor"},
+            "Import Metadata": {"zh": "导入元数据", "en": "Import Metadata"},
+            "Select metadata file": {"zh": "选择元数据文件", "en": "Select metadata file"},
+            "Metadata Files (*.json *.csv *.txt)": {
+                "zh": "元数据文件 (*.json *.csv *.txt)",
+                "en": "Metadata Files (*.json *.csv *.txt)"
+            },
+            "Edit Metadata": {"zh": "编辑元数据", "en": "Edit Metadata"},
+            "Photos": {"zh": "照片", "en": "Photos"},
+            "Metadata": {"zh": "元数据", "en": "Metadata"},
+            "Camera:": {"zh": "相机：", "en": "Camera:"},
+            "Lens:": {"zh": "镜头：", "en": "Lens:"},
+            "Aperture:": {"zh": "光圈：", "en": "Aperture:"},
+            "Shutter:": {"zh": "快门：", "en": "Shutter:"},
+            "ISO:": {"zh": "ISO：", "en": "ISO:"},
+            "Film Stock:": {"zh": "胶卷型号：", "en": "Film Stock:"},
+            "Focal Length:": {"zh": "焦距：", "en": "Focal Length:"},
+            "Shot Date:": {"zh": "拍摄日期：", "en": "Shot Date:"},
+            "Location:": {"zh": "地理位置：", "en": "Location:"},
+            "Notes:": {"zh": "备注：", "en": "Notes:"},
+            "Sequence Offset:": {"zh": "序列偏移：", "en": "Sequence Offset:"},
+            "Warning: {meta} records but {photo} photos": {
+                "zh": "警告：{meta} 条元数据记录，但只有 {photo} 张照片",
+                "en": "Warning: {meta} records but {photo} photos"
+            },
+            "Write All Files": {"zh": "写入全部文件", "en": "Write All Files"},
+            "Refresh": {"zh": "刷新", "en": "Refresh"},
+            "Refresh EXIF": {"zh": "刷新 EXIF", "en": "Refresh EXIF"},
+            "No photos to refresh": {"zh": "没有照片需要刷新", "en": "No photos to refresh"},
+            "Write Metadata": {"zh": "写入元数据", "en": "Write Metadata"},
+            "This will modify EXIF data in all {count} photos. Continue?": {
+                "zh": "这将修改所有 {count} 张照片的 EXIF 数据。继续吗？",
+                "en": "This will modify EXIF data in all {count} photos. Continue?"
+            },
+            "No valid data to write": {"zh": "没有有效的数据写入", "en": "No valid data to write"},
+            "Writing metadata...": {"zh": "写入元数据...", "en": "Writing metadata..."},
+            "Successfully wrote metadata to {count} file(s)": {
+                "zh": "成功写入元数据到 {count} 个文件",
+                "en": "Successfully wrote metadata to {count} file(s)"
+            },
         }
     
     def _detect_system_language(self) -> str:

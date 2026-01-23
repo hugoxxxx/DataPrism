@@ -1,3 +1,110 @@
+# Project: DataPrism (README_FOR_AI.md) - v0.3.1 Sequential Metadata Injection
+
+## 1. Requirement Refinement: Sequential Matching / 需求细化：基于序号的匹配
+For film photography workflows, timestamps are often unreliable. We must implement a "Sequential Mapping" logic as the primary matching method for external metadata.
+针对胶片摄影工作流，时间戳通常不可靠。我们必须实现“序列映射”逻辑，作为外部元数据匹配的首选方法。
+
+### A. Matching Logic / 匹配逻辑
+- **File Sorting / 文件排序**: Sort images in the current list alphabetically by filename (e.g., `001.jpg`, `002.jpg`).
+  按文件名对当前列表中的图像进行字母顺序排序。
+- **Data Sorting / 数据排序**: Sort metadata records (from JSON/CSV/TXT) based on their index/order in the source file.
+  根据源文件中的索引/顺序对元数据记录进行排序。
+- **1-to-1 Mapping / 一对一映射**: Map `Metadata[i]` directly to `Image[i]`.
+  将 `第 i 条元数据` 直接映射至 `第 i 张图像`。
+
+### B. Handling Mismatches / 差异处理
+- **Count Warning / 数量预警**: If the number of imported records does not match the number of images in the list, trigger a UI warning.
+  如果导入记录的数量与列表中的图像数量不符，触发 UI 警告。
+- **Visual Alignment / 视觉对齐**: In the table view, display the "To-be-written" data side-by-side with the current image row to allow the user to check for misalignments (e.g., skipped frames).
+  在表格视图中，将“待写入”数据与当前图像行并排显示，允许用户检查对齐情况（例如是否存在漏拍导致的错位）。
+
+## 2. Updated Communication & Version Consensus / 沟通与版本共识
+
+### v0.3.1 - Sequential Logic Supremacy / 序列逻辑优先 (2026-01-20)
+- **Consensus / 共识**: 
+    - Abandon "Timestamp Matching" as the default for film scans. Use **Filename-to-Index** mapping.
+      放弃将“时间戳匹配”作为胶片扫描件的默认选项。使用**文件名-索引**映射。
+    - **User Control**: Users must be able to manually shift the sequence if a frame was skipped.
+      用户控制：如果漏拍了一张，用户必须能够手动平移序列。
+
+## 3. Functional Requirements for AI / 给 AI 的技术要求
+
+- **Model Logic Update / 模型逻辑更新**: 
+    - In `PhotoDataModel`, add a method `apply_metadata_sequentially(metadata_list)`.
+      在 `PhotoDataModel` 中增加 `apply_metadata_sequentially(metadata_list)` 方法。
+    - Ensure the mapping respects the current UI sorting state.
+      确保映射遵循当前的 UI 排序状态。
+- **Data Integration / 数据集成**:
+    - JSON/CSV/TXT parser should return a list of dictionaries, maintaining the original file order.
+      JSON/CSV/TXT 解析器应返回一个字典列表，并保持原始文件顺序。
+- **Bilingual Annotations / 双语批注**: Maintain `# 中文 / English` style for all new functions.
+
+## 4. UI/UX Refinement / UI/UX 优化
+- **Import Preview / 导入预览**: When metadata is loaded, show it in a "Draft" or "Pending" state (e.g., italicized or colored text) in the main table.
+  加载元数据时，在主表格中以“草稿”或“待定”状态（如斜体或彩色文本）显示。
+- **Commit Button / 提交按钮**: A clear "Write to All Files" (写入所有文件) button that executes the ExifTool batch command.
+  一个清晰的“写入所有文件”按钮，执行 ExifTool 批量命令。
+
+---
+# Project: DataPrism (README_FOR_AI.md) - v0.3.0 Metadata Injection System
+
+## 1. Feature Upgrade: Universal Metadata Importer / 功能升级：通用元数据导入器
+We are upgrading the "Import JSON" button to a "Universal Metadata Importer". It should support multiple formats and provide a sandbox for users to review before writing.
+我们将“导入 JSON”按钮升级为“通用元数据导入器”。它应支持多种格式，并为用户提供一个写入前的预览校准沙盒。
+
+### A. Supported Formats / 支持格式
+- **JSON**: Standard structured data (e.g., Lightme, Logbook exports).
+  标准结构化数据（如 Lightme, Logbook 导出文件）。
+- **CSV / TXT**: Comma-separated values. TXT files should be treated as CSV logic.
+  逗号分隔值。TXT 文件应按 CSV 逻辑处理。
+- **Tag Specification / 标签规范**: All imported data should map to standard ExifTool tag names (e.g., `FNumber`, `ExposureTime`, `ISO`, `Model`).
+  所有导入数据应映射至标准 ExifTool 标签名。
+
+### B. Functional Pipeline / 功能流水线
+1. **Import & Parse / 导入与解析**: Load external files and convert them into a unified internal dictionary format.
+   加载外部文件并将其转换为统一的内部字典格式。
+2. **Preview & Map / 预览与映射**: 
+   - Display imported data in a "Pending Metadata" preview area.
+     在“待定元数据”预览区显示导入的数据。
+   - Allow users to manually adjust/edit values in the UI before applying.
+     允许用户在应用前在 UI 中手动调整/修改数值。
+3. **Smart Matching / 智能匹配**:
+   - Match records to images based on `DateTimeOriginal` or `FileName`.
+     基于拍摄时间或文件名将记录与图像进行匹配。
+4. **Batch Write / 批量写入**:
+   - Provide a "Write to Photos" button.
+     提供“写入照片”按钮。
+   - Use `exiftool -overwrite_original` to commit changes.
+     使用 `exiftool -overwrite_original` 提交更改。
+
+## 2. Updated Communication & Version Consensus / 沟通与版本共识
+
+### v0.3.0 - Metadata Injection Pipeline / 元数据注入流水线 (2026-01-20)
+- **Consensus / 共识**: 
+    - The importer must be **non-destructive**. Do not write to files until the user clicks the final "Write" button.
+      导入器必须是**非破坏性**的。在用户点击最终“写入”按钮前，严禁修改原始文件。
+    - **UI Consensus**: The imported data should be visually distinct (e.g., highlighted in a different color) to show it's "to-be-written".
+      界面共识：导入的数据应在视觉上有所区分（如高亮显示），以表明其处于“待写入”状态。
+
+## 3. Technical Requirements for AI / 给 AI 的技术要求
+
+- **Parser Module**: Create `src/core/metadata_parser.py` to handle JSON and CSV/TXT logic.
+  创建 `src/core/metadata_parser.py` 来处理 JSON 和 CSV/TXT 逻辑。
+- **State Management**: The `PhotoDataModel` needs a new role: `PendingDataRole`, to store data that has been imported but not yet written.
+  `PhotoDataModel` 需要一个新的角色：`PendingDataRole`，用于存储已导入但尚未写入的数据。
+- **Write Command**: Implement a `WriteExifCommand(ModifyMetadataCommand)` that triggers the actual ExifTool process.
+  实现一个 `WriteExifCommand` 类来触发实际的 ExifTool 写入进程。
+- **Bilingual Comments**: Ensure all new logic includes Chinese/English annotations.
+  确保所有新逻辑包含中英双语批注。
+
+## 4. UI Adjustments / UI 调整
+- Change button label to "Import Metadata..." (导入元数据...).
+  将按钮标签改为“导入元数据...”。
+- Add a "Write to Files" action in the toolbar or bottom bar.
+  在工具栏或底部栏增加“写入文件”动作。
+
+---
+
 # Project: DataPrism (README_FOR_AI.md) - v0.2.1 Metadata & UI Refresh
 
 ## 1. Requirement: Expanding Metadata Columns / 需求：扩展元数据列

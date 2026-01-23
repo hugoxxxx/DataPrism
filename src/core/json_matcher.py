@@ -122,17 +122,22 @@ class PhotoMatcher:
         self,
         photos: List[PhotoItem],
         log_entries: List[FilmLogEntry],
-        prefer_timestamp: bool = True
+        prefer_timestamp: bool = False
     ) -> List[Tuple[PhotoItem, Optional[FilmLogEntry]]]:
         """
-        Hybrid matching: try timestamp first, fall back to sequence
-        混合匹配：优先尝试时间戳，失败时回退到顺序
+        Hybrid matching: try sequence first, fall back to timestamp if many unmatched
+        混合匹配：优先尝试顺序，如果有许多未匹配则回退到时间戳
+        
+        Default strategy (v0.3.1): Sequence-first approach (prefer_timestamp=False)
+        For film photography workflows where photos may be missing or skipped
+        默认策略（v0.3.1）：序列优先方法（prefer_timestamp=False）
+        用于胶片摄影工作流，其中照片可能被遗漏或跳过
         
         Args:
             photos: List of PhotoItem objects / PhotoItem 对象列表
             log_entries: List of FilmLogEntry objects / FilmLogEntry 对象列表
-            prefer_timestamp: If True, prefer timestamp; otherwise prefer sequence
-                            如果为 True，优先时间戳；否则优先顺序
+            prefer_timestamp: If True, prefer timestamp; otherwise prefer sequence (default False for v0.3.1)
+                            如果为 True，优先时间戳；否则优先顺序（v0.3.1 默认为 False）
         
         Returns:
             List of (photo, log_entry) tuples / (照片, 日志条目) 元组列表
@@ -146,7 +151,15 @@ class PhotoMatcher:
                 logger.warning(f"Timestamp matching failed for {unmatched_count} photos, falling back to sequence")
                 matches = self.match_by_sequence(photos, log_entries)
         else:
+            # v0.3.1 default: sequence-first strategy
+            # For film photography with potential frame skips / 胶片摄影的默认策略，可能跳过帧
             matches = self.match_by_sequence(photos, log_entries)
+            
+            # Check if we have many unmatched due to sequence / 检查是否因顺序而有许多未匹配
+            unmatched_count = sum(1 for _, entry in matches if entry is None)
+            if unmatched_count > len(photos) * 0.3 and any(entry.timestamp for entry in log_entries):
+                logger.info(f"Sequence matching: {unmatched_count} unmatched photos; timestamp data available in log entries")
+                logger.debug("Keeping sequence-first strategy as per v0.3.1 design for film photography")
         
         return matches
     
