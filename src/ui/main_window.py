@@ -20,6 +20,8 @@ from src.core.photo_model import PhotoDataModel
 from src.core.exif_worker import ExifToolWorker
 from src.core.json_parser import FilmLogParser
 from src.core.json_matcher import PhotoMatcher
+from src.core.metadata_parser import MetadataParser
+from src.ui.metadata_editor_dialog import MetadataEditorDialog
 from src.utils.i18n import tr, toggle_language, get_current_language
 
 
@@ -109,7 +111,7 @@ class MainWindow(QMainWindow):
         
         # JSON Import button / JSON 导入按钮
         left_layout.addSpacing(12)
-        self.json_import_btn = QPushButton(f"📄 {tr('Import JSON')}")
+        self.json_import_btn = QPushButton(f"📄 {tr('Import Metadata')}")
         self.json_import_btn.setMinimumHeight(44)
         self.json_import_btn.setStyleSheet("""
             QPushButton {
@@ -131,8 +133,35 @@ class MainWindow(QMainWindow):
                 background: #1f8a38;
             }
         """)
-        self.json_import_btn.clicked.connect(self.import_json)
+        self.json_import_btn.clicked.connect(self.import_metadata)
         left_layout.addWidget(self.json_import_btn)
+        
+        # Refresh button / 刷新按钮
+        left_layout.addSpacing(8)
+        self.refresh_btn = QPushButton(f"🔄 {tr('Refresh EXIF')}")
+        self.refresh_btn.setMinimumHeight(44)
+        self.refresh_btn.setStyleSheet("""
+            QPushButton {
+                border-radius: 10px;
+                padding: 10px 14px;
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #007aff, stop:1 #0051d5);
+                border: 1px solid #0051d5;
+                font-size: 13px;
+                color: white;
+                text-align: left;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                            stop:0 #1a8cff, stop:1 #1a63e0);
+            }
+            QPushButton:pressed {
+                background: #0040b0;
+            }
+        """)
+        self.refresh_btn.clicked.connect(self.refresh_exif)
+        left_layout.addWidget(self.refresh_btn)
         
         left_layout.addStretch()
         left_widget.setMaximumWidth(200)
@@ -184,12 +213,16 @@ class MainWindow(QMainWindow):
         header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)  # Aperture
         header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)  # Shutter
         header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)  # ISO
-        header.setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents)  # Date
-        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)  # Status
+        header.setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents)  # Film
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.ResizeToContents)  # Location
+        header.setSectionResizeMode(8, QHeaderView.ResizeMode.ResizeToContents)  # Date
+        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)  # Status
         header.resizeSection(3, 90)  # Aperture width
         header.resizeSection(4, 90)  # Shutter width
         header.resizeSection(5, 70)  # ISO width
-        header.resizeSection(7, 60)  # Status width
+        header.resizeSection(6, 110)  # Film width
+        header.resizeSection(7, 140)  # Location width
+        header.resizeSection(9, 60)  # Status width
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.verticalHeader().setDefaultSectionSize(52)  # Breathable row height
         self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -265,12 +298,14 @@ class MainWindow(QMainWindow):
         self.info_file = QLabel("-")
         self.info_camera = QLabel("-")
         self.info_lens = QLabel("-")
+        self.info_film = QLabel("-")
+        self.info_location = QLabel("-")
         self.info_date = QLabel("-")
         self.info_status = QLabel("-")
         
         # Style for value labels with monospace font for technical data
         value_style = "color: #1d1d1f; font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;"
-        for lbl in [self.info_file, self.info_camera, self.info_lens, self.info_date, self.info_status]:
+        for lbl in [self.info_file, self.info_camera, self.info_lens, self.info_film, self.info_location, self.info_date, self.info_status]:
             lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setStyleSheet(value_style)
             lbl.setWordWrap(True)
@@ -289,6 +324,14 @@ class MainWindow(QMainWindow):
         self.lens_label = QLabel(tr("Lens:"))
         self.lens_label.setStyleSheet(label_style)
         form.addRow(self.lens_label, self.info_lens)
+
+        self.film_label = QLabel(tr("Film Stock:"))
+        self.film_label.setStyleSheet(label_style)
+        form.addRow(self.film_label, self.info_film)
+
+        self.location_label = QLabel(tr("Location:"))
+        self.location_label.setStyleSheet(label_style)
+        form.addRow(self.location_label, self.info_location)
         
         self.date_label = QLabel(tr("Date:"))
         self.date_label.setStyleSheet(label_style)
@@ -483,6 +526,8 @@ class MainWindow(QMainWindow):
             self.info_file.setText("-")
             self.info_camera.setText("-")
             self.info_lens.setText("-")
+            self.info_film.setText("-")
+            self.info_location.setText("-")
             self.info_date.setText("-")
             self.info_status.setText("-")
             self.info_aperture.setText("-")
@@ -496,6 +541,12 @@ class MainWindow(QMainWindow):
         self.info_file.setText(photo.file_name)
         self.info_camera.setText(exif.get("Model", "Loading..." if photo.exif_data is None else "--"))
         self.info_lens.setText(exif.get("LensModel", "Loading..." if photo.exif_data is None else "--"))
+        self.info_film.setText(photo.film_stock or exif.get("Film", "--"))
+        # Prefer cached location; else try GPS; else description
+        gps_lat = exif.get("GPSLatitude")
+        gps_lon = exif.get("GPSLongitude")
+        gps_str = f"{gps_lat}, {gps_lon}" if gps_lat and gps_lon else None
+        self.info_location.setText(photo.location or gps_str or exif.get("ImageDescription", "--"))
         self.info_date.setText(exif.get("DateTimeOriginal", "Loading..." if photo.exif_data is None else "--"))
         status_display = photo.status + (" (Modified)" if photo.is_modified else "")
         self.info_status.setText(status_display)
@@ -542,7 +593,8 @@ class MainWindow(QMainWindow):
         self.camera_btn.setText(f"📷 {tr('Camera')}")
         self.lens_btn.setText(f"🔍 {tr('Lens')}")
         self.film_btn.setText(f"📽️ {tr('Film Stock')}")
-        self.json_import_btn.setText(f"📄 {tr('Import JSON')}")
+        self.json_import_btn.setText(f"📄 {tr('Import Metadata')}")
+        self.refresh_btn.setText(f"🔄 {tr('Refresh EXIF')}")
         
         # Update content area / 更新内容区域
         self.content_title.setText(tr("Imported Photos"))
@@ -555,6 +607,8 @@ class MainWindow(QMainWindow):
         self.file_label.setText(tr("File:"))
         self.camera_label.setText(tr("Camera:"))
         self.lens_label.setText(tr("Lens:"))
+        self.film_label.setText(tr("Film Stock:"))
+        self.location_label.setText(tr("Location:"))
         self.date_label.setText(tr("Date:"))
         self.status_label.setText(tr("Status:"))
         
@@ -564,8 +618,8 @@ class MainWindow(QMainWindow):
         self.shutter_label.setText(tr("Shutter:"))
         self.iso_label.setText(tr("ISO:"))
     
-    def import_json(self):
-        """Import film log JSON and match with photos / 导入胶片日志 JSON 并与照片匹配"""
+    def import_metadata(self):
+        """Import metadata from JSON/CSV/TXT and show editor dialog / 从 JSON/CSV/TXT 导入元数据并显示编辑对话框"""
         # Check if photos are imported / 检查是否已导入照片
         if self.model.rowCount() == 0:
             QMessageBox.warning(
@@ -575,21 +629,21 @@ class MainWindow(QMainWindow):
             )
             return
         
-        # Select JSON file / 选择 JSON 文件
+        # Select metadata file / 选择元数据文件
         file_path, _ = QFileDialog.getOpenFileName(
             self,
-            tr("Select JSON file"),
+            tr("Select metadata file"),
             "",
-            tr("JSON Files (*.json)")
+            tr("Metadata Files (*.json *.csv *.txt)")
         )
         
         if not file_path:
             return
         
         try:
-            # Parse JSON / 解析 JSON
+            # Parse metadata / 解析元数据
             progress = QProgressDialog(
-                tr("Parsing JSON..."), 
+                tr("Parsing metadata..."), 
                 None, 
                 0, 
                 0, 
@@ -598,173 +652,39 @@ class MainWindow(QMainWindow):
             progress.setWindowModality(Qt.WindowModal)
             progress.show()
             
-            parser = FilmLogParser()
-            log_entries = parser.parse_file(file_path)
+            parser = MetadataParser()
+            metadata_entries = parser.parse_file(file_path)
             
-            if not log_entries:
+            if not metadata_entries:
                 progress.close()
-                QMessageBox.warning(self, tr("Import JSON"), "No valid entries found in JSON")
+                QMessageBox.warning(self, tr("Import Metadata"), "No valid entries found in file")
                 return
-            
-            # Store log entries for later use / 存储日志条目供后续使用
-            self.log_entries = log_entries
-            
-            # Update progress / 更新进度
-            progress.setLabelText(tr("Matching photos..."))
-            
-            # Match photos with log entries / 匹配照片与日志条目
-            matcher = PhotoMatcher()
-            match_tuples = matcher.match_hybrid(self.model.photos, log_entries)
-            
-            # Convert to index-based dict / 转换为基于索引的字典
-            matches = {}
-            for photo_idx, (photo, log_entry) in enumerate(match_tuples):
-                if log_entry:
-                    log_idx = log_entries.index(log_entry)
-                    matches[photo_idx] = log_idx
-                else:
-                    matches[photo_idx] = None
-            
-            stats = matcher.get_match_statistics(match_tuples)
             
             progress.close()
             
-            # Show match preview dialog / 显示匹配预览对话框
-            from src.ui.match_dialog import MatchPreviewDialog
-            dialog = MatchPreviewDialog(self.model.photos, log_entries, matches, stats, self)
-            
-            if dialog.exec():
-                # Apply matches / 应用匹配
-                confirmed_matches = dialog.get_confirmed_matches()
-                self._apply_json_matches(confirmed_matches)
+            # Show editor dialog / 显示编辑对话框
+            editor = MetadataEditorDialog(self.model.photos, metadata_entries, self)
+            editor.metadata_written.connect(self.on_metadata_written)
+            editor.exec()
                 
         except Exception as e:
-            QMessageBox.critical(self, tr("Import JSON"), f"Error: {str(e)}")
+            QMessageBox.critical(self, tr("Import Metadata"), f"Error: {str(e)}")
     
-    def _apply_json_matches(self, matches):
-        """Apply matched JSON data to photos / 将匹配的 JSON 数据应用到照片"""
-        # Build write tasks / 构建写入任务
-        write_tasks = []
-        
-        for photo_idx, log_idx in matches.items():
-            if log_idx is None:
-                continue
-            
-            photo = self.model.photos[photo_idx]
-            log_entry = self.log_entries[log_idx]
-            
-            # Build EXIF data dict from log entry / 从日志条目构建 EXIF 数据字典
-            exif_data = {}
-            
-            if log_entry.camera:
-                exif_data['Make'] = log_entry.camera.split()[0] if ' ' in log_entry.camera else log_entry.camera
-                exif_data['Model'] = log_entry.camera
-            
-            if log_entry.lens:
-                exif_data['LensModel'] = log_entry.lens
-            
-            if log_entry.aperture:
-                exif_data['FNumber'] = log_entry.aperture
-            
-            if log_entry.shutter_speed:
-                exif_data['ExposureTime'] = log_entry.shutter_speed
-            
-            if log_entry.iso:
-                exif_data['ISO'] = log_entry.iso
-            
-            if log_entry.focal_length:
-                exif_data['FocalLength'] = log_entry.focal_length
-            
-            if log_entry.film_stock:
-                exif_data['UserComment'] = f"Film: {log_entry.film_stock}"
-            
-            if log_entry.timestamp:
-                date_str = log_entry.timestamp.strftime("%Y:%m:%d %H:%M:%S")
-                exif_data['DateTimeOriginal'] = date_str
-                exif_data['CreateDate'] = date_str
-            
-            if exif_data:
-                write_tasks.append({
-                    'file_path': photo.file_path,
-                    'exif_data': exif_data
-                })
-        
-        if not write_tasks:
-            QMessageBox.information(self, tr("Import JSON"), "No data to write")
-            return
-        
-        # Store log entries for later use / 存储日志条目供后续使用
-        self.log_entries = [log_entry for _, log_entry in 
-                           [(matches.get(i), self.log_entries[matches[i]]) 
-                            for i in range(len(self.model.photos)) if matches.get(i) is not None]]
-        
-        # Show progress dialog / 显示进度对话框
-        progress = QProgressDialog(
-            tr("Writing EXIF data..."),
-            None,
-            0,
-            100,
-            self
-        )
-        progress.setWindowModality(Qt.WindowModal)
-        progress.show()
-        
-        # Setup worker for batch write / 设置批量写入工作线程
-        write_worker = ExifToolWorker()
-        write_thread = QThread()
-        write_worker.moveToThread(write_thread)
-        
-        # Connect signals / 连接信号
-        write_worker.progress.connect(progress.setValue)
-        write_worker.result_ready.connect(
-            lambda result: self._on_batch_write_complete(result, progress, write_thread)
-        )
-        write_worker.error_occurred.connect(
-            lambda error: self._on_batch_write_error(error, progress, write_thread)
-        )
-        write_worker.finished.connect(write_thread.quit)
-        write_thread.started.connect(lambda: write_worker.batch_write_exif(write_tasks))
-        
-        # Start thread / 启动线程
-        write_thread.start()
-    
-    def _on_batch_write_complete(self, result, progress, thread):
-        """Handle batch write completion / 处理批量写入完成"""
-        progress.close()
-        
-        success_count = result.get('success', 0)
-        failed_count = result.get('failed', 0)
-        total_count = result.get('total', 0)
-        
-        # Show completion message / 显示完成消息
-        if failed_count == 0:
-            QMessageBox.information(
-                self,
-                tr("Import JSON"),
-                f"Successfully wrote EXIF to {success_count} file(s)"
-            )
-        else:
-            QMessageBox.warning(
-                self,
-                tr("Import JSON"),
-                f"Wrote {success_count}/{total_count} file(s). {failed_count} failed."
-            )
-        
+    def on_metadata_written(self):
+        """Handle metadata written successfully / 处理元数据成功写入"""
         # Refresh photo data / 刷新照片数据
         file_paths = [photo.file_path for photo in self.model.photos]
-        self._read_exif_async(file_paths)
-        
-        # Cleanup / 清理
-        thread.wait()
-    
-    def _on_batch_write_error(self, error, progress, thread):
-        """Handle batch write error / 处理批量写入错误"""
-        progress.close()
-        QMessageBox.critical(self, tr("Import JSON"), f"Error: {error}")
-        thread.quit()
-        thread.wait()
-
-        
+        self.queue_exif_read(file_paths)
         
         # Trigger model header refresh / 触发模型表头刷新
         self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, len(self.model.COLUMNS) - 1)
+    
+    def refresh_exif(self):
+        """Refresh EXIF data for all photos / 刷新所有照片的 EXIF 数据"""
+        if not self.model.photos:
+            QMessageBox.information(self, tr("Refresh EXIF"), tr("No photos to refresh"))
+            return
+        
+        # Re-read EXIF for all photos / 重新读取所有照片的 EXIF
+        file_paths = [photo.file_path for photo in self.model.photos]
+        self.queue_exif_read(file_paths)

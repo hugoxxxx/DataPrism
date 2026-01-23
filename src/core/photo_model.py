@@ -11,6 +11,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from pathlib import Path
 import logging
+import re
 
 from src.utils.i18n import tr
 
@@ -36,6 +37,7 @@ class PhotoItem:
     iso: Optional[str] = None  # e.g., "400"
     film_stock: Optional[str] = None  # e.g., "Kodak Portra 400"
     focal_length: Optional[str] = None  # e.g., "80mm"
+    location: Optional[str] = None  # e.g., "Tokyo, JP"
     serial_number: Optional[str] = None
 
 
@@ -53,7 +55,7 @@ class PhotoDataModel(QAbstractTableModel):
     
     # Column definitions
     # 列定义
-    COLUMNS = ["File", "Camera", "Lens", "Aperture", "Shutter", "ISO", "Date", "Status"]
+    COLUMNS = ["File", "Camera", "Lens", "Aperture", "Shutter", "ISO", "Film Stock", "Location", "Date", "Status"]
     
     def __init__(self, parent=None):
         """Initialize model / 初始化模型"""
@@ -117,15 +119,23 @@ class PhotoDataModel(QAbstractTableModel):
                 if photo.exif_data is None:
                     return tr("Loading...")
                 return photo.iso or "--"
-            elif col == 6:  # Date
+            elif col == 6:  # Film
+                if photo.exif_data is None:
+                    return tr("Loading...")
+                return photo.film_stock or "--"
+            elif col == 7:  # Location
+                if photo.exif_data is None:
+                    return tr("Loading...")
+                return photo.location or "--"
+            elif col == 8:  # Date
                 if photo.exif_data is None:
                     return tr("Loading...")
                 return photo.exif_data.get("DateTimeOriginal", "--")
-            elif col == 7:  # Status
+            elif col == 9:  # Status
                 # Return empty string - we'll show dot in DecorationRole
                 return ""
         
-        elif role == Qt.ItemDataRole.DecorationRole and col == 7:
+        elif role == Qt.ItemDataRole.DecorationRole and col == 9:
             # Show colored dot based on status
             color_map = {
                 "pending": QColor("#999999"),  # Gray
@@ -147,7 +157,7 @@ class PhotoDataModel(QAbstractTableModel):
             painter.end()
             return pixmap
         
-        elif role == Qt.ItemDataRole.ToolTipRole and col == 7:
+        elif role == Qt.ItemDataRole.ToolTipRole and col == 9:
             # Tooltip for status column
             status_key = "modified" if photo.is_modified else photo.status
             tooltip_map = {
@@ -260,12 +270,43 @@ class PhotoDataModel(QAbstractTableModel):
         if "SerialNumber" in exif_data:
             photo.serial_number = str(exif_data["SerialNumber"])
         
-        # Film Stock (可能在 ImageDescription 或自定义字段)
+        # Film Stock & Location (ImageDescription / UserComment / GPS)
+        user_comment = str(exif_data.get("UserComment", "")) if exif_data else ""
+
+        # Prefer GPS coordinates when available (standardized DMS string)
+        gps_lat = exif_data.get("GPSLatitude") if exif_data else None
+        gps_lon = exif_data.get("GPSLongitude") if exif_data else None
+        gps_lat_ref = exif_data.get("GPSLatitudeRef") if exif_data else None
+        gps_lon_ref = exif_data.get("GPSLongitudeRef") if exif_data else None
+        gps_formatted = self._format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref)
+        if gps_formatted:
+            photo.location = gps_formatted
+
         if "ImageDescription" in exif_data:
-            desc = exif_data["ImageDescription"]
-            # Simple heuristic: if description contains film brand names
-            if any(brand in str(desc).lower() for brand in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
-                photo.film_stock = str(desc)
+            desc = str(exif_data["ImageDescription"])
+            # Keep description as fallback if GPS missing
+            if not photo.location and desc:
+                photo.location = desc
+            if any(brand in desc.lower() for brand in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
+                photo.film_stock = photo.film_stock or desc
+
+        # Parse combined user comment patterns like "Film: X | Location: Y | note"
+        if user_comment:
+            parts = [p.strip() for p in user_comment.split("|") if p.strip()]
+            for part in parts:
+                if part.lower().startswith("film:"):
+                    photo.film_stock = part.split(":", 1)[1].strip() or photo.film_stock
+                elif part.lower().startswith("location:"):
+                    # Prefer explicit location from comment over description
+                    photo.location = part.split(":", 1)[1].strip() or photo.location
+            # Fallback: if nothing parsed, but comment exists, keep as film if it looks like a film name
+            if not photo.film_stock and any(key in user_comment.lower() for key in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
+                photo.film_stock = user_comment
+
+        # If still no location, keep any GPS fragments we have (compact)
+        if not photo.location and gps_lat and gps_lon:
+            fallback = self._format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref, strict=False)
+            photo.location = fallback or f"{gps_lat}, {gps_lon}"
     
     def mark_modified(self, file_path: str) -> None:
         """
@@ -295,3 +336,39 @@ class PhotoDataModel(QAbstractTableModel):
         self.exif_cache.clear()
         self.modified_items.clear()
         self.endResetModel()
+
+    @staticmethod
+    def _format_gps_pair(lat, lat_ref, lon, lon_ref, strict: bool = True) -> Optional[str]:
+        """Format GPS lat/lon into standardized DMS string (e.g., 28°31'30.59"N, 119°30'30.44"E)."""
+        def _parse(value, ref_hint):
+            if value is None:
+                return None
+            # Accept preformatted strings like "28deg 31' 30.59\" N"
+            s = str(value).strip()
+            m = re.match(r"([0-9.]+)[^0-9]+([0-9.]+)[^0-9]+([0-9.]+)\s*([NSEW])?", s, re.IGNORECASE)
+            if m:
+                deg, minute, sec, suffix = m.groups()
+                suffix = suffix or (ref_hint or "").strip()[:1]
+                return float(deg), float(minute), float(sec), suffix.upper() if suffix else None
+            # Accept simple decimal (not converted to DMS; return as string)
+            try:
+                dec = float(s)
+                return dec, None, None, ref_hint.strip()[:1].upper() if ref_hint else None
+            except:
+                return None
+
+        lat_parsed = _parse(lat, lat_ref)
+        lon_parsed = _parse(lon, lon_ref)
+        if not lat_parsed or not lon_parsed:
+            return None if strict else None
+
+        def _fmt(parsed):
+            deg, minute, sec, suffix = parsed
+            if minute is None or sec is None:
+                # decimal fallback
+                sign = suffix or ""
+                return f"{deg:.6f}{sign}"
+            suf = suffix or ""
+            return f"{deg:.0f}°{minute:.0f}'{sec:.2f}\"{suf}"
+
+        return f"{_fmt(lat_parsed)}, {_fmt(lon_parsed)}"
