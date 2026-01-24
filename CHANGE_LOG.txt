@@ -1,3 +1,12 @@
+2026-01-24  修正与改进
+- 修正：元数据写入流程进度与完成确认。
+	- 在 [src/ui/metadata_editor_dialog.py](src/ui/metadata_editor_dialog.py) 中：确保写入完成时将进度设置为 100、关闭进度对话框；改为弹出模态确认框（用户点击“确定”后关闭编辑器）；增加写入线程结束的后备处理以防止对话框残留。
+- 修正：在 [src/core/exif_worker.py](src/core/exif_worker.py) 中修复批量写入的缩进错误并增加超时与日志，确保每个任务实际执行并正确返回结果。
+- 改进：调整 [src/ui/main_window.py](src/ui/main_window.py) 的刷新按钮布局和 EXIF 读取/写入进度处理逻辑，增强 UI 反馈。
+- 国际化：修复并补充 [src/utils/i18n.py](src/utils/i18n.py) 中的翻译字符串，避免语法错误并添加新提示文本。
+
+说明：以上改动为本地调试与用户交互可感知的修复，已在本地测试写入流程并增加调试输出以方便进一步排查。
+
 DataPrism change log
 ====================
 
