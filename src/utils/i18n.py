@@ -22,9 +22,9 @@ class TranslationManager:
             # UI Elements / UI 元素
             "Imported Photos": {"zh": "已导入照片", "en": "Imported Photos"},
             "Browse files…": {"zh": "浏览文件…", "en": "Browse files…"},
-            "Drag and drop photos here or click to import": {
-                "zh": "拖拽照片到此处或点击导入",
-                "en": "Drag and drop photos here or click to import"
+            "Click 'Browse files' button to import photos": {
+                "zh": "点击'浏览文件'按钮导入照片",
+                "en": "Click 'Browse files' button to import photos"
             },
             
             # Sidebar / 侧边栏
@@ -64,9 +64,9 @@ class TranslationManager:
             "Error loading EXIF": {"zh": "加载 EXIF 出错", "en": "Error loading EXIF"},
             
             # Import Messages / 导入消息
-            "Imported {count} file(s). Drag more to add.": {
-                "zh": "已导入 {count} 个文件，可继续拖拽。",
-                "en": "Imported {count} file(s). Drag more to add."
+            "Imported {count} file(s).": {
+                "zh": "已导入 {count} 个文件。",
+                "en": "Imported {count} file(s)."
             },
             "Select photos": {"zh": "选择照片", "en": "Select photos"},
             "Images (*.jpg *.jpeg *.png *.tif *.tiff *.dng)": {
@@ -128,6 +128,11 @@ class TranslationManager:
             "Refresh": {"zh": "刷新", "en": "Refresh"},
             "Refresh EXIF": {"zh": "刷新 EXIF", "en": "Refresh EXIF"},
             "No photos to refresh": {"zh": "没有照片需要刷新", "en": "No photos to refresh"},
+            "Reading EXIF data...": {"zh": "读取 EXIF 数据中...", "en": "Reading EXIF data..."},
+            "Successfully loaded EXIF data for {count} file(s)": {
+                "zh": "成功读取了 {count} 个文件的 EXIF 数据",
+                "en": "Successfully loaded EXIF data for {count} file(s)"
+            },
             "Write Metadata": {"zh": "写入元数据", "en": "Write Metadata"},
             "This will modify EXIF data in all {count} photos. Continue?": {
                 "zh": "这将修改所有 {count} 张照片的 EXIF 数据。继续吗？",

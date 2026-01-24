@@ -12,9 +12,10 @@ import re
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
     QFormLayout, QLineEdit, QLabel, QPushButton, QSlider, QSpinBox,
-    QTableWidget, QTableWidgetItem, QMessageBox, QProgressDialog, QHeaderView
+    QTableWidget, QTableWidgetItem, QMessageBox, QProgressDialog, QHeaderView,
+    QApplication
 )
-from PySide6.QtCore import Qt, QThread, Signal
+from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from PySide6.QtGui import QFont, QPixmap, QColor
 
 import logging
@@ -146,21 +147,6 @@ class MetadataEditorDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         
-        refresh_btn = QPushButton(tr("Refresh"))
-        refresh_btn.setMinimumSize(100, 36)
-        refresh_btn.clicked.connect(self.on_refresh_current)
-        refresh_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                padding: 8px 16px;
-                background: #f0f0f5;
-                border: 1px solid #e5e5ea;
-                font-size: 13px;
-            }
-            QPushButton:hover { background: #e8e8ed; }
-        """)
-        button_layout.addWidget(refresh_btn)
-        
         cancel_btn = QPushButton(tr("Cancel"))
         cancel_btn.setMinimumSize(100, 36)
         cancel_btn.clicked.connect(self.reject)
@@ -285,33 +271,6 @@ class MetadataEditorDialog(QDialog):
                 logger.warning(f"No metadata found at index {metadata_idx}. "
                               f"Valid range: 0-{len(self.metadata_entries)-1}")
     
-    def on_refresh_current(self):
-        """Refresh current photo from file EXIF / 从文件EXIF刷新当前照片"""
-        if 0 <= self.current_index < len(self.photos):
-            photo = self.photos[self.current_index]
-            
-            # Read EXIF from file / 从文件读取EXIF
-            worker = ExifToolWorker()
-            try:
-                exif_data = worker.read_exif_sync(photo.file_path)
-                
-                # Update edit fields / 更新编辑字段
-                self.edit_camera.setText(exif_data.get('Model', ''))
-                self.edit_lens.setText(exif_data.get('LensModel', ''))
-                self.edit_aperture.setText(exif_data.get('FNumber', ''))
-                self.edit_shutter.setText(exif_data.get('ExposureTime', ''))
-                self.edit_iso.setText(exif_data.get('ISO', ''))
-                self.edit_film_stock.setText(exif_data.get('UserComment', '').replace('Film: ', ''))
-                self.edit_focal_length.setText(exif_data.get('FocalLength', ''))
-                self.edit_shot_date.setText(exif_data.get('DateTimeOriginal', ''))
-                self.edit_location.setText(exif_data.get('GPSInfo', ''))
-                self.edit_notes.setText('')
-                
-                logger.info(f"Refreshed EXIF for {photo.file_name}")
-            except Exception as e:
-                logger.error(f"Failed to refresh EXIF: {e}")
-                QMessageBox.warning(self, tr("Refresh"), f"Failed to read EXIF: {e}")
-    
     def on_offset_changed(self):
         """Handle offset change / 处理偏移变化"""
         self.offset = self.offset_spin.value()
@@ -365,26 +324,57 @@ class MetadataEditorDialog(QDialog):
             self
         )
         progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)  # 确保进度条总是显示
         progress.show()
+        # keep reference so other slots can close it if needed
+        self._write_progress = progress
         
         # Setup worker / 设置工作线程
-        write_worker = ExifToolWorker()
-        write_thread = QThread()
-        write_worker.moveToThread(write_thread)
-        
+        self.write_worker = ExifToolWorker()
+        self.write_thread = QThread()
+        self.write_worker.moveToThread(self.write_thread)
+
         # Connect signals / 连接信号
-        write_worker.progress.connect(progress.setValue)
-        write_worker.result_ready.connect(
-            lambda result: self._on_write_complete(result, progress, write_thread)
-        )
-        write_worker.error_occurred.connect(
-            lambda error: self._on_write_error(error, progress, write_thread)
-        )
-        write_worker.finished.connect(write_thread.quit)
-        write_thread.started.connect(lambda: write_worker.batch_write_exif(write_tasks))
+        def _on_progress(val):
+            try:
+                print(f"[MetadataEditor] write progress: {val}")
+            except Exception:
+                pass
+            progress.setValue(val)
+
+        def _on_result(result):
+            try:
+                print(f"[MetadataEditor] write result_ready emitted: {result}")
+            except Exception:
+                pass
+            self._on_write_complete(result, progress)
+
+        def _on_error(err):
+            try:
+                print(f"[MetadataEditor] write error emitted: {err}")
+            except Exception:
+                pass
+            self._on_write_error(err, progress)
+
+        self.write_worker.progress.connect(_on_progress)
+        self.write_worker.result_ready.connect(_on_result)
+        self.write_worker.error_occurred.connect(_on_error)
+        self.write_worker.finished.connect(self.write_thread.quit)
+        self.write_worker.finished.connect(self.write_worker.deleteLater)
+        # Debug: notify when worker finished
+        self.write_worker.finished.connect(lambda: print("[MetadataEditor] write_worker.finished emitted"))
+        self.write_thread.finished.connect(self.write_thread.deleteLater)
+        self.write_thread.finished.connect(lambda: print("[MetadataEditor] write_thread.finished emitted"))
+        # Fallback: ensure dialog closes when thread finishes (in case result handler missed)
+        self.write_thread.finished.connect(self._on_write_thread_finished)
+        self.write_thread.started.connect(lambda: self.write_worker.batch_write_exif(write_tasks))
         
         # Start thread / 启动线程
-        write_thread.start()
+        try:
+            print(f"[MetadataEditor] starting write thread with {len(write_tasks)} tasks")
+        except Exception:
+            pass
+        self.write_thread.start()
     
     def _build_exif_dict(self, entry: MetadataEntry) -> Dict[str, str]:
         """Build EXIF data dictionary from metadata entry / 从元数据条目构建 EXIF 字典"""
@@ -467,43 +457,91 @@ class MetadataEditorDialog(QDialog):
         
         return exif_data
     
-    def _on_write_complete(self, result, progress, thread):
+    def _on_write_complete(self, result, progress):
         """Handle write completion / 处理写入完成"""
-        progress.close()
-        
+        # Ensure progress reaches 100 and close the dialog
+        try:
+            progress.setValue(100)
+        except Exception:
+            pass
+        try:
+            progress.close()
+        except Exception:
+            pass
+        # Force UI to process pending events so the dialog visually updates
+        try:
+            QApplication.processEvents()
+        except Exception:
+            pass
         success_count = result.get('success', 0)
         failed_count = result.get('failed', 0)
         total_count = result.get('total', 0)
-        
+
+        logger.info(f"Write complete: success={success_count}, failed={failed_count}, total={total_count}")
+        print(f"[MetadataEditor] write complete: success={success_count}, failed={failed_count}, total={total_count}")
+
+        # Emit metadata_written so main window can refresh
+        self.metadata_written.emit()
+
+        # Emit metadata_written so main window can refresh before showing confirmation
+        self.metadata_written.emit()
+
+        # Show a modal confirmation dialog; wait for the user to click OK,
+        # then close the editor. Parent to this dialog (`self`) so the
+        # message is centered and modal to the editor window.
+        title = tr("Write Metadata")
         if failed_count == 0:
-            QMessageBox.information(
-                self,
-                tr("Write Metadata"),
-                tr("Successfully wrote metadata to {count} file(s)").format(count=success_count)
-            )
-            self.metadata_written.emit()
-            self.accept()
+            text = tr("Successfully wrote metadata to {count} file(s)").format(count=success_count)
         else:
-            QMessageBox.warning(
-                self,
-                tr("Write Metadata"),
-                tr("Wrote {success}/{total} file(s). {failed} failed.").format(
-                    success=success_count,
-                    total=total_count,
-                    failed=failed_count
-                )
+            text = tr("Wrote {success}/{total} file(s). {failed} failed.").format(
+                success=success_count,
+                total=total_count,
+                failed=failed_count
             )
-            self.metadata_written.emit()
+
+        try:
+            QMessageBox.information(self, title, text)
+        except Exception:
+            # If for some reason the modal call fails, fall back to non-modal
+            try:
+                msg = QMessageBox(self)
+                msg.setWindowTitle(title)
+                msg.setText(text)
+                msg.setStandardButtons(QMessageBox.Ok)
+                msg.exec()
+            except Exception:
+                pass
+
+        # Close the editor after the user confirmed
+        try:
             self.accept()
-        
-        thread.wait()
+        except Exception:
+            pass
     
-    def _on_write_error(self, error, progress, thread):
+    def _on_write_error(self, error, progress):
         """Handle write error / 处理写入错误"""
         progress.close()
         QMessageBox.critical(self, tr("Write Metadata"), f"Error: {error}")
-        thread.quit()
-        thread.wait()
+
+    def _on_write_thread_finished(self):
+        """Fallback finalizer when write thread finishes: close progress and dialog."""
+        try:
+            print("[MetadataEditor] _on_write_thread_finished called")
+        except Exception:
+            pass
+        # Close progress dialog if still open
+        try:
+            if hasattr(self, '_write_progress') and self._write_progress is not None:
+                self._write_progress.close()
+                self._write_progress = None
+        except Exception:
+            pass
+        # Accept/close the editor if still visible
+        try:
+            if self.isVisible():
+                QTimer.singleShot(0, self.accept)
+        except Exception:
+            pass
 
     @staticmethod
     def _parse_gps(location_text: str) -> Optional[tuple]:

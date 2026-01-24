@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 1200, 800)
         self.model = PhotoDataModel(self)
         self.supported_ext = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".dng"}
+        self.progress_dialog = None  # Progress dialog instance
         self._setup_worker()
         self.setup_ui()
 
@@ -136,33 +137,6 @@ class MainWindow(QMainWindow):
         self.json_import_btn.clicked.connect(self.import_metadata)
         left_layout.addWidget(self.json_import_btn)
         
-        # Refresh button / 刷新按钮
-        left_layout.addSpacing(8)
-        self.refresh_btn = QPushButton(f"🔄 {tr('Refresh EXIF')}")
-        self.refresh_btn.setMinimumHeight(44)
-        self.refresh_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 10px;
-                padding: 10px 14px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #007aff, stop:1 #0051d5);
-                border: 1px solid #0051d5;
-                font-size: 13px;
-                color: white;
-                text-align: left;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #1a8cff, stop:1 #1a63e0);
-            }
-            QPushButton:pressed {
-                background: #0040b0;
-            }
-        """)
-        self.refresh_btn.clicked.connect(self.refresh_exif)
-        left_layout.addWidget(self.refresh_btn)
-        
         left_layout.addStretch()
         left_widget.setMaximumWidth(200)
         left_widget.setMinimumWidth(180)
@@ -172,9 +146,13 @@ class MainWindow(QMainWindow):
         center_widget = QWidget()
         center_layout = QVBoxLayout(center_widget)
         
+        # Top bar with title and buttons / 顶部栏包含标题和按钮
+        top_bar = QHBoxLayout()
+        top_bar.setSpacing(12)
+        
         self.content_title = QLabel(tr("Imported Photos"))
         self.content_title.setFont(QFont())
-        center_layout.addWidget(self.content_title)
+        top_bar.addWidget(self.content_title)
 
         self.browse_btn = QPushButton(tr("Browse files…"))
         self.browse_btn.setMinimumHeight(36)
@@ -191,9 +169,32 @@ class MainWindow(QMainWindow):
             QPushButton:pressed { background-color: #0062d6; }
         """)
         self.browse_btn.clicked.connect(self.browse_files)
-        center_layout.addWidget(self.browse_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+        top_bar.addWidget(self.browse_btn)
         
-        self.placeholder = QLabel(tr("Drag and drop photos here or click to import"))
+        # Refresh button / 刷新按钮
+        self.refresh_btn = QPushButton(f"🔄 {tr('Refresh EXIF')}")
+        self.refresh_btn.setMinimumHeight(36)
+        self.refresh_btn.setStyleSheet("""
+            QPushButton {
+                border-radius: 6px;
+                padding: 8px 12px;
+                background-color: #34c759;
+                color: white;
+                font-size: 12px;
+                border: none;
+                font-weight: 600;
+            }
+            QPushButton:hover { background-color: #40d865; }
+            QPushButton:pressed { background-color: #28a745; }
+        """)
+        self.refresh_btn.clicked.connect(self.refresh_exif)
+        top_bar.addWidget(self.refresh_btn)
+        
+        top_bar.addStretch()
+        
+        center_layout.addLayout(top_bar)
+        
+        self.placeholder = QLabel(tr("Click 'Browse files' button to import photos"))
         self.placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.placeholder.setStyleSheet("""
             QLabel {
@@ -207,22 +208,23 @@ class MainWindow(QMainWindow):
         self.table_view = QTableView()
         self.table_view.setModel(self.model)
         header = self.table_view.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)  # File
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)  # Camera
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)  # Lens
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)  # Aperture
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)  # Shutter
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)  # ISO
-        header.setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents)  # Film
-        header.setSectionResizeMode(7, QHeaderView.ResizeMode.ResizeToContents)  # Location
-        header.setSectionResizeMode(8, QHeaderView.ResizeMode.ResizeToContents)  # Date
-        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)  # Status
-        header.resizeSection(3, 90)  # Aperture width
-        header.resizeSection(4, 90)  # Shutter width
-        header.resizeSection(5, 70)  # ISO width
-        header.resizeSection(6, 110)  # Film width
-        header.resizeSection(7, 140)  # Location width
-        header.resizeSection(9, 60)  # Status width
+        # Enable interactive column resizing and stretch last section
+        # 启用交互式列宽调整并拉伸最后一列
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        header.setStretchLastSection(True)
+        
+        # Set initial column widths / 设置初始列宽
+        header.resizeSection(0, 150)  # File
+        header.resizeSection(1, 120)  # Camera
+        header.resizeSection(2, 150)  # Lens
+        header.resizeSection(3, 80)   # Aperture
+        header.resizeSection(4, 90)   # Shutter
+        header.resizeSection(5, 70)   # ISO
+        header.resizeSection(6, 130)  # Film
+        header.resizeSection(7, 250)  # Location
+        header.resizeSection(8, 150)  # Date
+        # Status column will stretch as last section
+        
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.verticalHeader().setDefaultSectionSize(52)  # Breathable row height
         self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -416,49 +418,8 @@ class MainWindow(QMainWindow):
             }
         """)
 
-        # Enable drag-and-drop on the main window / 启用窗口拖拽导入
-        self.setAcceptDrops(True)
-
-    # --- Drag & Drop handlers / 拖拽处理 ---
-    def dragEnterEvent(self, event):
-        """Accept drag if it contains supported image files / 如果包含支持的图像文件则接受拖拽"""
-        if self._has_supported_files(event.mimeData()):
-            event.acceptProposedAction()
-        else:
-            event.ignore()
-
-    def dropEvent(self, event):
-        """Handle dropped files / 处理拖入的文件"""
-        paths = self._extract_files(event.mimeData())
-        if not paths:
-            event.ignore()
-            return
-        self.on_files_dropped(paths)
-        event.acceptProposedAction()
-
-    def _has_supported_files(self, mime_data) -> bool:
-        """Check mime data for at least one supported file / 检查是否含有至少一个支持的文件"""
-        if not mime_data.hasUrls():
-            return False
-        for url in mime_data.urls():
-            ext = Path(url.toLocalFile()).suffix.lower()
-            if ext in self.supported_ext:
-                return True
-        return False
-
-    def _extract_files(self, mime_data) -> List[str]:
-        """Extract supported file paths / 提取支持的文件路径"""
-        if not mime_data.hasUrls():
-            return []
-        paths: List[str] = []
-        for url in mime_data.urls():
-            file_path = Path(url.toLocalFile())
-            if file_path.is_file() and file_path.suffix.lower() in self.supported_ext:
-                paths.append(str(file_path))
-        return paths
-
     def on_files_dropped(self, file_paths: List[str]):
-        """Callback when files are dropped / 当文件被拖入时的回调"""
+        """Callback when files are imported / 当文件被导入时的回调"""
         unique_files = [p for p in file_paths if p not in {item.file_path for item in self.model.photos}]
         if unique_files:
             self.model.add_photos(unique_files)
@@ -467,7 +428,7 @@ class MainWindow(QMainWindow):
         self.placeholder.setVisible(total == 0)
         if total:
             self.placeholder.setText(
-                tr("Imported {count} file(s). Drag more to add.", count=total)
+                tr("Imported {count} file(s).", count=total)
             )
         print("Imported files:", unique_files)
 
@@ -489,16 +450,36 @@ class MainWindow(QMainWindow):
         # Connect signals
         self.worker.result_ready.connect(self.on_exif_results)
         self.worker.error_occurred.connect(self.on_exif_error)
+        self.worker.progress.connect(self.on_exif_progress)
         self.worker.finished.connect(self.worker_thread.quit)
         self.start_exif_read.connect(self.worker.read_exif)
 
         # Ensure the thread stops when window closes
         self.destroyed.connect(lambda: self._stop_worker())
 
-    def queue_exif_read(self, file_paths: List[str]):
-        """Queue EXIF read in worker thread / 在工作线程中排队读取 EXIF"""
+    def queue_exif_read(self, file_paths: List[str], show_progress: bool = False):
+        """Queue EXIF read in worker thread / 在工作线程中排队读取 EXIF
+        
+        Args:
+            file_paths: List of file paths to read / 要读取的文件路径列表
+            show_progress: Whether to show progress dialog / 是否显示进度对话框
+        """
         if not file_paths:
             return
+        
+        # Show progress dialog if requested
+        if show_progress:
+            self.progress_dialog = QProgressDialog(
+                tr("Reading EXIF data..."),
+                None,
+                0,
+                100,
+                self
+            )
+            self.progress_dialog.setWindowModality(Qt.WindowModal)
+            self.progress_dialog.setWindowTitle(tr("Refresh EXIF"))
+            self.progress_dialog.show()
+        
         if not self.worker_thread.isRunning():
             self.worker_thread.start()
         # Emit signal to run in worker thread (queued connection)
@@ -508,7 +489,27 @@ class MainWindow(QMainWindow):
         """Handle EXIF results / 处理 EXIF 结果"""
         for file_path, exif_data in results.items():
             self.model.set_exif_data(file_path, exif_data)
+        
         self._refresh_inspector()
+        
+        # Close progress dialog and show completion message
+        if self.progress_dialog:
+            self.progress_dialog.close()
+            self.progress_dialog = None
+            QMessageBox.information(
+                self,
+                tr("Refresh EXIF"),
+                tr("Successfully loaded EXIF data for {count} file(s)").format(count=len(results))
+            )
+
+    def on_exif_progress(self, progress: int):
+        """Handle progress update / 处理进度更新
+        
+        Args:
+            progress: Progress percentage (0-100) / 进度百分比 (0-100)
+        """
+        if self.progress_dialog:
+            self.progress_dialog.setValue(progress)
 
     def on_exif_error(self, error_msg: str):
         """Handle worker errors / 处理工作线程错误"""
@@ -672,6 +673,10 @@ class MainWindow(QMainWindow):
     
     def on_metadata_written(self):
         """Handle metadata written successfully / 处理元数据成功写入"""
+        # Mark all photos as modified / 标记所有照片为已修改
+        for photo in self.model.photos:
+            self.model.mark_modified(photo.file_path)
+        
         # Refresh photo data / 刷新照片数据
         file_paths = [photo.file_path for photo in self.model.photos]
         self.queue_exif_read(file_paths)
@@ -685,6 +690,6 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, tr("Refresh EXIF"), tr("No photos to refresh"))
             return
         
-        # Re-read EXIF for all photos / 重新读取所有照片的 EXIF
+        # Re-read EXIF for all photos with progress dialog / 重新读取所有照片的 EXIF 并显示进度
         file_paths = [photo.file_path for photo in self.model.photos]
-        self.queue_exif_read(file_paths)
+        self.queue_exif_read(file_paths, show_progress=True)

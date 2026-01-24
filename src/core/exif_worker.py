@@ -190,52 +190,57 @@ class ExifToolWorker(QObject):
                         "message": "Invalid task data"
                     })
                     continue
-                
+
+                # Build exiftool command / 构建 exiftool 命令
+                cmd = [self.exiftool_path, "-overwrite_original"]
+
+                for tag, value in exif_data.items():
+                    if value is not None and str(value).strip():  # Write non-empty values
+                        cmd.append(f"-{tag}={value}")
+
+                cmd.append(file_path)
+
                 try:
-                    # Build exiftool command / 构建 exiftool 命令
-                    cmd = [self.exiftool_path, "-overwrite_original"]
-                    
-                    for tag, value in exif_data.items():
-                        if value is not None and str(value).strip():  # Write non-empty values
-                            cmd.append(f"-{tag}={value}")
-                    
-                    cmd.append(file_path)
-                    
+                    print(f"[ExifWorker] start writing: {file_path}")
+                    cmd_str = ' '.join(cmd)
+                    print(f"[ExifWorker] cmd: {cmd_str}")
                     result = subprocess.run(
                         cmd,
                         capture_output=True,
                         text=False,
-                        timeout=10
+                        timeout=30
                     )
-                    
                     stdout = result.stdout.decode("utf-8", errors="replace")
                     stderr = result.stderr.decode("utf-8", errors="replace")
-                    
+
                     if result.returncode == 0:
                         results.append({
                             "status": "success",
                             "file": file_path,
                             "message": "EXIF written"
                         })
+                        print(f"[ExifWorker] write success: {file_path}")
                     else:
                         results.append({
                             "status": "error",
                             "file": file_path,
                             "message": stderr or "Write failed"
                         })
-                
+                        print(f"[ExifWorker] write failed: {file_path} -> {stderr}")
                 except subprocess.TimeoutExpired:
                     results.append({
                         "status": "error",
                         "file": file_path,
                         "message": "Timeout"
                     })
+                    print(f"[ExifWorker] write timeout: {file_path}")
                 except Exception as e:
                     results.append({
                         "status": "error",
                         "file": file_path,
                         "message": str(e)
                     })
+                    print(f"[ExifWorker] write exception: {file_path} -> {e}")
                 
                 # Emit progress / 发出进度信号
                 progress = int((idx + 1) / total_tasks * 100)
