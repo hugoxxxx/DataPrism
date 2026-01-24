@@ -4,6 +4,30 @@
 - 修正：在 [src/core/exif_worker.py](src/core/exif_worker.py) 中修复批量写入的缩进错误并增加超时与日志，确保每个任务实际执行并正确返回结果。
 - 改进：调整 [src/ui/main_window.py](src/ui/main_window.py) 的刷新按钮布局和 EXIF 读取/写入进度处理逻辑，增强 UI 反馈。
 - 国际化：修复并补充 [src/utils/i18n.py](src/utils/i18n.py) 中的翻译字符串，避免语法错误并添加新提示文本。
+- 修复：统一主界面与元数据编辑器的地理位置格式，创建 [src/utils/gps_utils.py](src/utils/gps_utils.py) 集中处理 GPS 解析/格式化逻辑；修复因引号导致的正则解析失败，确保类似 "28deg ... \" N North" 的非标准字符串能被正确格式化为度分秒标准格式；同时增强了 UserComment 中 Location 字段的解析。
+- 优化：修改元数据写入完成后的交互逻辑，移除自动关闭编辑器的行为，确保在弹出“写入完成”对话框并等待用户点击确认后，再关闭编辑器窗口，提供更明确的操作反馈。
+- 调试：在 [src/core/exif_worker.py](src/core/exif_worker.py) 中增加信号发射的调试输出，用于诊断 result_ready 信号未被接收的问题。
+- 修复：在 [src/ui/metadata_editor_dialog.py](src/ui/metadata_editor_dialog.py) 中为所有跨线程信号连接添加 Qt.QueuedConnection，确保信号槽在主 GUI 线程中执行，解决模态对话框导致的线程死锁问题。
+- 修复：使用 QTimer.singleShot 延迟弹出完成对话框，避免模态对话框阻塞事件循环导致 finished 信号无法完成的死锁问题。
+- 修复：由于 PySide6 的 result_ready 信号无法可靠传递 dict 类型数据，改用在 worker 中存储结果，在 finished 信号处理器中读取的方式，绕过信号系统的限制。
+- 修复：完全禁用 result_ready.emit() 调用，因为该调用会阻塞 worker 线程，改为只使用 last_result 实例变量传递数据。
+- 修复：移除 finished 信号连接到 quit/deleteLater 的逻辑（会导致死锁），改用 QTimer 每 100ms 轮询线程状态，检测到完成后读取结果并清理资源。
+- 修复：完全禁用 finished.emit() 调用（也会阻塞），worker 方法执行完毕后线程自然结束，由 QTimer 检测线程状态变化。
+
+## 2026-01-24 - 鲁棒性改进 / Robustness Improvements
+
+- 新增：统一日志系统 [src/utils/logger.py](src/utils/logger.py)，支持控制台和文件输出，替换所有 print() 调用。
+- 新增：全局异常处理器，捕获所有未处理的异常并记录到日志文件，防止程序崩溃。
+- 新增：ExifTool 重试机制，最多重试 3 次，使用指数退避策略，提高写入操作的可靠性。
+- 新增：资源清理机制，在 MetadataEditorDialog 的 closeEvent 中确保线程和 worker 正确清理，防止内存泄漏。
+- 新增：输入验证器 [src/utils/validators.py](src/utils/validators.py)，验证所有元数据字段（光圈、快门、ISO、焦距、日期时间等），防止写入非法数据。
+- 新增：配置管理系统 [src/core/config.py](src/core/config.py)，支持 JSON 配置文件持久化，管理 ExifTool 路径、重试次数、UI 设置等。
+- 优化：所有调试输出统一使用 logger，支持不同日志级别（DEBUG/INFO/WARNING/ERROR/CRITICAL）。
+- 优化：使用信号触发 worker 方法，避免 started 信号的 lambda 阻塞线程事件循环。
+- 优化：清理所有调试用的 print() 语句，全部替换为规范的 logger 调用，提升生产环境可用性。
+- 修复：胶卷型号写入后不显示的问题，现在同时写入 Film 字段和 UserComment，并在刷新时显示进度对话框。
+- 新增：GT23_Workflow 兼容性，ImageDescription 字段优先写入胶卷型号，确保 GT23 自动识别功能正常工作。
+- 修复：GPS 坐标写入格式，现在使用与 1.json 一致的 ExifTool 标准格式（如 "28deg 31' 30.59\" N"）。
 
 说明：以上改动为本地调试与用户交互可感知的修复，已在本地测试写入流程并增加调试输出以方便进一步排查。
 
@@ -57,3 +81,16 @@ DataPrism change log
 - Batch EXIF write (v0.3.0): extended ExifToolWorker.batch_write_exif() for multi-file async writes with progress signals; _apply_json_matches() builds EXIF tasks mapping log entries to Make/Model/LensModel/FNumber/ExposureTime/ISO/FocalLength/DateTimeOriginal/UserComment; QProgressDialog shows write progress; auto-refreshes photo data after completion; error handling with success/failure counts.
 - Bug fix (v0.3.0): corrected PhotoMatcher instantiation in main_window.py and match_dialog.py; __init__ only takes time_tolerance_minutes parameter, photos/log_entries passed to match methods; added tuple-to-dict conversion for match results (List[Tuple[PhotoItem, FilmLogEntry]] to Dict[int, int] index mapping) to interface with MatchPreviewDialog.
 - Bug fix (v0.3.0): fixed AttributeError in match_dialog.py where PhotoItem.date_taken was accessed but doesn't exist; changed to extract date from exif_data['DateTimeOriginal'] or exif_data['CreateDate']; updated rematch_with_offset to adjust EXIF date strings directly instead of using non-existent date_taken attribute.
+- 优化：前台 GPS 显示格式更简洁，去掉秒的小数部分（如 28°31'31"N 而不是 28°31'30.59"N）。
+- 新增：CSV/TXT 智能导入功能，支持字段映射对话框、GPS 方向选择、按行序号匹配照片。
+- 修复：元数据编辑器数据同步逻辑。实现 `_save_current_metadata` 方法，确保手动修改的 ISO、胶卷、快门等字段在切换照片、调整偏移或写入前能自动保存到内存任务列表中。
+- 修复：解决了手动修改元数据后无法写入的问题。
+    - 修正了 `MetadataEditorDialog` 中 `notes` 字段访问函数错误（`toPlainText` 改为 `text`）。
+    - 统一了 ExifTool 读取与写入的标签命名规则（移除 `-G` 标志），确保写入后的 ISO 等数据能正确回显在主界面。
+    - 放宽了胶卷型号识别的关键词限制，支持显示所有手动输入的描述信息。
+    - 自动补齐缺失的元数据条目，确保所有照片都能进行手动录入。
+- 鲁棒性：增强了元数据写入的兼容性。
+    - 验证失败时自动回退到原始输入值，确保非标准数据也可尝试写入。
+    - 自动转换日期格式（`-`、`/` 转 `:`）和焦距（移除 `mm`）。
+    - 为 ExifTool 添加 UTF-8 字符集支持，解决 Windows 路径和特殊字符编码问题。
+- 优化：移除元数据写入完成后多余的“成功读取 EXIF”提示框，减少操作干扰，使流程更顺滑。

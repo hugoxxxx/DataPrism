@@ -13,6 +13,7 @@ from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+import src.utils.gps_utils as gps_utils
 
 logger = logging.getLogger(__name__)
 
@@ -374,7 +375,7 @@ class MetadataParser:
         gps_lat_ref = entry.get('GPSLatitudeRef')
         gps_lon_ref = entry.get('GPSLongitudeRef')
         if gps_lat and gps_lon:
-            formatted = self._format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref)
+            formatted = gps_utils.format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref)
             if formatted:
                 metadata.location = formatted
         if not metadata.location:
@@ -411,40 +412,4 @@ class MetadataParser:
         """Get parsed entries / 获取已解析的条目"""
         return self.entries
 
-    @staticmethod
-    def _format_gps_pair(lat, lat_ref, lon, lon_ref) -> Optional[str]:
-        """Format GPS lat/lon into standardized DMS string without duplicated directions."""
 
-        def _parse_coord(val, ref_hint):
-            if val is None:
-                return None
-            s = str(val).strip()
-            # Try DMS with optional direction letter
-            m = re.search(r"([0-9.]+)[^0-9]+([0-9.]+)[^0-9]+([0-9.]+)\s*([NSEW])?", s, re.IGNORECASE)
-            if m:
-                deg, minute, sec, suffix = m.groups()
-                suffix = suffix or (ref_hint[:1] if ref_hint else '')
-                return float(deg), float(minute), float(sec), suffix.upper() if suffix else None
-            # Try plain decimal
-            try:
-                dec = float(s)
-                suffix = ref_hint[:1].upper() if ref_hint else None
-                return dec, None, None, suffix
-            except:
-                return None
-
-        lat_parsed = _parse_coord(lat, str(lat_ref) if lat_ref else None)
-        lon_parsed = _parse_coord(lon, str(lon_ref) if lon_ref else None)
-        if not lat_parsed or not lon_parsed:
-            return None
-
-        def _fmt(parsed):
-            deg, minute, sec, suffix = parsed
-            if minute is None or sec is None:
-                # decimal
-                sign = suffix or ''
-                return f"{deg:.6f}{sign}"
-            suf = suffix or ''
-            return f"{deg:.0f}°{minute:.0f}'{sec:.2f}\"{suf}"
-
-        return f"{_fmt(lat_parsed)}, {_fmt(lon_parsed)}"

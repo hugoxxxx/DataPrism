@@ -11,7 +11,7 @@ from typing import List
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QSplitter, QFileDialog, QTableView, QHeaderView, QFormLayout,
-    QMessageBox, QProgressDialog
+    QMessageBox, QProgressDialog, QDialog
 )
 from PySide6.QtCore import Qt, QSize, QThread, Signal
 from PySide6.QtGui import QFont, QPixmap
@@ -23,6 +23,9 @@ from src.core.json_matcher import PhotoMatcher
 from src.core.metadata_parser import MetadataParser
 from src.ui.metadata_editor_dialog import MetadataEditorDialog
 from src.utils.i18n import tr, toggle_language, get_current_language
+from src.utils.logger import get_logger
+
+logger = get_logger('DataPrism.MainWindow')
 
 
 class MainWindow(QMainWindow):
@@ -430,7 +433,7 @@ class MainWindow(QMainWindow):
             self.placeholder.setText(
                 tr("Imported {count} file(s).", count=total)
             )
-        print("Imported files:", unique_files)
+        logger.info(f"Imported {len(unique_files)} files")
 
     # --- File dialog import / 通过对话框导入 ---
     def browse_files(self):
@@ -496,11 +499,6 @@ class MainWindow(QMainWindow):
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
-            QMessageBox.information(
-                self,
-                tr("Refresh EXIF"),
-                tr("Successfully loaded EXIF data for {count} file(s)").format(count=len(results))
-            )
 
     def on_exif_progress(self, progress: int):
         """Handle progress update / 处理进度更新
@@ -513,8 +511,7 @@ class MainWindow(QMainWindow):
 
     def on_exif_error(self, error_msg: str):
         """Handle worker errors / 处理工作线程错误"""
-        # For now, just log to console; can surface in UI later
-        print("EXIF worker error:", error_msg)
+        logger.error(f"EXIF worker error: {error_msg}")
 
     def on_selection_changed(self, *_):
         """Update inspector when selection changes / 选择变化时更新检查器"""
@@ -642,26 +639,62 @@ class MainWindow(QMainWindow):
             return
         
         try:
-            # Parse metadata / 解析元数据
-            progress = QProgressDialog(
-                tr("Parsing metadata..."), 
-                None, 
-                0, 
-                0, 
-                self
-            )
-            progress.setWindowModality(Qt.WindowModal)
-            progress.show()
+            # Check file type and parse accordingly
+            # 根据文件类型选择解析方式
+            if file_path.endswith(('.csv', '.txt')):
+                # CSV/TXT import with field mapping dialog
+                # CSV/TXT 导入（带字段映射对话框）
+                from src.core.csv_parser import CSVParser
+                from src.core.csv_converter import CSVConverter
+                from src.ui.field_mapping_dialog import FieldMappingDialog
+                
+                # Parse CSV file
+                csv_parser = CSVParser(file_path)
+                headers, rows = csv_parser.parse()
+                
+                if not headers or not rows:
+                    QMessageBox.warning(self, tr("Import Metadata"), tr("No data found in file"))
+                    return
+                
+                # Show field mapping dialog
+                # 显示字段映射对话框
+                mapping_dialog = FieldMappingDialog(headers, rows[:5], self)
+                if mapping_dialog.exec() != QDialog.DialogCode.Accepted:
+                    return
+                
+                # Get user-selected mappings
+                mappings = mapping_dialog.get_mappings()
+                
+                # Convert CSV data to metadata entries (matched by row order)
+                # 将 CSV 数据转换为元数据条目（按行序号匹配）
+                metadata_entries = CSVConverter.convert_rows(rows, mappings, self.model.photos)
+                
+                if not metadata_entries:
+                    QMessageBox.warning(self, tr("Import Metadata"), tr("No valid entries found"))
+                    return
             
-            parser = MetadataParser()
-            metadata_entries = parser.parse_file(file_path)
-            
-            if not metadata_entries:
+            else:
+                # JSON import (existing logic)
+                # JSON 导入（现有逻辑）
+                progress = QProgressDialog(
+                    tr("Parsing metadata..."), 
+                    None, 
+                    0, 
+                    0, 
+                    self
+                )
+                progress.setWindowModality(Qt.WindowModal)
+                progress.show()
+                
+                parser = MetadataParser()
+                metadata_entries = parser.parse_file(file_path)
+                
+                if not metadata_entries:
+                    progress.close()
+                    QMessageBox.warning(self, tr("Import Metadata"), "No valid entries found in file")
+                    return
+                
                 progress.close()
-                QMessageBox.warning(self, tr("Import Metadata"), "No valid entries found in file")
-                return
-            
-            progress.close()
             
             # Show editor dialog / 显示编辑对话框
             editor = MetadataEditorDialog(self.model.photos, metadata_entries, self)
@@ -677,9 +710,9 @@ class MainWindow(QMainWindow):
         for photo in self.model.photos:
             self.model.mark_modified(photo.file_path)
         
-        # Refresh photo data / 刷新照片数据
+        # Refresh photo data with progress dialog / 刷新照片数据并显示进度
         file_paths = [photo.file_path for photo in self.model.photos]
-        self.queue_exif_read(file_paths)
+        self.queue_exif_read(file_paths, show_progress=True)
         
         # Trigger model header refresh / 触发模型表头刷新
         self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, len(self.model.COLUMNS) - 1)

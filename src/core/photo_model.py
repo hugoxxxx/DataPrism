@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import logging
 import re
+import src.utils.gps_utils as gps_utils
 
 from src.utils.i18n import tr
 
@@ -270,7 +271,15 @@ class PhotoDataModel(QAbstractTableModel):
         if "SerialNumber" in exif_data:
             photo.serial_number = str(exif_data["SerialNumber"])
         
-        # Film Stock & Location (ImageDescription / UserComment / GPS)
+        
+        # Film Stock & Location (Film / ImageDescription / UserComment / GPS)
+        # 胶卷型号和位置（Film / ImageDescription / UserComment / GPS）
+        
+        # First, try to read from Film field (standard EXIF field)
+        # 首先尝试从 Film 字段读取（标准 EXIF 字段）
+        if "Film" in exif_data:
+            photo.film_stock = str(exif_data["Film"])
+        
         user_comment = str(exif_data.get("UserComment", "")) if exif_data else ""
 
         # Prefer GPS coordinates when available (standardized DMS string)
@@ -278,7 +287,7 @@ class PhotoDataModel(QAbstractTableModel):
         gps_lon = exif_data.get("GPSLongitude") if exif_data else None
         gps_lat_ref = exif_data.get("GPSLatitudeRef") if exif_data else None
         gps_lon_ref = exif_data.get("GPSLongitudeRef") if exif_data else None
-        gps_formatted = self._format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref)
+        gps_formatted = gps_utils.format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref)
         if gps_formatted:
             photo.location = gps_formatted
 
@@ -287,8 +296,10 @@ class PhotoDataModel(QAbstractTableModel):
             # Keep description as fallback if GPS missing
             if not photo.location and desc:
                 photo.location = desc
-            if any(brand in desc.lower() for brand in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
-                photo.film_stock = photo.film_stock or desc
+            
+            # If nothing else found, ImageDescription is likely the film stock in this workflow
+            # 如果没找到其他信息，ImageDescription 很有可能是这个流中的胶卷型号
+            photo.film_stock = photo.film_stock or desc
 
         # Parse combined user comment patterns like "Film: X | Location: Y | note"
         if user_comment:
@@ -298,14 +309,17 @@ class PhotoDataModel(QAbstractTableModel):
                     photo.film_stock = part.split(":", 1)[1].strip() or photo.film_stock
                 elif part.lower().startswith("location:"):
                     # Prefer explicit location from comment over description
-                    photo.location = part.split(":", 1)[1].strip() or photo.location
+                    raw_loc = part.split(":", 1)[1].strip()
+                    # Improve: try to parse it as standard GPS string if it looks like one
+                    # 改进：如果看起来像 GPS 字符串，尝试将其解析为标准 GPS 字符串
+                    photo.location = gps_utils.parse_location_string(raw_loc) or raw_loc or photo.location
             # Fallback: if nothing parsed, but comment exists, keep as film if it looks like a film name
             if not photo.film_stock and any(key in user_comment.lower() for key in ["kodak", "fuji", "ilford", "portra", "tri-x"]):
                 photo.film_stock = user_comment
 
         # If still no location, keep any GPS fragments we have (compact)
         if not photo.location and gps_lat and gps_lon:
-            fallback = self._format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref, strict=False)
+            fallback = gps_utils.format_gps_pair(gps_lat, gps_lat_ref, gps_lon, gps_lon_ref, strict=False)
             photo.location = fallback or f"{gps_lat}, {gps_lon}"
     
     def mark_modified(self, file_path: str) -> None:
@@ -337,38 +351,4 @@ class PhotoDataModel(QAbstractTableModel):
         self.modified_items.clear()
         self.endResetModel()
 
-    @staticmethod
-    def _format_gps_pair(lat, lat_ref, lon, lon_ref, strict: bool = True) -> Optional[str]:
-        """Format GPS lat/lon into standardized DMS string (e.g., 28°31'30.59"N, 119°30'30.44"E)."""
-        def _parse(value, ref_hint):
-            if value is None:
-                return None
-            # Accept preformatted strings like "28deg 31' 30.59\" N"
-            s = str(value).strip()
-            m = re.match(r"([0-9.]+)[^0-9]+([0-9.]+)[^0-9]+([0-9.]+)\s*([NSEW])?", s, re.IGNORECASE)
-            if m:
-                deg, minute, sec, suffix = m.groups()
-                suffix = suffix or (ref_hint or "").strip()[:1]
-                return float(deg), float(minute), float(sec), suffix.upper() if suffix else None
-            # Accept simple decimal (not converted to DMS; return as string)
-            try:
-                dec = float(s)
-                return dec, None, None, ref_hint.strip()[:1].upper() if ref_hint else None
-            except:
-                return None
 
-        lat_parsed = _parse(lat, lat_ref)
-        lon_parsed = _parse(lon, lon_ref)
-        if not lat_parsed or not lon_parsed:
-            return None if strict else None
-
-        def _fmt(parsed):
-            deg, minute, sec, suffix = parsed
-            if minute is None or sec is None:
-                # decimal fallback
-                sign = suffix or ""
-                return f"{deg:.6f}{sign}"
-            suf = suffix or ""
-            return f"{deg:.0f}°{minute:.0f}'{sec:.2f}\"{suf}"
-
-        return f"{_fmt(lat_parsed)}, {_fmt(lon_parsed)}"

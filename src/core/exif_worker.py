@@ -6,12 +6,15 @@ Worker thread for asynchronous ExifTool operations
 """
 
 from PySide6.QtCore import QThread, Signal, QObject
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import subprocess
 import json
-import logging
+import time
+from src.utils.logger import get_logger
+from src.core.config import get_config
 
-logger = logging.getLogger(__name__)
+logger = get_logger('DataPrism.ExifWorker')
+config = get_config()
 
 
 class ExifToolWorker(QObject):
@@ -26,19 +29,30 @@ class ExifToolWorker(QObject):
     result_ready = Signal(dict)  # Results from ExifTool
     error_occurred = Signal(str)  # Error message
     finished = Signal()  # Operation finished
+    start_write = Signal(list)  # Trigger batch write with tasks / 触发批量写入
     
-    def __init__(self, exiftool_path: str = "exiftool"):
+    def __init__(self, exiftool_path: str = None):
         """
         Initialize worker
         初始化工作线程
         
         Args:
             exiftool_path: Path to exiftool executable / exiftool 可执行文件路径
+                          If None, uses value from config / 如果为 None，使用配置中的值
         """
         super().__init__()
-        self.exiftool_path = exiftool_path
+        
+        # Use config values / 使用配置值
+        self.exiftool_path = exiftool_path or config.get('exiftool_path', 'exiftool')
+        self.MAX_RETRIES = config.get('exiftool_max_retries', 3)
+        self.RETRY_DELAY = 0.5  # Fixed delay / 固定延迟
+        
         self.task_queue: List[Dict[str, Any]] = []
         self._is_running = False
+        self.last_result: Optional[Dict[str, Any]] = None  # Store last batch write result
+        
+        # Connect internal signal to slot / 连接内部信号到槽
+        self.start_write.connect(self.batch_write_exif)
     
     def read_exif(self, file_paths: List[str]) -> None:
         """
@@ -106,7 +120,8 @@ class ExifToolWorker(QObject):
             Dictionary of EXIF data / EXIF数据字典
         """
         try:
-            cmd = [self.exiftool_path, "-j", "-a", "-G", file_path]
+            # Use flat keys (no -G) for consistency with PhotoDataModel
+            cmd = [self.exiftool_path, "-j", "-a", file_path]
             result = subprocess.run(
                 cmd,
                 capture_output=True,
@@ -126,6 +141,70 @@ class ExifToolWorker(QObject):
         except Exception as e:
             logger.error(f"Error reading EXIF sync: {e}")
             return {}
+    
+    def _run_exiftool_with_retry(self, cmd: List[str], timeout: int = 30) -> subprocess.CompletedProcess:
+        """
+        Execute exiftool command with retry mechanism / 带重试机制执行 exiftool 命令
+        
+        Args:
+            cmd: Command to execute / 要执行的命令
+            timeout: Timeout in seconds / 超时时间（秒）
+        
+        Returns:
+            subprocess.CompletedProcess: Command result / 命令结果
+        
+        Raises:
+            RuntimeError: If all retry attempts fail / 如果所有重试都失败
+        """
+        last_error = None
+        
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                logger.debug(f"ExifTool attempt {attempt + 1}/{self.MAX_RETRIES}: {' '.join(cmd[:3])}...")
+                
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout
+                )
+                
+                if result.returncode == 0:
+                    if attempt > 0:
+                        logger.info(f"ExifTool succeeded on attempt {attempt + 1}")
+                    return result
+                
+                # Command failed, prepare for retry / 命令失败，准备重试
+                last_error = result.stderr or "Unknown error"
+                logger.warning(f"ExifTool attempt {attempt + 1} failed: {last_error}")
+                
+                # Wait before retry (exponential backoff) / 重试前等待（指数退避）
+                if attempt < self.MAX_RETRIES - 1:
+                    delay = self.RETRY_DELAY * (2 ** attempt)
+                    logger.debug(f"Waiting {delay}s before retry")
+                    time.sleep(delay)
+            
+            except subprocess.TimeoutExpired as e:
+                last_error = f"Timeout after {timeout}s"
+                logger.warning(f"ExifTool attempt {attempt + 1} timed out")
+                
+                if attempt < self.MAX_RETRIES - 1:
+                    delay = self.RETRY_DELAY * (2 ** attempt)
+                    time.sleep(delay)
+                else:
+                    raise RuntimeError(f"ExifTool failed after {self.MAX_RETRIES} attempts: {last_error}")
+            
+            except Exception as e:
+                last_error = str(e)
+                logger.error(f"ExifTool attempt {attempt + 1} error: {e}")
+                
+                if attempt < self.MAX_RETRIES - 1:
+                    delay = self.RETRY_DELAY * (2 ** attempt)
+                    time.sleep(delay)
+                else:
+                    raise RuntimeError(f"ExifTool failed after {self.MAX_RETRIES} attempts: {last_error}")
+        
+        raise RuntimeError(f"ExifTool failed after {self.MAX_RETRIES} attempts: {last_error}")
     
     def write_exif(self, file_path: str, exif_data: Dict[str, Any]) -> None:
         """
@@ -192,71 +271,70 @@ class ExifToolWorker(QObject):
                     continue
 
                 # Build exiftool command / 构建 exiftool 命令
-                cmd = [self.exiftool_path, "-overwrite_original"]
+                cmd = [self.exiftool_path, "-overwrite_original", "-charset", "filename=utf8", "-charset", "utf8"]
 
                 for tag, value in exif_data.items():
-                    if value is not None and str(value).strip():  # Write non-empty values
+                    if value is not None:
+                        # Even if string is empty, we might want to clear the tag
+                        # 但 ExifTool 写空标签的语法是 -Tag=
                         cmd.append(f"-{tag}={value}")
 
                 cmd.append(file_path)
 
                 try:
-                    print(f"[ExifWorker] start writing: {file_path}")
-                    cmd_str = ' '.join(cmd)
-                    print(f"[ExifWorker] cmd: {cmd_str}")
-                    result = subprocess.run(
-                        cmd,
-                        capture_output=True,
-                        text=False,
-                        timeout=30
-                    )
-                    stdout = result.stdout.decode("utf-8", errors="replace")
-                    stderr = result.stderr.decode("utf-8", errors="replace")
-
-                    if result.returncode == 0:
-                        results.append({
-                            "status": "success",
-                            "file": file_path,
-                            "message": "EXIF written"
-                        })
-                        print(f"[ExifWorker] write success: {file_path}")
-                    else:
-                        results.append({
-                            "status": "error",
-                            "file": file_path,
-                            "message": stderr or "Write failed"
-                        })
-                        print(f"[ExifWorker] write failed: {file_path} -> {stderr}")
-                except subprocess.TimeoutExpired:
+                    logger.info(f"Writing EXIF to: {file_path}")
+                    logger.info(f"Full Command: {' '.join(cmd)}")
+                    
+                    # Use retry mechanism / 使用重试机制
+                    result = self._run_exiftool_with_retry(cmd, timeout=30)
+                    
+                    results.append({
+                        "status": "success",
+                        "file": file_path,
+                        "message": "EXIF written"
+                    })
+                    logger.info(f"Successfully wrote EXIF to: {file_path}")
+                except RuntimeError as e:
+                    # Retry mechanism failed / 重试机制失败
                     results.append({
                         "status": "error",
                         "file": file_path,
-                        "message": "Timeout"
+                        "message": str(e)
                     })
-                    print(f"[ExifWorker] write timeout: {file_path}")
+                    logger.error(f"Failed to write EXIF to {file_path}: {e}")
                 except Exception as e:
                     results.append({
                         "status": "error",
                         "file": file_path,
                         "message": str(e)
                     })
-                    print(f"[ExifWorker] write exception: {file_path} -> {e}")
+                    logger.error(f"Unexpected error writing {file_path}: {e}")
                 
                 # Emit progress / 发出进度信号
                 progress = int((idx + 1) / total_tasks * 100)
                 self.progress.emit(progress)
             
             # Emit results / 发出结果
-            self.result_ready.emit({
+            result_dict = {
                 "batch_write": True,
                 "results": results,
                 "total": total_tasks,
                 "success": sum(1 for r in results if r['status'] == 'success'),
                 "failed": sum(1 for r in results if r['status'] == 'error')
-            })
+            }
+            # Store result for retrieval in finished handler
+            self.last_result = result_dict
+            logger.debug(f"Stored batch write result: {result_dict['success']}/{result_dict['total']} successful")
+            # SKIP: result_ready.emit() blocks the thread, we use last_result instead
         
         except Exception as e:
+            logger.critical(f"Exception in batch_write_exif: {e}", exc_info=True)
             self.error_occurred.emit(f"Batch write failed: {str(e)}")
         finally:
-            self.finished.emit()
+            # CRITICAL: Quit thread FIRST, before any logger calls
+            # Logger calls might also block in cross-thread context
+            try:
+                self.thread().quit()
+            except Exception:
+                pass
 

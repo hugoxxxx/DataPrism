@@ -19,3 +19,9 @@ htmlcov/
 *~
 .env
 .env.local
+*.jpg
+*.png
+*.jpeg
+*.JPG
+*.PNG
+*.JPEG 
