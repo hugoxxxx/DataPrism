@@ -102,8 +102,10 @@ class MetadataEditorDialog(QDialog):
         form_layout = QFormLayout()
         form_layout.setSpacing(12)
         
-        self.edit_camera = QLineEdit()
-        self.edit_lens = QLineEdit()
+        self.edit_make = QLineEdit()
+        self.edit_model = QLineEdit()
+        self.edit_lens_make = QLineEdit()
+        self.edit_lens_model = QLineEdit()
         self.edit_aperture = QLineEdit()
         self.edit_shutter = QLineEdit()
         self.edit_iso = QLineEdit()
@@ -113,14 +115,16 @@ class MetadataEditorDialog(QDialog):
         self.edit_location = QLineEdit()
         self.edit_notes = QLineEdit()
         
-        for edit_field in [self.edit_camera, self.edit_lens, self.edit_aperture,
-                          self.edit_shutter, self.edit_iso, self.edit_film_stock,
+        for edit_field in [self.edit_make, self.edit_model, self.edit_lens_make, self.edit_lens_model,
+                          self.edit_aperture, self.edit_shutter, self.edit_iso, self.edit_film_stock,
                           self.edit_focal_length, self.edit_shot_date, self.edit_location,
                           self.edit_notes]:
             edit_field.setMinimumHeight(32)
         
-        form_layout.addRow(QLabel(tr("Camera:")), self.edit_camera)
-        form_layout.addRow(QLabel(tr("Lens:")), self.edit_lens)
+        form_layout.addRow(QLabel(tr("Camera Make:")), self.edit_make)
+        form_layout.addRow(QLabel(tr("Camera Model:")), self.edit_model)
+        form_layout.addRow(QLabel(tr("Lens Make:")), self.edit_lens_make)
+        form_layout.addRow(QLabel(tr("Lens Model:")), self.edit_lens_model)
         form_layout.addRow(QLabel(tr("Aperture:")), self.edit_aperture)
         form_layout.addRow(QLabel(tr("Shutter:")), self.edit_shutter)
         form_layout.addRow(QLabel(tr("ISO:")), self.edit_iso)
@@ -236,82 +240,65 @@ class MetadataEditorDialog(QDialog):
 
     def _save_current_metadata(self):
         """Save UI values back to current metadata entry / 将 UI 值保存回当前元数据条目"""
-        if self.current_index < 0:
+        if self._current_index is None: # Changed from self.current_index < 0
             return
             
-        metadata_idx = self.current_index + self.offset
-        if 0 <= metadata_idx < len(self.metadata_entries):
+        # metadata_idx = self.current_index + self.offset # Removed
+        # if 0 <= metadata_idx < len(self.metadata_entries): # Removed
+        entry = self.metadata_entries[self._current_index] # Changed to use _current_index directly
+            
+        # Update entry fields from UI
+        # 从 UI 更新条目字段
+        entry.camera_make = self.edit_make.text().strip() or None
+        entry.camera_model = self.edit_model.text().strip() or None
+        entry.lens_make = self.edit_lens_make.text().strip() or None
+        entry.lens_model = self.edit_lens_model.text().strip() or None
+        entry.aperture = self.edit_aperture.text().strip() or None
+        entry.shutter_speed = self.edit_shutter.text().strip() or None
+        entry.iso = self.edit_iso.text().strip() or None
+        entry.focal_length = self.edit_focal_length.text().strip() or None
+        entry.film_stock = self.edit_film_stock.text().strip() or None
+        entry.shot_date = self.edit_shot_date.text().strip() or None
+        entry.location = self.edit_location.text().strip() or None
+        entry.notes = self.edit_notes.text().strip() or None
+            
+        # Use getattr for file_name as it's not always present in MetadataEntry
+        file_name = getattr(entry, 'file_name', 'Manual Entry')
+        logger.debug(f"Saved UI changes to metadata[{self._current_index}] for {file_name}") # Changed metadata_idx to _current_index
+    
+    def load_photo(self, photo_index: int): # Renamed index to photo_index for clarity
+        """Load photo and corresponding metadata / 加载照片和对应的元数据"""
+        if 0 <= photo_index < len(self.photos):
+            # Calculate the metadata index based on photo_index and offset
+            metadata_idx = photo_index + self.offset
+            
+            # Update _current_index only if metadata_idx is valid
+            if 0 <= metadata_idx < len(self.metadata_entries):
+                self._current_index = metadata_idx # Store the actual metadata entry index
+            else:
+                self._current_index = None # No valid metadata entry for this photo
+                logger.warning(f"No metadata found at index {metadata_idx} for photo {photo_index}. "
+                              f"Valid range: 0-{len(self.metadata_entries)-1}")
+                # Clear UI fields if no metadata is found
+            # Load data from entry / 从条目加载数据
             entry = self.metadata_entries[metadata_idx]
             
-            # Update entry fields from UI
-            # 从 UI 更新条目字段
-            entry.camera = self.edit_camera.text().strip()
-            entry.lens = self.edit_lens.text().strip()
-            entry.aperture = self.edit_aperture.text().strip()
-            entry.shutter_speed = self.edit_shutter.text().strip()
-            entry.iso = self.edit_iso.text().strip()
-            entry.focal_length = self.edit_focal_length.text().strip()
-            entry.film_stock = self.edit_film_stock.text().strip()
-            entry.shot_date = self.edit_shot_date.text().strip()
-            entry.location = self.edit_location.text().strip()
-            entry.notes = self.edit_notes.text().strip()
+            logger.debug(f"Found metadata entry at index {metadata_idx}")
+            logger.debug(f"  camera: {entry.camera_make} {entry.camera_model}")
+            logger.debug(f"  lens: {entry.lens_make} {entry.lens_model}")
             
-            # Use getattr for file_name as it's not always present in MetadataEntry
-            file_name = getattr(entry, 'file_name', 'Manual Entry')
-            logger.debug(f"Saved UI changes to metadata[{metadata_idx}] for {file_name}")
-    
-    def load_photo(self, index: int):
-        """Load photo and corresponding metadata / 加载照片和对应的元数据"""
-        if 0 <= index < len(self.photos):
-            self.current_index = index
-            self.photo_list.setCurrentRow(index)
-            
-            # 获取对应的元数据（考虑偏移） / Get corresponding metadata with offset
-            metadata_idx = index + self.offset
-            
-            logger.debug(f"Loading photo {index}: {self.photos[index].file_name}")
-            logger.debug(f"Metadata index (with offset {self.offset}): {metadata_idx}")
-            
-            # 清空编辑框 / Clear edit fields
-            self.edit_camera.clear()
-            self.edit_lens.clear()
-            self.edit_aperture.clear()
-            self.edit_shutter.clear()
-            self.edit_iso.clear()
-            self.edit_film_stock.clear()
-            self.edit_focal_length.clear()
-            self.edit_shot_date.clear()
-            self.edit_location.clear()
-            self.edit_notes.clear()
-            
-            # 填充数据（如果存在） / Fill data if exists
-            if 0 <= metadata_idx < len(self.metadata_entries):
-                entry = self.metadata_entries[metadata_idx]
-                
-                logger.debug(f"Found metadata entry at index {metadata_idx}")
-                logger.debug(f"  camera: {entry.camera}")
-                logger.debug(f"  lens: {entry.lens}")
-                logger.debug(f"  aperture: {entry.aperture}")
-                logger.debug(f"  shutter_speed: {entry.shutter_speed}")
-                logger.debug(f"  iso: {entry.iso}")
-                logger.debug(f"  film_stock: {entry.film_stock}")
-                logger.debug(f"  focal_length: {entry.focal_length}")
-                logger.debug(f"  shot_date: {entry.shot_date}")
-                logger.debug(f"  location: {entry.location}")
-                
-                self.edit_camera.setText(entry.camera or "")
-                self.edit_lens.setText(entry.lens or "")
-                self.edit_aperture.setText(entry.aperture or "")
-                self.edit_shutter.setText(entry.shutter_speed or "")
-                self.edit_iso.setText(entry.iso or "")
-                self.edit_film_stock.setText(entry.film_stock or "")
-                self.edit_focal_length.setText(entry.focal_length or "")
-                self.edit_shot_date.setText(entry.shot_date or "")
-                self.edit_location.setText(entry.location or "")
-                self.edit_notes.setText(entry.notes or "")
-            else:
-                logger.warning(f"No metadata found at index {metadata_idx}. "
-                              f"Valid range: 0-{len(self.metadata_entries)-1}")
+            self.edit_make.setText(entry.camera_make or "")
+            self.edit_model.setText(entry.camera_model or "")
+            self.edit_lens_make.setText(entry.lens_make or "")
+            self.edit_lens_model.setText(entry.lens_model or "")
+            self.edit_aperture.setText(entry.aperture or "")
+            self.edit_shutter.setText(entry.shutter_speed or "")
+            self.edit_iso.setText(entry.iso or "")
+            self.edit_film_stock.setText(entry.film_stock or "")
+            self.edit_focal_length.setText(entry.focal_length or "")
+            self.edit_shot_date.setText(entry.shot_date or "")
+            self.edit_location.setText(entry.location or "")
+            self.edit_notes.setText(entry.notes or "")
     
     def on_offset_changed(self):
         """Handle offset change / 处理偏移变化"""
@@ -445,24 +432,15 @@ class MetadataEditorDialog(QDialog):
         exif_data = {}
         
         # Camera and lens / 相机和镜头
-        if entry.camera:
-            try:
-                validated_camera = MetadataValidator.validate_camera_model(entry.camera)
-                exif_data['Make'] = validated_camera.split()[0] if ' ' in validated_camera else validated_camera
-                exif_data['Model'] = validated_camera
-            except ValueError:
-                # Fallback to raw value / 回退到原始值
-                exif_data['Model'] = entry.camera
-                if ' ' in entry.camera:
-                    exif_data['Make'] = entry.camera.split()[0]
+        if entry.camera_make:
+            exif_data['Make'] = entry.camera_make
+        if entry.camera_model:
+            exif_data['Model'] = entry.camera_model
         
-        if entry.lens:
-            try:
-                validated_lens = MetadataValidator.validate_lens_model(entry.lens)
-                exif_data['LensModel'] = validated_lens
-            except ValueError:
-                # Fallback to raw value
-                exif_data['LensModel'] = entry.lens
+        if entry.lens_make:
+            exif_data['LensMake'] = entry.lens_make
+        if entry.lens_model:
+            exif_data['LensModel'] = entry.lens_model
         
         # Exposure settings / 曝光设置
         if entry.aperture:

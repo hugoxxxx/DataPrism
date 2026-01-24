@@ -23,8 +23,10 @@ class MetadataEntry:
     """
     Single metadata entry / 单条元数据条目
     """
-    camera: Optional[str] = None  # Camera model / 相机型号
-    lens: Optional[str] = None  # Lens model / 镜头型号
+    camera_make: Optional[str] = None   # Camera brand/make / 相机品牌
+    camera_model: Optional[str] = None  # Camera model / 相机型号
+    lens_make: Optional[str] = None     # Lens brand/make / 镜头品牌
+    lens_model: Optional[str] = None    # Lens model / 镜头型号
     aperture: Optional[str] = None  # f/number / 光圈数值
     shutter_speed: Optional[str] = None  # e.g. "1/125" / 快门速度
     iso: Optional[str] = None  # ISO value / ISO 值
@@ -157,14 +159,20 @@ class MetadataParser:
         notes_fields = ['Notes', 'notes', 'Comments', 'comments']
         
         # Try to extract fields / 尝试提取字段
-        for field in camera_fields:
+        entry.camera_make = row.get('Make', '') or row.get('Manufacturer', '') or None
+        
+        # Priority for model: specific 'Model' field, then generic 'Camera' or 'Body'
+        # 型号优先从 'Model' 获取，其次是通用的 'Camera' 或 'Body'
+        for field in ['Model', 'model', 'Camera', 'camera', 'Body', 'body']:
             if field in row and row[field]:
-                entry.camera = row[field]
+                entry.camera_model = row[field]
                 break
         
-        for field in lens_fields:
+        # Split Lens Make and Model
+        entry.lens_make = row.get('LensMake', '') or None
+        for field in ['LensModel', 'lensmodel', 'Lensmodel', 'Lens', 'lens']:
             if field in row and row[field]:
-                entry.lens = row[field]
+                entry.lens_model = row[field]
                 break
         
         for field in aperture_fields:
@@ -286,14 +294,18 @@ class MetadataParser:
         notes_fields = ['notes', 'comments', 'comment', 'UserComment', 'Notes']
         
         # Extract fields / 提取字段
-        for field in camera_fields:
-            if field in entry and entry[field]:
-                metadata.camera = str(entry[field])
-                break
+        metadata.camera_make = entry.get('Make', '') or entry.get('Manufacturer', '') or None
         
-        for field in lens_fields:
+        for field in ['Model', 'model', 'camera_model', 'camera', 'body', 'camera_body']:
             if field in entry and entry[field]:
-                metadata.lens = str(entry[field])
+                metadata.camera_model = str(entry[field])
+                break
+
+        # Split Lens Make and Model
+        metadata.lens_make = entry.get('LensMake', '') or None
+        for field in ['LensModel', 'lensmodel', 'lens_model', 'lens', 'Lens']:
+            if field in entry and entry[field]:
+                metadata.lens_model = str(entry[field])
                 break
         
         for field in aperture_fields:

@@ -30,6 +30,7 @@ class ExifToolWorker(QObject):
     error_occurred = Signal(str)  # Error message
     finished = Signal()  # Operation finished
     start_write = Signal(list)  # Trigger batch write with tasks / 触发批量写入
+    single_write = Signal(str, dict) # Trigger single write (file_path, exif_data)
     
     def __init__(self, exiftool_path: str = None):
         """
@@ -48,6 +49,10 @@ class ExifToolWorker(QObject):
         self.RETRY_DELAY = 0.5  # Fixed delay / 固定延迟
         
         self.task_queue: List[Dict[str, Any]] = []
+        
+        # Connect internal signals for thread-safe method execution
+        self.start_write.connect(self.batch_write_exif)
+        self.single_write.connect(self.write_exif)
         self._is_running = False
         self.last_result: Optional[Dict[str, Any]] = None  # Store last batch write result
         
@@ -216,32 +221,27 @@ class ExifToolWorker(QObject):
             exif_data: EXIF tags to write / 要写入的 EXIF 标签
         """
         try:
-            # Build exiftool command with tag assignments
-            # 使用标签赋值构建 exiftool 命令
-            cmd = [self.exiftool_path, "-overwrite_original"]
-            
+            # Build exiftool command / 构建 exiftool 命令
+            cmd = [self.exiftool_path, "-overwrite_original", "-charset", "filename=utf8", "-charset", "utf8"]
+
             for tag, value in exif_data.items():
-                cmd.append(f"-{tag}={value}")
-            
+                if value is not None:
+                    cmd.append(f"-{tag}={value}")
+
             cmd.append(file_path)
+
+            logger.info(f"Writing single EXIF to: {file_path}")
+            # Use retry mechanism / 使用重试机制
+            self._run_exiftool_with_retry(cmd, timeout=30)
             
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=10
-            )
-            
-            if result.returncode == 0:
-                self.result_ready.emit({
-                    "status": "success",
-                    "file": file_path,
-                    "message": "EXIF data written successfully"
-                })
-            else:
-                self.error_occurred.emit(f"Write failed: {result.stderr}")
+            self.result_ready.emit({
+                "status": "success",
+                "file": file_path,
+                "message": "EXIF data written successfully"
+            })
         
         except Exception as e:
+            logger.error(f"Failed to write EXIF to {file_path}: {e}")
             self.error_occurred.emit(f"Write error: {str(e)}")
         finally:
             self.finished.emit()

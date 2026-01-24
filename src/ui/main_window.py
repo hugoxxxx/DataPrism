@@ -218,15 +218,17 @@ class MainWindow(QMainWindow):
         
         # Set initial column widths / 设置初始列宽
         header.resizeSection(0, 150)  # File
-        header.resizeSection(1, 120)  # Camera
-        header.resizeSection(2, 150)  # Lens
-        header.resizeSection(3, 80)   # Aperture
-        header.resizeSection(4, 90)   # Shutter
-        header.resizeSection(5, 70)   # ISO
-        header.resizeSection(6, 130)  # Film
-        header.resizeSection(7, 250)  # Location
-        header.resizeSection(8, 150)  # Date
-        # Status column will stretch as last section
+        header.resizeSection(1, 100)  # C-Make
+        header.resizeSection(2, 120)  # C-Model
+        header.resizeSection(3, 100)  # L-Make
+        header.resizeSection(4, 150)  # L-Model
+        header.resizeSection(5, 70)   # Aperture
+        header.resizeSection(6, 80)   # Shutter
+        header.resizeSection(7, 60)   # ISO
+        header.resizeSection(8, 130)  # Film
+        header.resizeSection(9, 250)  # Location
+        header.resizeSection(10, 150) # Date
+        # Status column (11) will stretch as last section
         
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.verticalHeader().setDefaultSectionSize(52)  # Breathable row height
@@ -300,17 +302,19 @@ class MainWindow(QMainWindow):
         form.setSpacing(8)
         form.setContentsMargins(0, 4, 0, 8)
         
-        self.info_file = QLabel("-")
-        self.info_camera = QLabel("-")
-        self.info_lens = QLabel("-")
-        self.info_film = QLabel("-")
-        self.info_location = QLabel("-")
-        self.info_date = QLabel("-")
-        self.info_status = QLabel("-")
+        self.info_file = QLabel("--")
+        self.info_camera_make = QLabel("--")
+        self.info_camera_model = QLabel("--")
+        self.info_lens_make = QLabel("--")
+        self.info_lens_model = QLabel("--")
+        self.info_film = QLabel("--")
+        self.info_location = QLabel("--")
+        self.info_date = QLabel("--")
+        self.info_status = QLabel("--")
         
         # Style for value labels with monospace font for technical data
         value_style = "color: #1d1d1f; font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;"
-        for lbl in [self.info_file, self.info_camera, self.info_lens, self.info_film, self.info_location, self.info_date, self.info_status]:
+        for lbl in [self.info_file, self.info_camera_make, self.info_camera_model, self.info_lens_make, self.info_lens_model, self.info_film, self.info_location, self.info_date, self.info_status]:
             lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setStyleSheet(value_style)
             lbl.setWordWrap(True)
@@ -322,13 +326,21 @@ class MainWindow(QMainWindow):
         self.file_label.setStyleSheet(label_style)
         form.addRow(self.file_label, self.info_file)
         
-        self.camera_label = QLabel(tr("Camera:"))
-        self.camera_label.setStyleSheet(label_style)
-        form.addRow(self.camera_label, self.info_camera)
+        self.make_label = QLabel(tr("Camera Make:"))
+        self.make_label.setStyleSheet(label_style)
+        form.addRow(self.make_label, self.info_camera_make)
+
+        self.model_label = QLabel(tr("Camera Model:"))
+        self.model_label.setStyleSheet(label_style)
+        form.addRow(self.model_label, self.info_camera_model)
         
-        self.lens_label = QLabel(tr("Lens:"))
-        self.lens_label.setStyleSheet(label_style)
-        form.addRow(self.lens_label, self.info_lens)
+        self.lens_make_label = QLabel(tr("Lens Make:"))
+        self.lens_make_label.setStyleSheet(label_style)
+        form.addRow(self.lens_make_label, self.info_lens_make)
+
+        self.lens_model_label = QLabel(tr("Lens Model:"))
+        self.lens_model_label.setStyleSheet(label_style)
+        form.addRow(self.lens_model_label, self.info_lens_model)
 
         self.film_label = QLabel(tr("Film Stock:"))
         self.film_label.setStyleSheet(label_style)
@@ -456,6 +468,10 @@ class MainWindow(QMainWindow):
         self.worker.progress.connect(self.on_exif_progress)
         self.worker.finished.connect(self.worker_thread.quit)
         self.start_exif_read.connect(self.worker.read_exif)
+        
+        # Connect model signals for inline editing
+        # 连接模型信号以进行内联编辑
+        self.model.dataChangedForWrite.connect(self.worker.single_write)
 
         # Ensure the thread stops when window closes
         self.destroyed.connect(lambda: self._stop_worker())
@@ -490,8 +506,20 @@ class MainWindow(QMainWindow):
 
     def on_exif_results(self, results: dict):
         """Handle EXIF results / 处理 EXIF 结果"""
+        # Distinguish between read results and write results
+        # 区分读取结果和写入结果
+        if "status" in results and results["status"] == "success" and "file" in results:
+            # Single write success - no need to trigger full re-read as model is already updated
+            # and marking it as modified/loaded locally is enough for UX.
+            # We'll just let the model keep the user's input.
+            file_path = results["file"]
+            logger.info(f"Write successful for {file_path}")
+            return
+
         for file_path, exif_data in results.items():
-            self.model.set_exif_data(file_path, exif_data)
+            # Skip non-dict data in case of unexpected structure
+            if isinstance(exif_data, dict):
+                self.model.set_exif_data(file_path, exif_data)
         
         self._refresh_inspector()
         
@@ -522,8 +550,10 @@ class MainWindow(QMainWindow):
         selection = self.table_view.selectionModel().selectedRows()
         if not selection:
             self.info_file.setText("-")
-            self.info_camera.setText("-")
-            self.info_lens.setText("-")
+            self.info_camera_make.setText("-")
+            self.info_camera_model.setText("-")
+            self.info_lens_make.setText("-")
+            self.info_lens_model.setText("-")
             self.info_film.setText("-")
             self.info_location.setText("-")
             self.info_date.setText("-")
@@ -537,15 +567,17 @@ class MainWindow(QMainWindow):
         photo = self.model.photos[row]
         exif = photo.exif_data or {}
         self.info_file.setText(photo.file_name)
-        self.info_camera.setText(exif.get("Model", "Loading..." if photo.exif_data is None else "--"))
-        self.info_lens.setText(exif.get("LensModel", "Loading..." if photo.exif_data is None else "--"))
+        self.info_camera_make.setText(exif.get("Make", "--") if photo.exif_data else "--")
+        self.info_camera_model.setText(exif.get("Model", "--") if photo.exif_data else "--")
+        self.info_lens_make.setText(exif.get("LensMake", "--") if photo.exif_data else "--")
+        self.info_lens_model.setText(exif.get("LensModel", "--") if photo.exif_data else "--")
         self.info_film.setText(photo.film_stock or exif.get("Film", "--"))
         # Prefer cached location; else try GPS; else description
         gps_lat = exif.get("GPSLatitude")
         gps_lon = exif.get("GPSLongitude")
         gps_str = f"{gps_lat}, {gps_lon}" if gps_lat and gps_lon else None
         self.info_location.setText(photo.location or gps_str or exif.get("ImageDescription", "--"))
-        self.info_date.setText(exif.get("DateTimeOriginal", "Loading..." if photo.exif_data is None else "--"))
+        self.info_date.setText(photo.exif_data.get("DateTimeOriginal", "--") if photo.exif_data else "--")
         status_display = photo.status + (" (Modified)" if photo.is_modified else "")
         self.info_status.setText(status_display)
         

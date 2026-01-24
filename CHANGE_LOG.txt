@@ -1,4 +1,22 @@
 2026-01-24  修正与改进
+- 新增：将主界面表格中的“相机”列拆分为独立的“品牌（Make）”与“型号（Model）”两列，优化器材信息展示与编辑精度。
+- 优化：更新 JSON/CSV 解析逻辑，支持分别抓取并同步品牌与型号字段（如展示为 "Hasselblad" | "500C/M"）。
+- 新增：主界面表格内直接编辑元数据功能。
+    - 支持通过双击单元格直接修改相机、镜头、快门、光圈、ISO、胶卷型号、地理位置、日期等字段。
+    - 修改操作触发后台自动异步写入 EXIF，修改成功后自动刷新 UI。
+    - 编辑过程中集成了元数据校验逻辑，确保格式基本合规。
+- 新增：CSV/TXT 智能导入功能，支持字段映射对话框、GPS 方向选择、按行序号匹配照片。
+- 修复：元数据编辑器数据同步逻辑。实现 `_save_current_metadata` 方法，确保手动修改的 ISO、胶卷、快门等字段在切换照片、调整偏移或写入前能自动保存到内存任务列表中。
+- 修复：解决了手动修改元数据后无法写入的问题。
+    - 修正了 `MetadataEditorDialog` 中 `notes` 字段访问函数错误（`toPlainText` 改为 `text`）。
+    - 统一了 ExifTool 读取与写入的标签命名规则（移除 `-G` 标志），确保写入后的 ISO 等数据能正确回显在主界面。
+    - 放宽了胶卷型号识别的关键词限制，支持显示所有手动输入的描述信息。
+    - 自动补齐缺失的元数据条目，确保所有照片都能进行手动录入。
+- 鲁棒性：增强了元数据写入的兼容性。
+    - 验证失败时自动回退到原始输入值，确保非标准数据也可尝试写入。
+    - 自动转换日期格式（`-`、`/` 转 `:`）和焦距（移除 `mm`）。
+    - 为 ExifTool 添加 UTF-8 字符集支持，解决 Windows 路径和特殊字符编码问题。
+- 优化：移除元数据写入完成后多余的“成功读取 EXIF”提示框，减少操作干扰，使流程更顺滑。
 - 修正：元数据写入流程进度与完成确认。
 	- 在 [src/ui/metadata_editor_dialog.py](src/ui/metadata_editor_dialog.py) 中：确保写入完成时将进度设置为 100、关闭进度对话框；改为弹出模态确认框（用户点击“确定”后关闭编辑器）；增加写入线程结束的后备处理以防止对话框残留。
 - 修正：在 [src/core/exif_worker.py](src/core/exif_worker.py) 中修复批量写入的缩进错误并增加超时与日志，确保每个任务实际执行并正确返回结果。
@@ -25,7 +43,7 @@
 - 优化：所有调试输出统一使用 logger，支持不同日志级别（DEBUG/INFO/WARNING/ERROR/CRITICAL）。
 - 优化：使用信号触发 worker 方法，避免 started 信号的 lambda 阻塞线程事件循环。
 - 优化：清理所有调试用的 print() 语句，全部替换为规范的 logger 调用，提升生产环境可用性。
-- 修复：胶卷型号写入后不显示的问题，现在同时写入 Film 字段和 UserComment，并在刷新时显示进度对话框。
+- 修复：胶卷型号写入后不显示的问题，现在同时写入 Film 字段 and UserComment，并在刷新时显示进度对话框。
 - 新增：GT23_Workflow 兼容性，ImageDescription 字段优先写入胶卷型号，确保 GT23 自动识别功能正常工作。
 - 修复：GPS 坐标写入格式，现在使用与 1.json 一致的 ExifTool 标准格式（如 "28deg 31' 30.59\" N"）。
 
@@ -82,15 +100,3 @@ DataPrism change log
 - Bug fix (v0.3.0): corrected PhotoMatcher instantiation in main_window.py and match_dialog.py; __init__ only takes time_tolerance_minutes parameter, photos/log_entries passed to match methods; added tuple-to-dict conversion for match results (List[Tuple[PhotoItem, FilmLogEntry]] to Dict[int, int] index mapping) to interface with MatchPreviewDialog.
 - Bug fix (v0.3.0): fixed AttributeError in match_dialog.py where PhotoItem.date_taken was accessed but doesn't exist; changed to extract date from exif_data['DateTimeOriginal'] or exif_data['CreateDate']; updated rematch_with_offset to adjust EXIF date strings directly instead of using non-existent date_taken attribute.
 - 优化：前台 GPS 显示格式更简洁，去掉秒的小数部分（如 28°31'31"N 而不是 28°31'30.59"N）。
-- 新增：CSV/TXT 智能导入功能，支持字段映射对话框、GPS 方向选择、按行序号匹配照片。
-- 修复：元数据编辑器数据同步逻辑。实现 `_save_current_metadata` 方法，确保手动修改的 ISO、胶卷、快门等字段在切换照片、调整偏移或写入前能自动保存到内存任务列表中。
-- 修复：解决了手动修改元数据后无法写入的问题。
-    - 修正了 `MetadataEditorDialog` 中 `notes` 字段访问函数错误（`toPlainText` 改为 `text`）。
-    - 统一了 ExifTool 读取与写入的标签命名规则（移除 `-G` 标志），确保写入后的 ISO 等数据能正确回显在主界面。
-    - 放宽了胶卷型号识别的关键词限制，支持显示所有手动输入的描述信息。
-    - 自动补齐缺失的元数据条目，确保所有照片都能进行手动录入。
-- 鲁棒性：增强了元数据写入的兼容性。
-    - 验证失败时自动回退到原始输入值，确保非标准数据也可尝试写入。
-    - 自动转换日期格式（`-`、`/` 转 `:`）和焦距（移除 `mm`）。
-    - 为 ExifTool 添加 UTF-8 字符集支持，解决 Windows 路径和特殊字符编码问题。
-- 优化：移除元数据写入完成后多余的“成功读取 EXIF”提示框，减少操作干扰，使流程更顺滑。

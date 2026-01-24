@@ -5,7 +5,7 @@ Data model for managing image metadata with caching
 用于管理带缓存的图像元数据的数据模型
 """
 
-from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex
+from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, Signal
 from PySide6.QtGui import QPixmap, QColor, QPainter, QBrush
 from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
@@ -15,6 +15,7 @@ import re
 import src.utils.gps_utils as gps_utils
 
 from src.utils.i18n import tr
+from src.utils.validators import MetadataValidator
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,13 @@ class PhotoDataModel(QAbstractTableModel):
     
     # Column definitions
     # 列定义
-    COLUMNS = ["File", "Camera", "Lens", "Aperture", "Shutter", "ISO", "Film Stock", "Location", "Date", "Status"]
+    # Column definitions
+    # 列定义
+    COLUMNS = ["File", "C-Make", "C-Model", "L-Make", "L-Model", "Aperture", "Shutter", "ISO", "Film Stock", "Location", "Date", "Status"]
+    
+    # Signal emitted when data changes and needs to be written to EXIF
+    # 当数据改变且需要写入 EXIF 时发出的信号
+    dataChangedForWrite = Signal(str, dict) # file_path, exif_data
     
     def __init__(self, parent=None):
         """Initialize model / 初始化模型"""
@@ -78,6 +85,147 @@ class PhotoDataModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return tr(self.COLUMNS[section])
         return None
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        """Return item flags / 返回项目标志"""
+        if not index.isValid():
+            return Qt.ItemFlag.NoItemFlags
+
+        col = index.column()
+        # Columns that can be edited: C-Make(1) to Date(10)
+        # 可编辑的列：相机品牌(1) 到 日期(10)
+        if 1 <= col <= 10:
+            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEditable
+        
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+
+    def setData(self, index: QModelIndex, value: Any, role: int = Qt.ItemDataRole.EditRole) -> bool:
+        """Set data for given index / 为给定索引设置数据"""
+        if not index.isValid() or role != Qt.ItemDataRole.EditRole:
+            return False
+
+        row = index.row()
+        col = index.column()
+        photo = self.photos[row]
+        
+        # New value to write / 要写入的新值
+        new_value = str(value).strip()
+        
+        # Mapping columns to EXIF tags and PhotoItem attributes
+        # 将列映射到 EXIF 标签和 PhotoItem 属性
+        exif_tag = None
+        attr_name = None
+        
+        try:
+            if col == 1: # C-Make
+                exif_tag = "Make"
+                photo.exif_data["Make"] = new_value
+            elif col == 2: # C-Model
+                validated = MetadataValidator.validate_camera_model(new_value)
+                exif_tag = "Model"
+                photo.exif_data["Model"] = validated
+            elif col == 3: # L-Make
+                exif_tag = "LensMake"
+                photo.exif_data["LensMake"] = new_value
+            elif col == 4: # L-Model
+                validated = MetadataValidator.validate_lens_model(new_value)
+                exif_tag = "LensModel"
+                photo.exif_data["LensModel"] = validated
+            elif col == 5: # Aperture
+                validated = MetadataValidator.validate_aperture(new_value)
+                # Clean prefix for EXIF
+                exif_val = validated.replace('f/', '').replace('F/', '').replace('f', '').replace('F', '')
+                exif_tag = "FNumber"
+                photo.aperture = validated
+            elif col == 6: # Shutter
+                validated = MetadataValidator.validate_shutter_speed(new_value)
+                exif_tag = "ExposureTime"
+                photo.shutter_speed = validated
+            elif col == 7: # ISO
+                validated = MetadataValidator.validate_iso(new_value)
+                exif_tag = "ISO"
+                photo.iso = str(validated)
+            elif col == 8: # Film
+                # Write to both Film and UserComment for best compatibility
+                photo.film_stock = new_value
+                # Update memory immediately / 立即更新内存
+                self.dataChangedForWrite.emit(photo.file_path, {
+                    "Film": new_value,
+                    "UserComment": f"Film: {new_value}",
+                    "ImageDescription": new_value
+                })
+                self.mark_modified(photo.file_path)
+                self.dataChanged.emit(index, index)
+                return True
+            elif col == 9: # Location
+                # Handle GPS or description
+                gps_parsed = gps_utils.parse_gps_to_exif(new_value)
+                if gps_parsed:
+                    lat, lat_ref, lon, lon_ref = gps_parsed
+                    exif_data = {
+                        "GPSLatitude": lat,
+                        "GPSLatitudeRef": lat_ref,
+                        "GPSLongitude": lon,
+                        "GPSLongitudeRef": lon_ref
+                    }
+                    photo.location = new_value
+                    self.dataChangedForWrite.emit(photo.file_path, exif_data)
+                    self.mark_modified(photo.file_path)
+                    self.dataChanged.emit(index, index)
+                    return True
+                else:
+                    # Fallback to ImageDescription if not GPS
+                    exif_tag = "ImageDescription"
+                    photo.location = new_value
+            elif col == 10: # Date
+                validated = MetadataValidator.validate_datetime(new_value)
+                exif_tag = "DateTimeOriginal"
+                # Also update CreateDate and ModifyDate
+                self.dataChangedForWrite.emit(photo.file_path, {
+                    "DateTimeOriginal": validated,
+                    "CreateDate": validated,
+                    "ModifyDate": validated
+                })
+                self.mark_modified(photo.file_path)
+                self.dataChanged.emit(index, index)
+                return True
+        except ValueError as e:
+            logger.warning(f"Validation failed for column {col}: {e}")
+            # If validation fails, we can still try to write raw value or reject
+            if col == 5: # Aperture
+                exif_tag = "FNumber"
+                photo.aperture = new_value.replace('f/', '').replace('F/', '').replace('f', '').replace('F', '')
+            elif col == 6: # Shutter
+                exif_tag = "ExposureTime"
+                photo.shutter_speed = new_value
+            elif col == 7: # ISO
+                exif_tag = "ISO"
+                photo.iso = new_value
+            elif col == 10: # Date
+                exif_tag = "DateTimeOriginal"
+                photo.exif_data["DateTimeOriginal"] = new_value.replace('-', ':').replace('/', ':')
+            elif col == 1: # C-Make
+                exif_tag = "Make"
+                photo.exif_data["Make"] = new_value
+            elif col == 2: # C-Model
+                exif_tag = "Model"
+                photo.exif_data["Model"] = new_value
+            elif col == 3: # L-Make
+                exif_tag = "LensMake"
+                photo.exif_data["LensMake"] = new_value
+            elif col == 4: # L-Model
+                exif_tag = "LensModel"
+                photo.exif_data["LensModel"] = new_value
+            else:
+                return False
+
+        if exif_tag:
+            self.dataChangedForWrite.emit(photo.file_path, {exif_tag: new_value})
+            self.mark_modified(photo.file_path)
+            self.dataChanged.emit(index, index)
+            return True
+
+        return False
     
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         """
@@ -93,50 +241,66 @@ class PhotoDataModel(QAbstractTableModel):
         photo = self.photos[index.row()]
         col = index.column()
         
-        if role == Qt.ItemDataRole.DisplayRole:
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if col == 0:  # File name
                 return photo.file_name
-            elif col == 1:  # Camera
+            elif col == 1:  # C-Make
                 if photo.exif_data is None:
-                    return tr("Loading...")  # Trigger lazy load
-                return photo.exif_data.get("Model", "--")
-            elif col == 2:  # Lens
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.exif_data.get("Make", "")
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 2:  # C-Model
                 if photo.exif_data is None:
-                    return tr("Loading...")
-                return photo.exif_data.get("LensModel", "--")
-            elif col == 3:  # Aperture
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.exif_data.get("Model", "")
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 3:  # L-Make
                 if photo.exif_data is None:
-                    return tr("Loading...")
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.exif_data.get("LensMake", "")
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 4:  # L-Model
+                if photo.exif_data is None:
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.exif_data.get("LensModel", "")
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 5:  # Aperture
+                if photo.exif_data is None:
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
                 if photo.aperture:
-                    return f"f/{photo.aperture}"
-                return "--"
-            elif col == 4:  # Shutter
+                    return (f"f/{photo.aperture}" if role == Qt.ItemDataRole.DisplayRole else photo.aperture)
+                return "--" if role == Qt.ItemDataRole.DisplayRole else ""
+            elif col == 6:  # Shutter
                 if photo.exif_data is None:
-                    return tr("Loading...")
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
                 if photo.shutter_speed:
-                    return f"{photo.shutter_speed}s"
-                return "--"
-            elif col == 5:  # ISO
+                    return (f"{photo.shutter_speed}s" if role == Qt.ItemDataRole.DisplayRole else photo.shutter_speed)
+                return "--" if role == Qt.ItemDataRole.DisplayRole else ""
+            elif col == 7:  # ISO
                 if photo.exif_data is None:
-                    return tr("Loading...")
-                return photo.iso or "--"
-            elif col == 6:  # Film
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.iso or ""
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 8:  # Film
                 if photo.exif_data is None:
-                    return tr("Loading...")
-                return photo.film_stock or "--"
-            elif col == 7:  # Location
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.film_stock or ""
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 9:  # Location
                 if photo.exif_data is None:
-                    return tr("Loading...")
-                return photo.location or "--"
-            elif col == 8:  # Date
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.location or ""
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 10:  # Date
                 if photo.exif_data is None:
-                    return tr("Loading...")
-                return photo.exif_data.get("DateTimeOriginal", "--")
-            elif col == 9:  # Status
+                    return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
+                val = photo.exif_data.get("DateTimeOriginal", "")
+                return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
+            elif col == 11:  # Status
                 # Return empty string - we'll show dot in DecorationRole
                 return ""
         
-        elif role == Qt.ItemDataRole.DecorationRole and col == 9:
+        elif role == Qt.ItemDataRole.DecorationRole and col == 11:
             # Show colored dot based on status
             color_map = {
                 "pending": QColor("#999999"),  # Gray
