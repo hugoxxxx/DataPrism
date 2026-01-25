@@ -24,6 +24,10 @@ from src.core.metadata_parser import MetadataParser
 from src.ui.metadata_editor_dialog import MetadataEditorDialog
 from src.utils.i18n import tr, toggle_language, get_current_language
 from src.utils.logger import get_logger
+from src.ui.style_manager import StyleManager
+from src.ui.borderless_delegate import BorderlessDelegate
+from src.ui.borderless_table_view import BorderlessTableView
+from src.ui.borderless_style import BorderlessStyle
 
 logger = get_logger('DataPrism.MainWindow')
 
@@ -58,85 +62,37 @@ class MainWindow(QMainWindow):
         # Left sidebar - Filters and presets
         # 左侧栏 - 过滤器和预设
         left_widget = QWidget()
+        left_widget.setObjectName("Sidebar")
         left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(12, 20, 12, 20)
+        left_layout.setSpacing(10)
         
         # Language toggle button / 语言切换按钮
         self.lang_btn = QPushButton("中" if get_current_language() == 'en' else "EN")
         self.lang_btn.setFixedSize(40, 32)
-        self.lang_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 6px;
-                background-color: #007aff;
-                color: white;
-                font-size: 11px;
-                font-weight: 600;
-                border: none;
-            }
-            QPushButton:hover { background-color: #1a84ff; }
-            QPushButton:pressed { background-color: #0062d6; }
-        """)
+        self.lang_btn.setStyleSheet(StyleManager.get_button_style(tier='primary').replace("padding: 10px 18px;", "padding: 4px 8px;"))
         self.lang_btn.clicked.connect(self.toggle_language)
         left_layout.addWidget(self.lang_btn, alignment=Qt.AlignmentFlag.AlignRight)
         
         self.sidebar_title = QLabel(tr("Filters & Presets"))
-        self.sidebar_title.setFont(QFont())
+        self.sidebar_title.setObjectName("SidebarTitle")
         left_layout.addWidget(self.sidebar_title)
         
-        # Placeholder buttons
-        # 占位符按钮
-        self.camera_btn = QPushButton(f"📷 {tr('Camera')}")
-        self.lens_btn = QPushButton(f"🔍 {tr('Lens')}")
-        self.film_btn = QPushButton(f"📽️ {tr('Film Stock')}")
+        # Sidebar buttons with professional styling
+        self.camera_btn = QPushButton(f"{tr('Camera')}")
+        self.lens_btn = QPushButton(f"{tr('Lens')}")
+        self.film_btn = QPushButton(f"{tr('Film Stock')}")
         
         for btn in [self.camera_btn, self.lens_btn, self.film_btn]:
-            btn.setMinimumHeight(44)
-            btn.setStyleSheet("""
-                QPushButton {
-                    border-radius: 10px;
-                    padding: 10px 14px;
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #f9f9fb, stop:1 #f0f0f5);
-                    border: 1px solid #e5e5ea;
-                    font-size: 13px;
-                    color: #1d1d1f;
-                    text-align: left;
-                }
-                QPushButton:hover {
-                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                                stop:0 #ffffff, stop:1 #f5f5f7);
-                    border: 1px solid #d1d1d6;
-                }
-                QPushButton:pressed {
-                    background: #e8e8ed;
-                    border: 1px solid #c7c7cc;
-                }
-            """)
+            btn.setCheckable(True)
+            btn.setStyleSheet(StyleManager.get_sidebar_item_style())
             left_layout.addWidget(btn)
         
-        # JSON Import button / JSON 导入按钮
-        left_layout.addSpacing(12)
-        self.json_import_btn = QPushButton(f"📄 {tr('Import Metadata')}")
-        self.json_import_btn.setMinimumHeight(44)
-        self.json_import_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 10px;
-                padding: 10px 14px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #34c759, stop:1 #28a745);
-                border: 1px solid #28a745;
-                font-size: 13px;
-                color: white;
-                text-align: left;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #40d865, stop:1 #2fb84f);
-            }
-            QPushButton:pressed {
-                background: #1f8a38;
-            }
-        """)
+        # Metadata Import button
+        left_layout.addSpacing(16)
+        self.json_import_btn = QPushButton(f"{tr('Import Metadata')}")
+        self.json_import_btn.setFixedHeight(44)
+        self.json_import_btn.setStyleSheet(StyleManager.get_button_style(tier='primary'))
         self.json_import_btn.clicked.connect(self.import_metadata)
         left_layout.addWidget(self.json_import_btn)
         
@@ -149,47 +105,21 @@ class MainWindow(QMainWindow):
         center_widget = QWidget()
         center_layout = QVBoxLayout(center_widget)
         
-        # Top bar with title and buttons / 顶部栏包含标题和按钮
+        # Top bar with buttons / 顶部栏按钮
         top_bar = QHBoxLayout()
         top_bar.setSpacing(12)
-        
-        self.content_title = QLabel(tr("Imported Photos"))
-        self.content_title.setFont(QFont())
-        top_bar.addWidget(self.content_title)
+        top_bar.setContentsMargins(0, 5, 0, 15)
 
         self.browse_btn = QPushButton(tr("Browse files…"))
         self.browse_btn.setMinimumHeight(36)
-        self.browse_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 6px;
-                padding: 8px 12px;
-                background-color: #007aff;
-                color: white;
-                font-size: 12px;
-                border: none;
-            }
-            QPushButton:hover { background-color: #1a84ff; }
-            QPushButton:pressed { background-color: #0062d6; }
-        """)
+        self.browse_btn.setStyleSheet(StyleManager.get_button_style())
         self.browse_btn.clicked.connect(self.browse_files)
         top_bar.addWidget(self.browse_btn)
         
-        # Refresh button / 刷新按钮
-        self.refresh_btn = QPushButton(f"🔄 {tr('Refresh EXIF')}")
-        self.refresh_btn.setMinimumHeight(36)
-        self.refresh_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 6px;
-                padding: 8px 12px;
-                background-color: #34c759;
-                color: white;
-                font-size: 12px;
-                border: none;
-                font-weight: 600;
-            }
-            QPushButton:hover { background-color: #40d865; }
-            QPushButton:pressed { background-color: #28a745; }
-        """)
+        # Refresh button
+        self.refresh_btn = QPushButton(f"{tr('Refresh EXIF')}")
+        self.refresh_btn.setMinimumHeight(40)
+        self.refresh_btn.setStyleSheet(StyleManager.get_button_style(tier='primary'))
         self.refresh_btn.clicked.connect(self.refresh_exif)
         top_bar.addWidget(self.refresh_btn)
         
@@ -208,58 +138,73 @@ class MainWindow(QMainWindow):
         """)
         center_layout.addWidget(self.placeholder)
 
-        self.table_view = QTableView()
+        self.table_view = BorderlessTableView()
         self.table_view.setModel(self.model)
         header = self.table_view.horizontalHeader()
         # Enable interactive column resizing and stretch last section
         # 启用交互式列宽调整并拉伸最后一列
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         header.setStretchLastSection(True)
+        header.setHighlightSections(False)
+        header.setDefaultAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         
-        # Set initial column widths / 设置初始列宽
-        header.resizeSection(0, 150)  # File
-        header.resizeSection(1, 100)  # C-Make
-        header.resizeSection(2, 120)  # C-Model
-        header.resizeSection(3, 100)  # L-Make
-        header.resizeSection(4, 150)  # L-Model
-        header.resizeSection(5, 70)   # Aperture
-        header.resizeSection(6, 80)   # Shutter
-        header.resizeSection(7, 60)   # ISO
-        header.resizeSection(8, 130)  # Film
-        header.resizeSection(9, 250)  # Location
-        header.resizeSection(10, 150) # Date
-        # Status column (11) will stretch as last section
+        # CRITICAL: Disable all visual separators / 关键：禁用所有视觉分隔符
+        header.setSectionsClickable(False)  # Disable section interaction / 禁用区块交互
+        header.setSectionsMovable(False)    # Disable section reordering / 禁用区块重排
+        header.setMinimumSectionSize(60)    # Minimum width for readability / 最小宽度以保证可读性
+        
+        # Adaptive column sizing strategy / 自适应列宽策略
+        # 根据内容和可用空间智能调整列宽 / Intelligently adjust widths based on content and available space
+        
+        # Fixed-width columns for short content / 短内容列使用固定宽度
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)   # Aperture / 光圈
+        header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)   # Shutter / 快门
+        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)   # ISO
+        header.resizeSection(5, 70)
+        header.resizeSection(6, 80)
+        header.resizeSection(7, 60)
+        
+        # Content-based sizing for variable-length columns / 可变长度列基于内容调整
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)  # File / 文件
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)  # C-Make / 相机品牌
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)  # C-Model / 相机型号
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)  # L-Make / 镜头品牌
+        
+        # Stretch mode for long content to utilize available space / 长内容列拉伸以利用可用空间
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)  # L-Model / 镜头型号（最长）
+        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Stretch)  # Film / 胶片
+        
+        # Location and Date use Interactive mode for user control / 位置和日期使用交互模式供用户控制
+        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Interactive)   # Location / 位置
+        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Interactive)  # Date / 日期
+        header.resizeSection(9, 200)
+        header.resizeSection(10, 140)
+        
+        # Status column stretches as last section / 状态列作为最后一列拉伸
+        # (Already set by setStretchLastSection(True) above)
         
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.verticalHeader().setDefaultSectionSize(52)  # Breathable row height
         self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.table_view.setAlternatingRowColors(True)
-        self.table_view.setShowGrid(False)  # Remove grid lines
-        self.table_view.setStyleSheet("""
-            QTableView {
-                border: none;
-                background-color: #ffffff;
-                alternate-background-color: #f9f9f9;
-                selection-background-color: #0051d5;
-                selection-color: #ffffff;
-                border-radius: 8px;
-            }
-            QTableView::item {
-                padding: 8px;
-                border: none;
-            }
-            QTableView::item:selected {
-                background-color: #0051d5;
-                color: #ffffff;
-            }
-            QHeaderView::section {
-                background-color: #f5f5f7;
-                padding: 8px;
-                border: none;
-                font-weight: 600;
-                color: #333333;
-            }
-        """)
+        self.table_view.setShowGrid(False)
+        self.table_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        
+        # CRITICAL: Disable frame and all visual artifacts
+        self.table_view.setFrameShape(QTableView.Shape.NoFrame)
+        self.table_view.setFrameShadow(QTableView.Shadow.Plain)
+        self.table_view.setLineWidth(0)
+        self.table_view.setMidLineWidth(0)
+        
+        self.table_view.setStyleSheet(StyleManager.get_table_style())
+        
+        # Apply custom style to disable Qt's selection border rendering
+        self.table_view.setStyle(BorderlessStyle())
+        
+        # Apply custom borderless delegate
+        self.borderless_delegate = BorderlessDelegate(self)
+        self.table_view.setItemDelegate(self.borderless_delegate)
+        
         self.table_view.selectionModel().selectionChanged.connect(self.on_selection_changed)
         center_layout.addWidget(self.table_view)
         
@@ -270,37 +215,96 @@ class MainWindow(QMainWindow):
         right_layout.setSpacing(12)
         
         self.inspector_title = QLabel(tr("Inspector"))
-        title_font = QFont()
-        title_font.setPointSize(14)
-        title_font.setBold(True)
-        self.inspector_title.setFont(title_font)
-        self.inspector_title.setStyleSheet("color: #1d1d1f; padding-bottom: 4px;")
+        self.inspector_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        self.inspector_title.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; text-transform: uppercase; letter-spacing: 2.5px; padding: 10px 0;")
         right_layout.addWidget(self.inspector_title)
-        
-        # Separator line
-        separator = QLabel()
-        separator.setFixedHeight(1)
-        separator.setStyleSheet("background-color: #e5e5ea;")
-        right_layout.addWidget(separator)
+        # 1. Thumbnail Card (置顶)
+        thumb_card = QWidget()
+        thumb_card.setObjectName("Card")
+        thumb_card.setStyleSheet(StyleManager.get_card_style())
+        thumb_layout = QVBoxLayout(thumb_card)
+        thumb_layout.setContentsMargins(1, 1, 1, 1)
         
         self.thumb_label = QLabel()
-        self.thumb_label.setFixedSize(200, 200)
+        self.thumb_label.setFixedSize(276, 184) # 3:2 Cinematic aspect
         self.thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.thumb_label.setStyleSheet("""
-            border: 1px solid #d1d1d6;
-            border-radius: 8px;
-            background: #fafafa;
-        """)
-        right_layout.addWidget(self.thumb_label)
+        self.thumb_label.setStyleSheet("border: none; background: transparent;")
+        thumb_layout.addWidget(self.thumb_label)
+        right_layout.addWidget(thumb_card)
 
-        # Basic Info Section
+        
+        
+
+
+
+
+        
+        
+        # Exposure Section with LCD-style Panels
+        exposure_card = QWidget()
+        exposure_card.setObjectName("Card")
+        exposure_card.setStyleSheet(StyleManager.get_card_style())
+        exposure_card_layout = QVBoxLayout(exposure_card)
+        
+        self.exposure_label = QLabel(tr("Digital Back Display"))
+        self.exposure_label.setStyleSheet(f"""
+            color: #555557; 
+            font-size: 10px; 
+            font-weight: 800; 
+            text-transform: uppercase; 
+            letter-spacing: 1.5px;
+            padding: 12px 12px 2px 12px;
+        """)
+        exposure_card_layout.addWidget(self.exposure_label)
+        
+        lcd_container = QHBoxLayout()
+        lcd_container.setContentsMargins(10, 10, 10, 10)
+        lcd_container.setSpacing(8)
+        
+        def create_lcd_panel(label_text):
+            panel = QWidget()
+            panel.setObjectName("LCDPanel")
+            panel.setStyleSheet(StyleManager.get_lcd_style())
+            p_layout = QVBoxLayout(panel)
+            p_layout.setContentsMargins(15, 12, 15, 12)
+            p_layout.setSpacing(6)
+            
+            lbl = QLabel(label_text)
+            lbl.setObjectName("LCDLabel")
+            lbl.setStyleSheet(StyleManager.get_lcd_style())
+            p_layout.addWidget(lbl, alignment=Qt.AlignLeft)
+            
+            val = QLabel("--")
+            val.setObjectName("LCDValue")
+            val.setStyleSheet(StyleManager.get_lcd_style())
+            p_layout.addWidget(val, alignment=Qt.AlignLeft)
+            return panel, val
+
+        ap_panel, self.info_aperture = create_lcd_panel(tr("Aperture"))
+        sh_panel, self.info_shutter = create_lcd_panel(tr("Shutter"))
+        iso_panel, self.info_iso = create_lcd_panel(tr("ISO"))
+        
+        lcd_container.addWidget(ap_panel)
+        lcd_container.addWidget(sh_panel)
+        lcd_container.addWidget(iso_panel)
+        
+        exposure_card_layout.addLayout(lcd_container)
+        right_layout.addWidget(exposure_card)
+        
+        # 3. Basic Info Section (底部的元数据细节)
+        basic_card = QWidget()
+        basic_card.setObjectName("Card")
+        basic_card.setStyleSheet(StyleManager.get_card_style())
+        basic_card_layout = QVBoxLayout(basic_card)
+        basic_card_layout.setContentsMargins(15, 12, 15, 15)
+        
         self.basic_label = QLabel(tr("Basic Info"))
-        self.basic_label.setStyleSheet("color: #86868b; font-size: 11px; font-weight: 600; margin-top: 8px;")
-        right_layout.addWidget(self.basic_label)
+        self.basic_label.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;")
+        basic_card_layout.addWidget(self.basic_label)
         
         form = QFormLayout()
-        form.setSpacing(8)
-        form.setContentsMargins(0, 4, 0, 8)
+        form.setVerticalSpacing(8)
+        form.setContentsMargins(0, 10, 0, 0)
         
         self.info_file = QLabel("--")
         self.info_camera_make = QLabel("--")
@@ -312,86 +316,34 @@ class MainWindow(QMainWindow):
         self.info_date = QLabel("--")
         self.info_status = QLabel("--")
         
-        # Style for value labels with monospace font for technical data
-        value_style = "color: #1d1d1f; font-size: 12px; font-family: 'Consolas', 'Courier New', monospace;"
+        # High-end technical monospace style / 高端技术等宽字体样式
+        value_style = f"color: {StyleManager.COLOR_TEXT_PRIMARY}; font-size: {StyleManager.FONT_SIZE_SMALL}; font-family: {StyleManager.FONT_FAMILY_MONO};"
         for lbl in [self.info_file, self.info_camera_make, self.info_camera_model, self.info_lens_make, self.info_lens_model, self.info_film, self.info_location, self.info_date, self.info_status]:
-            lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setStyleSheet(value_style)
+            lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setWordWrap(True)
         
-        # Label style
-        label_style = "color: #86868b; font-size: 11px;"
+        # Label style / 标签样式
+        label_style = f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: {StyleManager.FONT_SIZE_TINY}; font-weight: {StyleManager.FONT_WEIGHT_MEDIUM}; letter-spacing: 0.5px;"
         
-        self.file_label = QLabel(tr("File:"))
-        self.file_label.setStyleSheet(label_style)
-        form.addRow(self.file_label, self.info_file)
+        form.addRow(QLabel(tr("File:")), self.info_file)
+        form.addRow(QLabel(tr("Camera Make:")), self.info_camera_make)
+        form.addRow(QLabel(tr("Camera Model:")), self.info_camera_model)
+        form.addRow(QLabel(tr("Lens Make:")), self.info_lens_make)
+        form.addRow(QLabel(tr("Lens Model:")), self.info_lens_model)
+        form.addRow(QLabel(tr("Film Stock:")), self.info_film)
+        form.addRow(QLabel(tr("Location:")), self.info_location)
+        form.addRow(QLabel(tr("Date:")), self.info_date)
+        form.addRow(QLabel(tr("Status:")), self.info_status)
         
-        self.make_label = QLabel(tr("Camera Make:"))
-        self.make_label.setStyleSheet(label_style)
-        form.addRow(self.make_label, self.info_camera_make)
-
-        self.model_label = QLabel(tr("Camera Model:"))
-        self.model_label.setStyleSheet(label_style)
-        form.addRow(self.model_label, self.info_camera_model)
+        # Apply label styling to all labels in form
+        for i in range(form.rowCount()):
+            lbl = form.itemAt(i, QFormLayout.ItemRole.LabelRole).widget()
+            if isinstance(lbl, QLabel):
+                lbl.setStyleSheet(label_style)
         
-        self.lens_make_label = QLabel(tr("Lens Make:"))
-        self.lens_make_label.setStyleSheet(label_style)
-        form.addRow(self.lens_make_label, self.info_lens_make)
-
-        self.lens_model_label = QLabel(tr("Lens Model:"))
-        self.lens_model_label.setStyleSheet(label_style)
-        form.addRow(self.lens_model_label, self.info_lens_model)
-
-        self.film_label = QLabel(tr("Film Stock:"))
-        self.film_label.setStyleSheet(label_style)
-        form.addRow(self.film_label, self.info_film)
-
-        self.location_label = QLabel(tr("Location:"))
-        self.location_label.setStyleSheet(label_style)
-        form.addRow(self.location_label, self.info_location)
-        
-        self.date_label = QLabel(tr("Date:"))
-        self.date_label.setStyleSheet(label_style)
-        form.addRow(self.date_label, self.info_date)
-        
-        self.status_label = QLabel(tr("Status:"))
-        self.status_label.setStyleSheet(label_style)
-        form.addRow(self.status_label, self.info_status)
-        
-        right_layout.addLayout(form)
-        
-        # Exposure Section / 曝光区域
-        self.exposure_label = QLabel(tr("Exposure"))
-        self.exposure_label.setStyleSheet("color: #86868b; font-size: 11px; font-weight: 600; margin-top: 12px;")
-        right_layout.addWidget(self.exposure_label)
-        
-        exposure_form = QFormLayout()
-        exposure_form.setSpacing(8)
-        exposure_form.setContentsMargins(0, 4, 0, 8)
-        
-        self.info_aperture = QLabel("-")
-        self.info_shutter = QLabel("-")
-        self.info_iso = QLabel("-")
-        
-        # Monospace font for exposure values / 曝光值使用等宽字体
-        exposure_style = "color: #1d1d1f; font-size: 13px; font-family: 'Consolas', 'Courier New', monospace; font-weight: 600;"
-        for lbl in [self.info_aperture, self.info_shutter, self.info_iso]:
-            lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            lbl.setStyleSheet(exposure_style)
-        
-        self.aperture_label = QLabel(tr("Aperture:"))
-        self.aperture_label.setStyleSheet(label_style)
-        exposure_form.addRow(self.aperture_label, self.info_aperture)
-        
-        self.shutter_label = QLabel(tr("Shutter:"))
-        self.shutter_label.setStyleSheet(label_style)
-        exposure_form.addRow(self.shutter_label, self.info_shutter)
-        
-        self.iso_label = QLabel(tr("ISO:"))
-        self.iso_label.setStyleSheet(label_style)
-        exposure_form.addRow(self.iso_label, self.info_iso)
-        
-        right_layout.addLayout(exposure_form)
+        basic_card_layout.addLayout(form)
+        right_layout.addWidget(basic_card)
         right_layout.addStretch()
         
         right_widget.setMaximumWidth(300)
@@ -413,25 +365,8 @@ class MainWindow(QMainWindow):
         
         main_layout.addWidget(splitter)
         
-        # Set window style with macOS Big Sur theme
-        # 设置 macOS Big Sur 主题窗口风格
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #f5f5f7;
-            }
-            QWidget {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                font-family: -apple-system, "Segoe UI", sans-serif;
-            }
-            QLabel {
-                color: #1d1d1f;
-            }
-            QSplitter::handle {
-                background-color: #d1d1d6;
-                width: 1px;
-            }
-        """)
+        # Apply global styles from StyleManager
+        self.setStyleSheet(StyleManager.get_main_style() + StyleManager.get_sidebar_style())
 
     def on_files_dropped(self, file_paths: List[str]):
         """Callback when files are imported / 当文件被导入时的回调"""
@@ -620,11 +555,11 @@ class MainWindow(QMainWindow):
         """Refresh all UI text with current language / 用当前语言刷新所有 UI 文本"""
         # Update sidebar / 更新侧边栏
         self.sidebar_title.setText(tr("Filters & Presets"))
-        self.camera_btn.setText(f"📷 {tr('Camera')}")
-        self.lens_btn.setText(f"🔍 {tr('Lens')}")
-        self.film_btn.setText(f"📽️ {tr('Film Stock')}")
-        self.json_import_btn.setText(f"📄 {tr('Import Metadata')}")
-        self.refresh_btn.setText(f"🔄 {tr('Refresh EXIF')}")
+        self.camera_btn.setText(tr("Camera"))
+        self.lens_btn.setText(tr("Lens"))
+        self.film_btn.setText(tr("Film Stock"))
+        self.json_import_btn.setText(tr("Import Metadata"))
+        self.refresh_btn.setText(tr("Refresh EXIF"))
         
         # Update content area / 更新内容区域
         self.content_title.setText(tr("Imported Photos"))
@@ -642,11 +577,7 @@ class MainWindow(QMainWindow):
         self.date_label.setText(tr("Date:"))
         self.status_label.setText(tr("Status:"))
         
-        # Update exposure section / 更新曝光区域
-        self.exposure_label.setText(tr("Exposure"))
-        self.aperture_label.setText(tr("Aperture:"))
-        self.shutter_label.setText(tr("Shutter:"))
-        self.iso_label.setText(tr("ISO:"))
+        self.exposure_label.setText(tr("Digital Back Display"))
     
     def import_metadata(self):
         """Import metadata from JSON/CSV/TXT and show editor dialog / 从 JSON/CSV/TXT 导入元数据并显示编辑对话框"""
@@ -674,11 +605,7 @@ class MainWindow(QMainWindow):
             # Check file type and parse accordingly
             # 根据文件类型选择解析方式
             if file_path.endswith(('.csv', '.txt')):
-                # CSV/TXT import with field mapping dialog
-                # CSV/TXT 导入（带字段映射对话框）
                 from src.core.csv_parser import CSVParser
-                from src.core.csv_converter import CSVConverter
-                from src.ui.field_mapping_dialog import FieldMappingDialog
                 
                 # Parse CSV file
                 csv_parser = CSVParser(file_path)
@@ -688,22 +615,11 @@ class MainWindow(QMainWindow):
                     QMessageBox.warning(self, tr("Import Metadata"), tr("No data found in file"))
                     return
                 
-                # Show field mapping dialog
-                # 显示字段映射对话框
-                mapping_dialog = FieldMappingDialog(headers, rows[:5], self)
-                if mapping_dialog.exec() != QDialog.DialogCode.Accepted:
-                    return
-                
-                # Get user-selected mappings
-                mappings = mapping_dialog.get_mappings()
-                
-                # Convert CSV data to metadata entries (matched by row order)
-                # 将 CSV 数据转换为元数据条目（按行序号匹配）
-                metadata_entries = CSVConverter.convert_rows(rows, mappings, self.model.photos)
-                
-                if not metadata_entries:
-                    QMessageBox.warning(self, tr("Import Metadata"), tr("No valid entries found"))
-                    return
+                # Direct to Unified Editor
+                editor = MetadataEditorDialog(self.model.photos, [], headers, rows, self)
+                editor.metadata_written.connect(self.on_metadata_written)
+                editor.exec()
+                return # Task handled internally by dialog
             
             else:
                 # JSON import (existing logic)
@@ -729,7 +645,7 @@ class MainWindow(QMainWindow):
                 progress.close()
             
             # Show editor dialog / 显示编辑对话框
-            editor = MetadataEditorDialog(self.model.photos, metadata_entries, self)
+            editor = MetadataEditorDialog(self.model.photos, metadata_entries, parent=self)
             editor.metadata_written.connect(self.on_metadata_written)
             editor.exec()
                 

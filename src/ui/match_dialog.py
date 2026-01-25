@@ -17,6 +17,7 @@ from src.core.photo_model import PhotoItem
 from src.core.json_parser import FilmLogEntry
 from src.core.json_matcher import PhotoMatcher
 from src.utils.i18n import tr
+from src.ui.style_manager import StyleManager
 
 
 class MatchPreviewDialog(QDialog):
@@ -52,13 +53,14 @@ class MatchPreviewDialog(QDialog):
         stats_layout = QHBoxLayout(stats_box)
         
         self.stats_label = QLabel()
-        self.stats_label.setFont(QFont("Segoe UI", 11))
+        self.stats_label.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 13, QFont.Bold))
+        self.stats_label.setStyleSheet(f"color: {StyleManager.COLOR_ACCENT};")
         self._update_stats_label()
         stats_layout.addWidget(self.stats_label)
         stats_layout.addStretch()
         
-        # Rematch button / 重新匹配按钮
-        rematch_btn = QPushButton("🔄 " + tr("Rematch"))
+        # Rematch button
+        rematch_btn = QPushButton(tr("Rematch"))
         rematch_btn.setMinimumHeight(32)
         rematch_btn.clicked.connect(self.rematch_with_offset)
         stats_layout.addWidget(rematch_btn)
@@ -96,25 +98,7 @@ class MatchPreviewDialog(QDialog):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.table.setStyleSheet("""
-            QTableWidget {
-                background-color: white;
-                border: 1px solid #e5e5ea;
-                border-radius: 8px;
-                gridline-color: #f0f0f5;
-            }
-            QHeaderView::section {
-                background-color: #f9f9fb;
-                padding: 8px;
-                border: none;
-                border-bottom: 1px solid #e5e5ea;
-                font-weight: 600;
-                color: #1d1d1f;
-            }
-            QTableWidget::item {
-                padding: 6px;
-            }
-        """)
+        self.table.setStyleSheet(StyleManager.get_table_style())
         
         layout.addWidget(self.table)
         
@@ -125,42 +109,39 @@ class MatchPreviewDialog(QDialog):
         cancel_btn = QPushButton(tr("Cancel"))
         cancel_btn.setMinimumSize(100, 36)
         cancel_btn.clicked.connect(self.reject)
-        cancel_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                padding: 8px 16px;
-                background: #f0f0f5;
-                border: 1px solid #e5e5ea;
-                font-size: 13px;
-            }
-            QPushButton:hover {
-                background: #e8e8ed;
-            }
-        """)
+        cancel_btn.setStyleSheet(StyleManager.get_button_style())
         btn_layout.addWidget(cancel_btn)
         
-        apply_btn = QPushButton(tr("Apply to All"))
-        apply_btn.setMinimumSize(120, 36)
+        apply_btn = QPushButton(f"✅ {tr('Apply to All')}")
+        apply_btn.setMinimumSize(140, 38)
         apply_btn.clicked.connect(self.accept)
-        apply_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                padding: 8px 16px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #007aff, stop:1 #0051d5);
-                border: none;
-                color: white;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #1a8cff, stop:1 #1a5ce6);
-            }
-        """)
+        apply_btn.setStyleSheet(StyleManager.get_button_style(tier='primary'))
         btn_layout.addWidget(apply_btn)
         
         layout.addLayout(btn_layout)
+        
+        # Global Style
+        self.setStyleSheet(StyleManager.get_main_style())
+        
+        for box in [stats_box, offset_box]:
+            box.setStyleSheet(f"""
+                QGroupBox {{
+                    font-weight: bold;
+                    color: {StyleManager.COLOR_TEXT_SECONDARY};
+                    border: 1px solid {StyleManager.COLOR_BORDER};
+                    border-radius: 8px;
+                    margin-top: 10px;
+                    padding-top: 20px;
+                }}
+                QGroupBox::title {{
+                    subcontrol-origin: margin;
+                    left: 10px;
+                    padding: 0 3px;
+                }}
+            """)
+        
+        rematch_btn.setStyleSheet(StyleManager.get_button_style(tier='primary').replace("padding: 10px 18px;", "padding: 4px 12px;"))
+        self.offset_spin.setStyleSheet(f"border: 1px solid {StyleManager.COLOR_BORDER}; border-radius: 4px; padding: 2px;")
     
     def _update_stats_label(self):
         """Update statistics label / 更新统计标签"""

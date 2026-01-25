@@ -125,11 +125,24 @@ class TranslationManager:
             "Shot Date:": {"zh": "拍摄日期：", "en": "Shot Date:"},
             "Location:": {"zh": "地理位置：", "en": "Location:"},
             "Notes:": {"zh": "备注：", "en": "Notes:"},
-            "Sequence Offset:": {"zh": "序列偏移：", "en": "Sequence Offset:"},
+            "Sequence Offset": {"zh": "序列偏移", "en": "Sequence Offset"},
+            "{meta} records loaded for {photo} photos": {
+                "zh": "成功加载了 {photo} 张照片的 {meta} 条记录",
+                "en": "{meta} records loaded for {photo} photos"
+            },
+            "Warning: Only {meta} records for {photo} photos": {
+                "zh": "警告：只有 {meta} 条记录对应 {photo} 张照片",
+                "en": "Warning: Only {meta} records for {photo} photos"
+            },
             "Warning: {meta} records but {photo} photos": {
                 "zh": "警告：{meta} 条元数据记录，但只有 {photo} 张照片",
                 "en": "Warning: {meta} records but {photo} photos"
             },
+            "Records": {"zh": "数据记录", "en": "Records"},
+            "Preview": {"zh": "预览", "en": "Preview"},
+            "No Photo Selected": {"zh": "未选择照片", "en": "No Photo Selected"},
+            "No Photo Linked": {"zh": "未关联照片", "en": "No Photo Linked"},
+            "Preview Failed": {"zh": "预览加载失败", "en": "Preview Failed"},
             "Write All Files": {"zh": "写入全部文件", "en": "Write All Files"},
             "Refresh": {"zh": "刷新", "en": "Refresh"},
             "Refresh EXIF": {"zh": "刷新 EXIF", "en": "Refresh EXIF"},

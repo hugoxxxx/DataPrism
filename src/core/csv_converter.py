@@ -103,10 +103,10 @@ class CSVConverter:
                     entry.camera_make = value
                 
                 elif exif_field == 'Model':
-                    entry.camera = value
+                    entry.camera_model = value
                 
                 elif exif_field == 'LensModel':
-                    entry.lens = value
+                    entry.lens_model = value
                 
                 elif exif_field == 'Notes':
                     entry.notes = value

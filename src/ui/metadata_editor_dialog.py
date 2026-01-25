@@ -11,9 +11,9 @@ import re
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
-    QFormLayout, QLineEdit, QLabel, QPushButton, QSlider, QSpinBox,
+    QFormLayout, QLineEdit, QLabel, QPushButton, QSlider, QSpinBox, QComboBox,
     QTableWidget, QTableWidgetItem, QMessageBox, QProgressDialog, QHeaderView,
-    QApplication
+    QApplication, QFrame, QWidget, QScrollArea, QSizePolicy, QToolButton
 )
 from PySide6.QtCore import Qt, QThread, Signal, QTimer
 from PySide6.QtGui import QFont, QPixmap, QColor
@@ -23,10 +23,12 @@ import logging
 from src.core.photo_model import PhotoItem
 from src.core.metadata_parser import MetadataEntry
 from src.core.exif_worker import ExifToolWorker
+from src.core.csv_converter import CSVConverter
 import src.utils.gps_utils as gps_utils
 from src.utils.i18n import tr
 from src.utils.logger import get_logger
 from src.utils.validators import MetadataValidator
+from src.ui.style_manager import StyleManager
 
 logger = get_logger('DataPrism.MetadataEditor')
 
@@ -36,617 +38,574 @@ class MetadataEditorDialog(QDialog):
     Dialog for editing and applying metadata to photos / 用于编辑和应用元数据到照片的对话框
     """
     
-    # Signal emitted when metadata is successfully written / 元数据成功写入时发出的信号
     metadata_written = Signal()
     
     def __init__(
         self,
         photos: List[PhotoItem],
         metadata_entries: List[MetadataEntry],
+        raw_headers: List[str] = None,
+        raw_rows: List[Dict] = None,
         parent=None
     ):
         super().__init__(parent)
         self.photos = photos
         self.metadata_entries = metadata_entries
+        self.raw_headers = raw_headers
+        self.raw_rows = raw_rows
+        self.mappings = {}  # {csv_column: {'field_combo': QComboBox, 'gps_combo': QComboBox}}
         self.current_index = 0
-        self.offset = 0  # Sequence offset / 序列偏移
-        self._completion_handled = False  # Track if completion dialog was handled / 跟踪是否已处理完成对话框
+        self.offset = 0
+        self._completion_handled = False
         
         self.setWindowTitle(tr("Metadata Editor"))
-        self.setMinimumSize(1200, 700)
+        self.setMinimumSize(1250, 800)
         
-        # Ensure metadata_entries is large enough to cover all photos
-        # 确保元数据列表足够长，以覆盖所有照片
-        required_len = len(self.photos) + abs(self.offset) + 20 # Add some buffer
-        if len(self.metadata_entries) < required_len:
-            missing_count = required_len - len(self.metadata_entries)
-            for _ in range(missing_count):
-                self.metadata_entries.append(MetadataEntry())
+        self._current_metadata_idx = None
+        
+        # Ensure we only show what was imported
+        # 不再添加多余的缓冲，严格按导入的元数据量来
+        pass
+            
+        # Initialize UI widget references
+        self.photo_list = None
+        self.metadata_list = None
+        self.preview_label = None
+        self.file_info_label = None
+        self.warning_label = None
         
         self.setup_ui()
         self.check_count_match()
         self.load_photo(0)
     
     def setup_ui(self):
-        """Setup UI components / 设置 UI 组件"""
-        layout = QHBoxLayout(self)
-        layout.setSpacing(16)
-        layout.setContentsMargins(20, 20, 20, 20)
+        """Setup UI components with explicit parenting for stability"""
+        main_layout = QVBoxLayout(self) # Changed to Vertical to allow for a header/toolbar
+        main_layout.setSpacing(0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         
-        # ========== 左侧：照片列表 ==========
-        left_widget = QVBoxLayout()
+        # --- Top Toolbar ---
+        toolbar = QFrame(self)
+        toolbar.setFixedHeight(60)
+        toolbar.setStyleSheet(f"background-color: {StyleManager.COLOR_BG_SIDEBAR}; border-bottom: 1px solid {StyleManager.COLOR_BORDER};")
+        tool_layout = QHBoxLayout(toolbar)
+        tool_layout.setContentsMargins(20, 0, 20, 0)
         
-        left_title = QLabel(tr("Photos"))
-        left_title.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        left_widget.addWidget(left_title)
+        self.title_label = QLabel(tr("Metadata Studio"))
+        self.title_label.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 16, QFont.Bold))
+        self.title_label.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_PRIMARY};")
+        tool_layout.addWidget(self.title_label)
+        tool_layout.addStretch()
         
-        self.photo_list = QListWidget()
-        self.photo_list.setMinimumWidth(200)
+        if self.raw_headers:
+            self.map_toggle = QPushButton(tr("Mapping Configuration"))
+            self.map_toggle.setCheckable(True)
+            self.map_toggle.setChecked(False)
+            self.map_toggle.setStyleSheet(StyleManager.get_button_style(tier='secondary'))
+            self.map_toggle.clicked.connect(self.toggle_mapping_pane)
+            tool_layout.addWidget(self.map_toggle)
+        
+        main_layout.addWidget(toolbar)
+        
+        # --- Content Area ---
+        content_widget = QWidget(self)
+        content_layout = QHBoxLayout(content_widget)
+        content_layout.setSpacing(16)
+        content_layout.setContentsMargins(20, 20, 20, 20)
+        
+        # --- Mapping Pane (Hidden by default) ---
+        self.mapping_pane = QWidget(content_widget)
+        self.mapping_pane.setFixedWidth(320)
+        self.mapping_pane.setVisible(False)
+        map_vbox = QVBoxLayout(self.mapping_pane)
+        map_vbox.setContentsMargins(0, 0, 0, 0)
+        
+        map_title = QLabel(tr("Correlate Data"))
+        map_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        map_title.setStyleSheet(f"color: {StyleManager.COLOR_ACCENT}; text-transform: uppercase; margin-bottom: 5px;")
+        map_vbox.addWidget(map_title)
+        
+        map_scroll = QScrollArea(self.mapping_pane)
+        map_scroll.setWidgetResizable(True)
+        map_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        map_scroll.setStyleSheet("background: transparent;")
+        
+        scroll_content = QWidget()
+        scroll_content.setStyleSheet(f"background-color: {StyleManager.COLOR_BG_CARD}; border: 1px solid {StyleManager.COLOR_BORDER}; border-radius: 8px;")
+        self.map_form = QFormLayout(scroll_content)
+        self.map_form.setSpacing(12)
+        
+        self.exif_fields = [
+            "-- " + tr("Ignore") + " --",
+            "-- " + tr("ID Source") + " --",
+            "DateTimeOriginal", "GPSLatitude", "GPSLongitude",
+            "Make", "Model", "LensModel", "FNumber", "ExposureTime",
+            "ISO", "FocalLength", "Film", "Notes"
+        ]
+        
+        if self.raw_headers:
+            for col in self.raw_headers:
+                f_combo = QComboBox()
+                f_combo.addItems(self.exif_fields)
+                # Smart Match logic simplified here
+                suggested = self._smart_match_header(col)
+                f_combo.setCurrentText(suggested)
+                f_combo.currentTextChanged.connect(self.on_mapping_changed)
+                
+                g_combo = QComboBox()
+                g_combo.setFixedWidth(80)
+                g_combo.hide()
+                if suggested == "GPSLatitude":
+                    g_combo.addItems(["N", "S"])
+                    g_combo.show()
+                elif suggested == "GPSLongitude":
+                    g_combo.addItems(["E", "W"])
+                    g_combo.show()
+                g_combo.currentTextChanged.connect(self.on_mapping_changed)
+                
+                self.mappings[col] = {'field': f_combo, 'gps': g_combo}
+                
+                row_w = QWidget()
+                row_h = QHBoxLayout(row_w)
+                row_h.setContentsMargins(0,0,0,0)
+                row_h.addWidget(f_combo)
+                row_h.addWidget(g_combo)
+                
+                lbl = QLabel(f"{col}:")
+                lbl.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_PRIMARY};")
+                self.map_form.addRow(lbl, row_w)
+                
+        map_scroll.setWidget(scroll_content)
+        map_vbox.addWidget(map_scroll)
+        content_layout.addWidget(self.mapping_pane, 2) # Added stretch factor
+        
+        # --- LEFT: Navigation ---
+        left_widget = QWidget(self)
+        left_widget.setMinimumWidth(280) # Reduced from 380
+        left_vbox = QVBoxLayout(left_widget)
+        left_vbox.setContentsMargins(0, 0, 0, 0)
+        
+        nav_container = QWidget(left_widget)
+        nav_hbox = QHBoxLayout(nav_container)
+        nav_hbox.setContentsMargins(0, 0, 0, 0)
+        
+        # Photos list
+        photo_box = QWidget(nav_container)
+        photo_vbox = QVBoxLayout(photo_box)
+        photo_vbox.setContentsMargins(0, 0, 0, 0)
+        photo_title = QLabel(tr("Photos"), photo_box)
+        photo_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        self.photo_list = QListWidget(photo_box)
+        self.photo_list.setStyleSheet(StyleManager.get_list_style())
         for i, photo in enumerate(self.photos):
-            display_text = photo.file_name or f"Photo {i+1}"
-            item = QListWidgetItem(display_text)
-            item.setData(Qt.UserRole, i)
+            item = QListWidgetItem(photo.file_name or f"Photo {i+1}")
+            item.setData(Qt.ItemDataRole.UserRole, i)
             self.photo_list.addItem(item)
-        
         self.photo_list.itemClicked.connect(self.on_photo_selected)
-        left_widget.addWidget(self.photo_list)
+        photo_vbox.addWidget(photo_title)
+        photo_vbox.addWidget(self.photo_list)
         
-        # ========== 右侧：元数据编辑 ==========
-        right_widget = QVBoxLayout()
+        # Records list
+        record_box = QWidget(nav_container)
+        record_vbox = QVBoxLayout(record_box)
+        record_vbox.setContentsMargins(0, 0, 0, 0)
+        record_title = QLabel(tr("Records"), record_box)
+        record_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        record_title.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY};")
         
-        right_title = QLabel(tr("Metadata"))
-        right_title.setFont(QFont("Segoe UI", 12, QFont.Bold))
-        right_widget.addWidget(right_title)
+        self.metadata_list = QListWidget(record_box)
+        self.metadata_list.setStyleSheet(StyleManager.get_list_style())
+        for i, entry in enumerate(self.metadata_entries):
+            # 仅显示序号，如 #01, #02
+            display_text = f"#{i+1:02d}"
+            item = QListWidgetItem(display_text)
+            item.setData(Qt.ItemDataRole.UserRole, i)
+            self.metadata_list.addItem(item)
+        self.metadata_list.itemClicked.connect(self.on_metadata_selected)
+        record_vbox.addWidget(record_title)
+        record_vbox.addWidget(self.metadata_list)
         
-        # 编辑表单 / Edit form
-        form_layout = QFormLayout()
-        form_layout.setSpacing(12)
+        nav_hbox.addWidget(photo_box, 1)
+        nav_hbox.addWidget(record_box, 1)
+        left_vbox.addWidget(nav_container)
         
-        self.edit_make = QLineEdit()
-        self.edit_model = QLineEdit()
-        self.edit_lens_make = QLineEdit()
-        self.edit_lens_model = QLineEdit()
-        self.edit_aperture = QLineEdit()
-        self.edit_shutter = QLineEdit()
-        self.edit_iso = QLineEdit()
-        self.edit_film_stock = QLineEdit()
-        self.edit_focal_length = QLineEdit()
-        self.edit_shot_date = QLineEdit()
-        self.edit_location = QLineEdit()
-        self.edit_notes = QLineEdit()
+        # --- MIDDLE: Form ---
+        mid_widget = QWidget(self)
+        mid_vbox = QVBoxLayout(mid_widget)
+        mid_vbox.setContentsMargins(0, 0, 0, 0)
         
-        for edit_field in [self.edit_make, self.edit_model, self.edit_lens_make, self.edit_lens_model,
-                          self.edit_aperture, self.edit_shutter, self.edit_iso, self.edit_film_stock,
-                          self.edit_focal_length, self.edit_shot_date, self.edit_location,
-                          self.edit_notes]:
-            edit_field.setMinimumHeight(32)
+        mid_title = QLabel(tr("Metadata Editor"), mid_widget)
+        mid_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 16, QFont.Bold))
+        mid_title.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_PRIMARY};")
+        mid_vbox.addWidget(mid_title)
         
-        form_layout.addRow(QLabel(tr("Camera Make:")), self.edit_make)
-        form_layout.addRow(QLabel(tr("Camera Model:")), self.edit_model)
-        form_layout.addRow(QLabel(tr("Lens Make:")), self.edit_lens_make)
-        form_layout.addRow(QLabel(tr("Lens Model:")), self.edit_lens_model)
-        form_layout.addRow(QLabel(tr("Aperture:")), self.edit_aperture)
-        form_layout.addRow(QLabel(tr("Shutter:")), self.edit_shutter)
-        form_layout.addRow(QLabel(tr("ISO:")), self.edit_iso)
-        form_layout.addRow(QLabel(tr("Film Stock:")), self.edit_film_stock)
-        form_layout.addRow(QLabel(tr("Focal Length:")), self.edit_focal_length)
-        form_layout.addRow(QLabel(tr("Shot Date:")), self.edit_shot_date)
-        form_layout.addRow(QLabel(tr("Location:")), self.edit_location)
-        form_layout.addRow(QLabel(tr("Notes:")), self.edit_notes)
+        scroll = QScrollArea(mid_widget)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setStyleSheet("background: transparent;")
         
-        right_widget.addLayout(form_layout)
-        right_widget.addStretch()
+        scroll_content = QWidget()
+        scroll_content.setObjectName("ScrollContent")
+        scroll_content.setStyleSheet("background: transparent;")
+        scroll_vbox = QVBoxLayout(scroll_content)
+        scroll_vbox.setContentsMargins(10, 20, 10, 20)
+        scroll_vbox.setSpacing(20)
         
-        # ========== 底部：序列平移 + 警告 + 按钮 ==========
-        bottom_widget = QVBoxLayout()
-        
-        # 数量警告 / Count warning
-        self.warning_label = QLabel()
-        self.warning_label.setStyleSheet("color: #d32f2f; font-weight: bold;")
-        bottom_widget.addWidget(self.warning_label)
-        
-        # 序列平移滑块 / Sequence offset slider
-        offset_layout = QHBoxLayout()
-        offset_label = QLabel(tr("Sequence Offset:"))
-        self.offset_spin = QSpinBox()
-        self.offset_spin.setRange(-20, 20)
-        self.offset_spin.setValue(0)
-        self.offset_spin.setSuffix(" frames")
-        self.offset_spin.setMinimumWidth(100)
-        self.offset_spin.valueChanged.connect(self.on_offset_changed)
-        
-        offset_layout.addWidget(offset_label)
-        offset_layout.addWidget(self.offset_spin)
-        offset_layout.addStretch()
-        bottom_widget.addLayout(offset_layout)
-        
-        # 按钮 / Buttons
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
-        
-        cancel_btn = QPushButton(tr("Cancel"))
-        cancel_btn.setMinimumSize(100, 36)
-        cancel_btn.clicked.connect(self.reject)
-        cancel_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                padding: 8px 16px;
-                background: #f0f0f5;
-                border: 1px solid #e5e5ea;
-                font-size: 13px;
-            }
-            QPushButton:hover { background: #e8e8ed; }
-        """)
-        button_layout.addWidget(cancel_btn)
-        
-        write_btn = QPushButton(tr("Write All Files"))
-        write_btn.setMinimumSize(140, 36)
-        write_btn.clicked.connect(self.on_write_metadata)
-        write_btn.setStyleSheet("""
-            QPushButton {
-                border-radius: 8px;
-                padding: 8px 16px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #34c759, stop:1 #28a745);
-                border: none;
-                color: white;
-                font-size: 13px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                            stop:0 #40d865, stop:1 #2fb84f);
-            }
-        """)
-        button_layout.addWidget(write_btn)
-        
-        bottom_widget.addLayout(button_layout)
-        
-        # 组合左右布局 / Combine layouts
-        left_container = QVBoxLayout()
-        left_container.addLayout(left_widget)
-        left_container.setContentsMargins(0, 0, 0, 0)
-        
-        right_container = QVBoxLayout()
-        right_container.addLayout(right_widget)
-        right_container.addLayout(bottom_widget)
-        right_container.setContentsMargins(0, 0, 0, 0)
-        
-        layout.addLayout(left_container, 1)
-        layout.addLayout(right_container, 2)
-    
-    def check_count_match(self):
-        """Check if counts match and show warning / 检查数量是否匹配并显示警告"""
-        photo_count = len(self.photos)
-        metadata_count = len(self.metadata_entries)
-        
-        if photo_count == metadata_count:
-            self.warning_label.setText("")
-        else:
-            self.warning_label.setText(
-                tr("Warning: {meta} records but {photo} photos").format(
-                    meta=metadata_count,
-                    photo=photo_count
-                )
-            )
-    
-    def on_photo_selected(self, item: QListWidgetItem):
-        """Handle photo selection / 处理照片选择"""
-        # Save current before switching / 切换前保存当前数据
-        self._save_current_metadata()
-        
-        index = item.data(Qt.UserRole)
-        self.load_photo(index)
+        def add_section(title, parent):
+            sect = QWidget(parent)
+            sect_layout = QVBoxLayout(sect)
+            sect_layout.setContentsMargins(0, 10, 0, 10)
+            
+            lbl = QLabel(title, sect)
+            lbl.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 9, QFont.Bold))
+            # 提高分类标题亮度
+            lbl.setStyleSheet(f"color: {StyleManager.COLOR_ACCENT}; text-transform: uppercase; letter-spacing: 1px;")
+            sect_layout.addWidget(lbl)
+            
+            line = QFrame(sect)
+            line.setFrameShape(QFrame.Shape.HLine)
+            line.setStyleSheet(f"background-color: {StyleManager.COLOR_BORDER}; max-height: 1px;")
+            sect_layout.addWidget(line)
+            
+            f = QFormLayout()
+            f.setSpacing(12)
+            sect_layout.addLayout(f)
+            return sect, f
 
-    def _save_current_metadata(self):
-        """Save UI values back to current metadata entry / 将 UI 值保存回当前元数据条目"""
-        if self._current_index is None: # Changed from self.current_index < 0
-            return
-            
-        # metadata_idx = self.current_index + self.offset # Removed
-        # if 0 <= metadata_idx < len(self.metadata_entries): # Removed
-        entry = self.metadata_entries[self._current_index] # Changed to use _current_index directly
-            
-        # Update entry fields from UI
-        # 从 UI 更新条目字段
-        entry.camera_make = self.edit_make.text().strip() or None
-        entry.camera_model = self.edit_model.text().strip() or None
-        entry.lens_make = self.edit_lens_make.text().strip() or None
-        entry.lens_model = self.edit_lens_model.text().strip() or None
-        entry.aperture = self.edit_aperture.text().strip() or None
-        entry.shutter_speed = self.edit_shutter.text().strip() or None
-        entry.iso = self.edit_iso.text().strip() or None
-        entry.focal_length = self.edit_focal_length.text().strip() or None
-        entry.film_stock = self.edit_film_stock.text().strip() or None
-        entry.shot_date = self.edit_shot_date.text().strip() or None
-        entry.location = self.edit_location.text().strip() or None
-        entry.notes = self.edit_notes.text().strip() or None
-            
-        # Use getattr for file_name as it's not always present in MetadataEntry
-        file_name = getattr(entry, 'file_name', 'Manual Entry')
-        logger.debug(f"Saved UI changes to metadata[{self._current_index}] for {file_name}") # Changed metadata_idx to _current_index
-    
-    def load_photo(self, photo_index: int): # Renamed index to photo_index for clarity
-        """Load photo and corresponding metadata / 加载照片和对应的元数据"""
-        if 0 <= photo_index < len(self.photos):
-            # Calculate the metadata index based on photo_index and offset
-            metadata_idx = photo_index + self.offset
-            
-            # Update _current_index only if metadata_idx is valid
-            if 0 <= metadata_idx < len(self.metadata_entries):
-                self._current_index = metadata_idx # Store the actual metadata entry index
-            else:
-                self._current_index = None # No valid metadata entry for this photo
-                logger.warning(f"No metadata found at index {metadata_idx} for photo {photo_index}. "
-                              f"Valid range: 0-{len(self.metadata_entries)-1}")
-                # Clear UI fields if no metadata is found
-            # Load data from entry / 从条目加载数据
-            entry = self.metadata_entries[metadata_idx]
-            
-            logger.debug(f"Found metadata entry at index {metadata_idx}")
-            logger.debug(f"  camera: {entry.camera_make} {entry.camera_model}")
-            logger.debug(f"  lens: {entry.lens_make} {entry.lens_model}")
-            
-            self.edit_make.setText(entry.camera_make or "")
-            self.edit_model.setText(entry.camera_model or "")
-            self.edit_lens_make.setText(entry.lens_make or "")
-            self.edit_lens_model.setText(entry.lens_model or "")
-            self.edit_aperture.setText(entry.aperture or "")
-            self.edit_shutter.setText(entry.shutter_speed or "")
-            self.edit_iso.setText(entry.iso or "")
-            self.edit_film_stock.setText(entry.film_stock or "")
-            self.edit_focal_length.setText(entry.focal_length or "")
-            self.edit_shot_date.setText(entry.shot_date or "")
-            self.edit_location.setText(entry.location or "")
-            self.edit_notes.setText(entry.notes or "")
-    
-    def on_offset_changed(self):
-        """Handle offset change / 处理偏移变化"""
-        # Save current before changing offset / 改变偏移前保存当前数据
-        self._save_current_metadata()
+        s1, f1 = add_section(tr("Gear Info"), scroll_content)
+        self.edit_make = QLineEdit(s1)
+        self.edit_model = QLineEdit(s1)
+        self.edit_lens_make = QLineEdit(s1)
+        self.edit_lens_model = QLineEdit(s1)
         
+        def add_field(form, label_text, widget):
+            lbl = QLabel(label_text)
+            lbl.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY};")
+            form.addRow(lbl, widget)
+
+        add_field(f1, tr("Camera Make:"), self.edit_make)
+        add_field(f1, tr("Camera Model:"), self.edit_model)
+        add_field(f1, tr("Lens Make:"), self.edit_lens_make)
+        add_field(f1, tr("Lens Model:"), self.edit_lens_model)
+        scroll_vbox.addWidget(s1)
+
+        s2, f2 = add_section(tr("Exposure"), scroll_content)
+        self.edit_aperture = QLineEdit(s2)
+        self.edit_shutter = QLineEdit(s2)
+        self.edit_iso = QLineEdit(s2)
+        self.edit_focal_length = QLineEdit(s2)
+        add_field(f2, tr("Aperture:"), self.edit_aperture)
+        add_field(f2, tr("Shutter:"), self.edit_shutter)
+        add_field(f2, tr("ISO:"), self.edit_iso)
+        add_field(f2, tr("Focal Length:"), self.edit_focal_length)
+        scroll_vbox.addWidget(s2)
+
+        s3, f3 = add_section(tr("Context"), scroll_content)
+        self.edit_film_stock = QLineEdit(s3)
+        self.edit_shot_date = QLineEdit(s3)
+        self.edit_location = QLineEdit(s3)
+        self.edit_notes = QLineEdit(s3)
+        add_field(f3, tr("Film Stock:"), self.edit_film_stock)
+        add_field(f3, tr("Shot Date:"), self.edit_shot_date)
+        add_field(f3, tr("Location:"), self.edit_location)
+        add_field(f3, tr("Notes:"), self.edit_notes)
+        scroll_vbox.addWidget(s3)
+        
+        scroll_vbox.addStretch()
+        scroll.setWidget(scroll_content)
+        mid_vbox.addWidget(scroll)
+        
+        # Bottom controls
+        bottom = QWidget(mid_widget)
+        bot_vbox = QVBoxLayout(bottom)
+        
+        off_cont = QWidget(bottom)
+        off_hbox = QHBoxLayout(off_cont)
+        off_hbox.setContentsMargins(0, 0, 0, 0)
+        off_lbl = QLabel(tr("Sequence Offset"), off_cont)
+        off_lbl.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY};")
+        self.offset_spin = QSpinBox(off_cont)
+        self.offset_spin.setRange(-20, 20)
+        self.offset_spin.valueChanged.connect(self.on_offset_changed)
+        self.warning_label = QLabel(off_cont)
+        self.warning_label.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: 11px;")
+        off_hbox.addWidget(off_lbl)
+        off_hbox.addWidget(self.offset_spin)
+        off_hbox.addSpacing(20)
+        off_hbox.addWidget(self.warning_label)
+        off_hbox.addStretch()
+        bot_vbox.addWidget(off_cont)
+        
+        btn_cont = QWidget(bottom)
+        btn_hbox = QHBoxLayout(btn_cont)
+        btn_hbox.setContentsMargins(0, 0, 0, 0)
+        btn_hbox.addStretch()
+        c_btn = QPushButton(tr("Cancel"), btn_cont)
+        c_btn.setStyleSheet(StyleManager.get_button_style(tier='ghost'))
+        c_btn.clicked.connect(self.reject)
+        w_btn = QPushButton(tr("Write All Files"), btn_cont)
+        w_btn.clicked.connect(self.on_write_metadata)
+        w_btn.setStyleSheet(StyleManager.get_button_style(tier='primary'))
+        btn_hbox.addWidget(c_btn)
+        btn_hbox.addWidget(w_btn)
+        bot_vbox.addWidget(btn_cont)
+        
+        mid_vbox.addWidget(bottom)
+        
+        # --- RIGHT: Preview ---
+        right_widget = QWidget(self)
+        right_widget.setFixedWidth(350)
+        right_vbox = QVBoxLayout(right_widget)
+        right_vbox.setContentsMargins(10, 30, 10, 0)
+        
+        p_title = QLabel(tr("Preview"), right_widget)
+        p_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        right_vbox.addWidget(p_title)
+        
+        self.preview_label = QLabel(right_widget)
+        self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.preview_label.setMinimumSize(300, 300)
+        self.preview_label.setStyleSheet("background: transparent; border: none;")
+        right_vbox.addWidget(self.preview_label)
+        
+        self.file_info_label = QLabel("", right_widget)
+        self.file_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.file_info_label.setWordWrap(True)
+        right_vbox.addWidget(self.file_info_label)
+        right_vbox.addStretch()
+        
+        # Final layout - Adaptive weighting
+        content_layout.addWidget(left_widget, 2)
+        content_layout.addWidget(mid_widget, 4)   # Highest priority
+        content_layout.addWidget(right_widget, 3)
+        main_layout.addWidget(content_widget)
+        
+        # Styles
+        self.setStyleSheet(StyleManager.get_main_style())
+        for e in [self.edit_make, self.edit_model, self.edit_lens_make, self.edit_lens_model,
+                  self.edit_aperture, self.edit_shutter, self.edit_iso, self.edit_focal_length,
+                  self.edit_film_stock, self.edit_shot_date, self.edit_location, self.edit_notes]:
+            e.setStyleSheet(StyleManager.get_input_style())
+
+        # Initial mapping parse if data exists (Moved to end to ensure widgets exist)
+        if self.raw_headers and self.raw_rows:
+            self.on_mapping_changed()
+            # Restore visibility which might have been set in mapping_pane init
+            self.mapping_pane.setVisible(True) 
+            if hasattr(self, 'map_toggle'):
+                self.map_toggle.setChecked(True)
+
+    def toggle_mapping_pane(self):
+        self.mapping_pane.setVisible(self.map_toggle.isChecked())
+
+    def _smart_match_header(self, header: str) -> str:
+        h = header.lower().strip()
+        if any(k in h for k in ['date', 'time']): return "DateTimeOriginal"
+        if 'lat' in h: return "GPSLatitude"
+        if any(k in h for k in ['lon', 'lng']): return "GPSLongitude"
+        if any(k in h for k in ['camera', 'body', 'model']): return "Model"
+        if 'lens' in h: return "LensModel"
+        if 'iso' in h: return "ISO"
+        if any(k in h for k in ['aperture', 'f-']): return "FNumber"
+        if any(k in h for k in ['shutter', 'speed']): return "ExposureTime"
+        if 'film' in h: return "Film"
+        return "-- " + tr("Ignore") + " --"
+
+    def on_mapping_changed(self):
+        """Real-time re-processing using industrial-grade CSVConverter"""
+        if not self.raw_rows or not self.mappings: return
+        
+        # Build the mapping dict format expected by CSVConverter
+        mappings_dict = {
+            'fields': {},
+            'gps_refs': {},
+            'id_column': None
+        }
+        
+        for col, config in self.mappings.items():
+            field = config['field'].currentText()
+            if tr("ID Source") in field:
+                mappings_dict['id_column'] = col
+            elif tr("Ignore") not in field:
+                mappings_dict['fields'][col] = field
+                # Add GPS Ref if applicable
+                if field in ["GPSLatitude", "GPSLongitude"]:
+                    mappings_dict['gps_refs'][col] = config['gps'].currentText()
+        
+        # Use existing converter logic for robustness
+        self.metadata_entries = CSVConverter.convert_rows(
+            self.raw_rows, 
+            mappings_dict, 
+            self.photos
+        )
+        
+        self._refresh_metadata_list()
+        self.load_photo(self.current_index)
+
+    def _refresh_metadata_list(self):
+        if not self.metadata_list: return
+        self.metadata_list.clear()
+        for i, entry in enumerate(self.metadata_entries):
+            display_text = f"#{i+1:02d}"
+            item = QListWidgetItem(display_text)
+            item.setData(Qt.ItemDataRole.UserRole, i)
+            self.metadata_list.addItem(item)
+
+    def on_photo_selected(self, item):
+        self._save_current_metadata()
+        idx = item.data(Qt.ItemDataRole.UserRole)
+        self.load_photo(idx)
+
+    def on_metadata_selected(self, item):
+        self._save_current_metadata()
+        idx = item.data(Qt.ItemDataRole.UserRole)
+        self.load_metadata(idx)
+
+    def load_photo(self, photo_index):
+        try:
+            if 0 <= photo_index < len(self.photos):
+                self.current_index = photo_index
+                self.photo_list.setCurrentRow(photo_index)
+                self._update_preview(photo_index)
+                
+                meta_idx = photo_index + self.offset
+                if 0 <= meta_idx < len(self.metadata_entries):
+                    self._update_editor_fields(self.metadata_entries[meta_idx], meta_idx)
+                    self.metadata_list.setCurrentRow(meta_idx)
+                else:
+                    self._update_editor_fields(MetadataEntry(), None)
+                    self.metadata_list.clearSelection()
+        except RuntimeError: pass
+
+    def load_metadata(self, meta_index):
+        try:
+            if 0 <= meta_index < len(self.metadata_entries):
+                self._update_editor_fields(self.metadata_entries[meta_index], meta_index)
+                self.metadata_list.setCurrentRow(meta_index)
+                
+                p_idx = meta_index - self.offset
+                if 0 <= p_idx < len(self.photos):
+                    self.photo_list.setCurrentRow(p_idx)
+                    self._update_preview(p_idx)
+                else:
+                    self.photo_list.clearSelection()
+                    self._update_preview(None)
+        except RuntimeError: pass
+
+    def _update_editor_fields(self, entry, meta_idx):
+        self._current_metadata_idx = meta_idx
+        self.edit_make.setText(entry.camera_make or "")
+        self.edit_model.setText(entry.camera_model or "")
+        self.edit_lens_make.setText(entry.lens_make or "")
+        self.edit_lens_model.setText(entry.lens_model or "")
+        self.edit_aperture.setText(entry.aperture or "")
+        self.edit_shutter.setText(entry.shutter_speed or "")
+        self.edit_iso.setText(entry.iso or "")
+        self.edit_film_stock.setText(entry.film_stock or "")
+        self.edit_focal_length.setText(entry.focal_length or "")
+        self.edit_shot_date.setText(entry.shot_date or "")
+        self.edit_location.setText(entry.location or "")
+        self.edit_notes.setText(entry.notes or "")
+
+    def _update_preview(self, photo_idx):
+        try:
+            if photo_idx is not None and 0 <= photo_idx < len(self.photos):
+                p = self.photos[photo_idx]
+                pix = QPixmap(p.file_path)
+                if not pix.isNull():
+                    s = pix.scaled(300, 300, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    self.preview_label.setPixmap(s)
+                else:
+                    self.preview_label.setText(tr("Preview Failed"))
+                self.file_info_label.setText(f"{p.file_name}")
+            else:
+                self.preview_label.clear()
+                self.preview_label.setText(tr("No Photo Linked"))
+                self.file_info_label.setText("")
+        except RuntimeError: pass
+
+    def on_offset_changed(self):
+        self._save_current_metadata()
         self.offset = self.offset_spin.value()
         self.load_photo(self.current_index)
-    
-    def on_write_metadata(self):
-        """Write metadata to all photos / 写入元数据到所有照片"""
-        # Save current before writing / 写入前保存当前数据
-        self._save_current_metadata()
-        
-        # Confirm with user / 确认用户
-        reply = QMessageBox.question(
-            self,
-            tr("Write Metadata"),
-            tr("This will modify EXIF data in all {count} photos. Continue?").format(
-                count=len(self.photos)
-            ),
-            QMessageBox.Yes | QMessageBox.No
-        )
-        
-        if reply != QMessageBox.Yes:
-            return
-        
-        # Build write tasks / 构建写入任务
-        write_tasks = []
-        for i, photo in enumerate(self.photos):
-            metadata_idx = i + self.offset
-            
-            if 0 <= metadata_idx < len(self.metadata_entries):
-                entry = self.metadata_entries[metadata_idx]
-                exif_data = self._build_exif_dict(entry)
-                
-                logger.debug(f"Photo {i}: {photo.file_name} → metadata[{metadata_idx}]")
-                logger.debug(f"  EXIF data: {exif_data}")
-                
-                if exif_data:
-                    write_tasks.append({
-                        'file_path': photo.file_path,
-                        'exif_data': exif_data
-                    })
-            else:
-                logger.warning(f"Photo {i}: {photo.file_name} - no metadata at index {metadata_idx}")
-        
-        if not write_tasks:
-            QMessageBox.warning(self, tr("Write Metadata"), "No valid data to write")
-            return
-        
-        # Show progress / 显示进度
-        progress = QProgressDialog(
-            tr("Writing metadata..."),
-            None,
-            0,
-            100,
-            self
-        )
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setMinimumDuration(0)  # 确保进度条总是显示
-        progress.show()
-        # keep reference so other slots can close it if needed
-        self._write_progress = progress
-        
-        # Setup worker / 设置工作线程
-        self.write_worker = ExifToolWorker()
-        self.write_thread = QThread()
-        self.write_worker.moveToThread(self.write_thread)
 
-        # Connect signals / 连接信号
-        def _on_progress(val):
-            logger.debug(f"Write progress: {val}%")
-            progress.setValue(val)
+    def _save_current_metadata(self):
+        if self._current_metadata_idx is None: return
+        e = self.metadata_entries[self._current_metadata_idx]
+        e.camera_make = self.edit_make.text().strip() or None
+        e.camera_model = self.edit_model.text().strip() or None
+        e.lens_make = self.edit_lens_make.text().strip() or None
+        e.lens_model = self.edit_lens_model.text().strip() or None
+        e.aperture = self.edit_aperture.text().strip() or None
+        e.shutter_speed = self.edit_shutter.text().strip() or None
+        e.iso = self.edit_iso.text().strip() or None
+        e.film_stock = self.edit_film_stock.text().strip() or None
+        e.focal_length = self.edit_focal_length.text().strip() or None
+        e.shot_date = self.edit_shot_date.text().strip() or None
+        e.location = self.edit_location.text().strip() or None
+        e.notes = self.edit_notes.text().strip() or None
 
-        def _on_result(result):
-            logger.debug(f"Write result received: {result}")
-            self._on_write_complete(result, progress)
-
-        def _on_error(err):
-            logger.error(f"Write error: {err}")
-            self._on_write_error(err, progress)
-
-        logger.debug("Connecting write worker signals")
-        self.write_worker.progress.connect(_on_progress, Qt.ConnectionType.QueuedConnection)
-        self.write_worker.result_ready.connect(_on_result, Qt.ConnectionType.QueuedConnection)
-        self.write_worker.error_occurred.connect(_on_error, Qt.QueuedConnection)
-        logger.debug("All signals connected")
-        # CRITICAL FIX: Don't connect finished signal to quit/deleteLater
-        # This causes deadlock when emit() is called from worker thread
-        # Instead, use QTimer to poll for completion
-        
-        
-        # Start thread / 启动线程
-        logger.info(f"Starting write thread with {len(write_tasks)} tasks")
-        
-        # Start the thread
-        self.write_thread.start()
-        
-        # Emit signal to trigger write in worker thread
-        # This ensures the method runs in the worker's thread context
-        self.write_worker.start_write.emit(write_tasks)
-        
-        # Poll for completion using QTimer
-        self._write_check_timer = QTimer(self)
-        self._write_check_timer.timeout.connect(lambda: self._check_write_completion(progress))
-        self._write_check_timer.start(100)  # Check every 100ms
-    
-    def _check_write_completion(self, progress):
-        """Poll worker for completion / 轮询 worker 是否完成"""
-        if not self.write_thread.isRunning():
-            # Thread finished
-            logger.debug("Write thread finished, stopping timer")
-            self._write_check_timer.stop()
-            
-            if hasattr(self.write_worker, 'last_result') and self.write_worker.last_result:
-                logger.debug(f"Retrieved write result: {self.write_worker.last_result}")
-                self._on_write_complete(self.write_worker.last_result, progress)
-            else:
-                logger.warning("No write result found")
-                progress.close()
-            
-            # Clean up
-            self.write_thread.quit()
-            self.write_thread.wait()
-            self.write_worker.deleteLater()
-            self.write_thread.deleteLater()
-    
-    def _build_exif_dict(self, entry: MetadataEntry) -> Dict[str, str]:
-        """Build EXIF data dictionary from metadata entry / 从元数据条目构建 EXIF 字典"""
-        exif_data = {}
-        
-        # Camera and lens / 相机和镜头
-        if entry.camera_make:
-            exif_data['Make'] = entry.camera_make
-        if entry.camera_model:
-            exif_data['Model'] = entry.camera_model
-        
-        if entry.lens_make:
-            exif_data['LensMake'] = entry.lens_make
-        if entry.lens_model:
-            exif_data['LensModel'] = entry.lens_model
-        
-        # Exposure settings / 曝光设置
-        if entry.aperture:
-            try:
-                validated_aperture = MetadataValidator.validate_aperture(entry.aperture)
-                exif_data['FNumber'] = validated_aperture
-            except ValueError:
-                # Use raw string directly (ExifTool handles many formats)
-                exif_data['FNumber'] = entry.aperture.replace('f/', '').replace('F/', '').replace('f', '').replace('F', '')
-        
-        if entry.shutter_speed:
-            try:
-                validated_shutter = MetadataValidator.validate_shutter_speed(entry.shutter_speed)
-                exif_data['ExposureTime'] = validated_shutter
-            except ValueError:
-                exif_data['ExposureTime'] = entry.shutter_speed
-        
-        if entry.iso:
-            try:
-                validated_iso = MetadataValidator.validate_iso(entry.iso)
-                exif_data['ISO'] = str(validated_iso)
-            except ValueError:
-                exif_data['ISO'] = entry.iso
-        
-        if entry.focal_length:
-            try:
-                validated_focal = MetadataValidator.validate_focal_length(entry.focal_length)
-                exif_data['FocalLength'] = validated_focal
-            except ValueError:
-                exif_data['FocalLength'] = entry.focal_length.replace('mm', '').replace('MM', '')
-        
-        if entry.shot_date:
-            try:
-                validated_date = MetadataValidator.validate_datetime(entry.shot_date)
-                exif_data['DateTimeOriginal'] = validated_date
-                exif_data['CreateDate'] = validated_date
-                exif_data['ModifyDate'] = validated_date
-            except ValueError:
-                # Ensure : format if possible
-                date_fixed = entry.shot_date.replace('-', ':').replace('/', ':')
-                exif_data['DateTimeOriginal'] = date_fixed
-                exif_data['CreateDate'] = date_fixed
-                exif_data['ModifyDate'] = date_fixed
-        
-        # GT23_Workflow Compatibility: Film stock takes priority in ImageDescription
-        # GT23_Workflow 兼容性：ImageDescription 优先写入胶卷型号
-        if entry.film_stock:
-            # 1. Film field (DataPrism standard)
-            exif_data['Film'] = entry.film_stock
-            
-            # 2. ImageDescription (GT23_Workflow auto-detection - PRIORITY)
-            #    GT23 主要从这个字段自动识别胶卷型号
-            exif_data['ImageDescription'] = entry.film_stock
-            
-            # 3. UserComment (complete information)
-            if entry.location:
-                exif_data['UserComment'] = f"Film: {entry.film_stock} | Location: {entry.location}"
-            else:
-                exif_data['UserComment'] = f"Film: {entry.film_stock}"
-        
-        # Location: GPS coordinates (preferred) or ImageDescription (fallback)
-        # 位置：GPS 坐标（优先）或 ImageDescription（备用）
-        if entry.location:
-            # Try to parse as GPS coordinates
-            gps_parsed = gps_utils.parse_gps_to_exif(entry.location)
-            if gps_parsed:
-                lat, lat_ref, lon, lon_ref = gps_parsed
-                exif_data['GPSLatitude'] = lat
-                exif_data['GPSLatitudeRef'] = lat_ref
-                exif_data['GPSLongitude'] = lon
-                exif_data['GPSLongitudeRef'] = lon_ref
-            
-            # If no film stock, write location to ImageDescription as fallback
-            # 如果没有胶卷型号，才将位置写入 ImageDescription
-            if not entry.film_stock:
-                exif_data['ImageDescription'] = entry.location
-                if 'UserComment' not in exif_data:
-                    exif_data['UserComment'] = f"Location: {entry.location}"
-
-        
-        if entry.notes:
-            # Notes can add to UserComment or use XPComment
-            if 'UserComment' in exif_data:
-                exif_data['UserComment'] = f"{exif_data['UserComment']} | {entry.notes}"
-            else:
-                exif_data['UserComment'] = entry.notes
-        
-        return exif_data
-    
-    def _on_write_complete(self, result, progress):
-        """Handle write completion / 处理写入完成"""
-        logger.debug(f"Write complete callback invoked with result: {result}")
-        
-        # Mark as handled so fallback doesn't interfere
-        self._completion_handled = True
-        
-        # Close progress dialog first
-        try:
-            progress.setValue(100)
-            progress.close()
-        except Exception:
-            pass
-        
-        # Emit metadata_written so main window can refresh
-        self.metadata_written.emit()
-        
-        success_count = result.get('success', 0)
-        failed_count = result.get('failed', 0)
-        total_count = result.get('total', 0)
-
-        logger.info(f"Write complete: success={success_count}, failed={failed_count}, total={total_count}")
-        
-        # Build message
-        title = tr("Write Metadata")
-        if failed_count == 0:
-            text = tr("Successfully wrote metadata to {count} file(s)").format(count=success_count)
+    def check_count_match(self):
+        p_c = len(self.photos)
+        m_c = len([e for e in self.metadata_entries if any(vars(e).values())])
+        if p_c <= m_c:
+            self.warning_label.setText(tr("Matched: {matched}/{total}").format(matched=m_c, total=p_c))
+            self.warning_label.setStyleSheet("color: #4CAF50;")
         else:
-            text = tr("Wrote {success}/{total} file(s). {failed} failed.").format(
-                success=success_count,
-                total=total_count,
-                failed=failed_count
-            )
+            self.warning_label.setText(tr("Warning: {meta} records but {photo} photos").format(meta=m_c, photo=p_c))
+            self.warning_label.setStyleSheet("color: #F44336;")
+
+    def on_write_metadata(self):
+        self._save_current_metadata()
+        reply = QMessageBox.question(self, tr("Write Metadata"), tr("This will modify EXIF data in all {count} photos. Continue?").format(count=len(self.photos)))
+        if reply != QMessageBox.Yes: return
         
-        # CRITICAL: Use QTimer.singleShot to defer the modal dialog
-        # This allows the event loop to process all pending signals (including finished)
-        # before blocking with the modal dialog
-        def show_completion_dialog():
-            logger.debug("Showing completion dialog")
-            try:
-                QMessageBox.information(self, title, text)
-            except Exception as e:
-                logger.error(f"Error showing completion dialog: {e}")
-            
-            # Close the editor after user confirms
-            logger.debug("Closing metadata editor")
-            try:
-                self.accept()
-            except Exception as e:
-                logger.error(f"Error closing editor: {e}")
+        tasks = []
+        for i, photo in enumerate(self.photos):
+            m_idx = i + self.offset
+            if 0 <= m_idx < len(self.metadata_entries):
+                entry = self.metadata_entries[m_idx]
+                exif = self._build_exif_dict(entry)
+                if exif:
+                    tasks.append({'file_path': photo.file_path, 'exif_data': exif})
+                    
+        if not tasks: return
         
-        # Defer by 100ms to let all signals process
-        QTimer.singleShot(100, show_completion_dialog)
-    
-    def _on_write_error(self, error, progress):
-        """Handle write error / 处理写入错误"""
+        progress = QProgressDialog(tr("Writing metadata..."), None, 0, 100, self)
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
+        progress.show()
+        
+        self.worker = ExifToolWorker()
+        self.thread = QThread()
+        self.worker.moveToThread(self.thread)
+        self.worker.progress.connect(progress.setValue)
+        self.worker.result_ready.connect(lambda r: self._on_write_complete(r, progress))
+        self.thread.started.connect(lambda: self.worker.start_write.emit(tasks))
+        self.thread.start()
+
+    def _on_write_complete(self, result, progress):
         progress.close()
-        QMessageBox.critical(self, tr("Write Metadata"), f"Error: {error}")
+        self.thread.quit()
+        self.thread.wait()
+        self.metadata_written.emit()
+        QMessageBox.information(self, tr("Write Metadata"), tr("Successfully wrote metadata to {count} file(s)").format(count=result.get('success', 0)))
+        self.accept()
 
-    def _on_write_thread_finished(self):
-        """Fallback finalizer when write thread finishes: close progress and dialog."""
-        logger.debug("Write thread finished (fallback handler)")
-        # Close progress dialog if still open
-        try:
-            if hasattr(self, '_write_progress') and self._write_progress is not None:
-                self._write_progress.close()
-                self._write_progress = None
-        except Exception:
-            pass
-        # Accept/close the editor if still visible AND not handled
-        # If handled, the completion dialog logic takes care of closing
-        if not self._completion_handled:
-            try:
-                if self.isVisible():
-                    # Only auto-close if we didn't show the success message
-                    # (e.g. if thread finished without result_ready somehow)
-                    # But ideally we shouldn't close blindly if the user expects feedback.
-                    # For safety, we just log it. If we really want to close on error/silent finish:
-                    pass 
-                    # QTimer.singleShot(0, self.accept) 
-            except Exception:
-                pass
-    
-    def closeEvent(self, event):
-        """
-        Handle dialog close event / 处理对话框关闭事件
-        Ensure proper resource cleanup / 确保正确清理资源
-        """
-        logger.info("MetadataEditorDialog closing, cleaning up resources")
-        
-        # Stop timer if running / 停止定时器
-        if hasattr(self, '_write_check_timer') and self._write_check_timer.isActive():
-            logger.debug("Stopping write check timer")
-            self._write_check_timer.stop()
-        
-        # Wait for thread to finish / 等待线程结束
-        if hasattr(self, 'write_thread') and self.write_thread.isRunning():
-            logger.debug("Waiting for write thread to finish")
-            self.write_thread.quit()
-            
-            # Wait up to 2 seconds / 最多等待 2 秒
-            if not self.write_thread.wait(2000):
-                logger.warning("Write thread did not finish in time, terminating")
-                self.write_thread.terminate()
-                self.write_thread.wait()
-        
-        # Clean up worker / 清理 worker
-        if hasattr(self, 'write_worker'):
-            logger.debug("Deleting write worker")
-            self.write_worker.deleteLater()
-        
-        # Clean up thread / 清理线程
-        if hasattr(self, 'write_thread'):
-            logger.debug("Deleting write thread")
-            self.write_thread.deleteLater()
-        
-        logger.info("Resource cleanup completed")
-        super().closeEvent(event)
-
-
+    def _build_exif_dict(self, entry: MetadataEntry) -> Dict[str, str]:
+        exif = {}
+        if entry.camera_make: exif['Make'] = entry.camera_make
+        if entry.camera_model: exif['Model'] = entry.camera_model
+        if entry.lens_make: exif['LensMake'] = entry.lens_make
+        if entry.lens_model: exif['LensModel'] = entry.lens_model
+        if entry.aperture: exif['FNumber'] = entry.aperture.replace('f/', '').replace('F/', '')
+        if entry.shutter_speed: exif['ExposureTime'] = entry.shutter_speed
+        if entry.iso: exif['ISO'] = entry.iso
+        if entry.film_stock:
+            exif['Film'] = entry.film_stock
+            exif['ImageDescription'] = entry.film_stock
+        if entry.location:
+            gps = gps_utils.parse_gps_to_exif(entry.location)
+            if gps:
+                exif['GPSLatitude'], exif['GPSLatitudeRef'], exif['GPSLongitude'], exif['GPSLongitudeRef'] = gps
+        if entry.notes: exif['UserComment'] = entry.notes
+        return exif

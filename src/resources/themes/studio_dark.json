@@ -1,0 +1,38 @@
+{
+    "name": "Studio Dark (Hasselblad Phocus)",
+    "colors": {
+        "bg_main": "#101012",
+        "bg_card": "#1A1A1C",
+        "bg_sidebar": "#09090A",
+        "accent": "#D15400",
+        "accent_hover": "#FF7A00",
+        "accent_glow": "rgba(209, 84, 0, 0.08)",
+        "text_primary": "#E0E0E0",
+        "text_secondary": "#A8A8AB",
+        "text_tertiary": "#68686B",
+        "border": "#252528",
+        "btn_primary_bg": "#D15400",
+        "btn_primary_hover": "#FF7A4D",
+        "btn_primary_text": "#FFFFFF",
+        "btn_secondary_bg": "transparent",
+        "btn_secondary_hover": "rgba(255, 255, 255, 0.05)",
+        "btn_secondary_border": "#252528",
+        "btn_secondary_text": "#FFFFFF",
+        "btn_ghost_bg": "transparent",
+        "btn_ghost_hover": "rgba(255, 255, 255, 0.03)",
+        "btn_ghost_text": "#88888B",
+        "table_alternate": "#1D1D21",
+        "table_selection_bg": "rgba(209, 84, 0, 0.22)"
+    },
+    "typography": {
+        "family_main": "\"Inter\", -apple-system, \"SF Pro Display\", \"Microsoft YaHei UI\", sans-serif",
+        "family_mono": "\"JetBrains Mono\", \"Consolas\", monospace",
+        "size_display": "20px",
+        "size_h1": "16px",
+        "size_h2": "14px",
+        "size_body": "13px",
+        "size_small": "12px",
+        "size_tiny": "11px",
+        "size_lcd": "24px"
+    }
+}

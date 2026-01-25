@@ -87,6 +87,7 @@ class MetadataParser:
             # Handle array or object wrapper / 处理数组或对象包装
             if isinstance(data, list):
                 entries_data = data
+                logger.info(f"[DEBUG] JSON is a list with {len(data)} items")
             elif isinstance(data, dict):
                 # Try common wrapper keys / 尝试常见的包装键
                 if 'entries' in data:
@@ -101,7 +102,9 @@ class MetadataParser:
                 raise ValueError("JSON must be array or object")
             
             # Parse entries / 解析条目
+            logger.info(f"[DEBUG] Starting to parse {len(entries_data)} entries...")
             self.entries = [self._parse_entry(entry) for entry in entries_data]
+            logger.info(f"[DEBUG] Finished parsing. Total entries: {len(self.entries)}")
             
             logger.info(f"Parsed {len(self.entries)} entries from JSON: {file_path}")
             return self.entries
@@ -254,9 +257,9 @@ class MetadataParser:
         
         # Assign fields based on position / 基于位置分配字段
         if len(fields) > 0:
-            entry.camera = fields[0] or None
+            entry.camera_model = fields[0] or None
         if len(fields) > 1:
-            entry.lens = fields[1] or None
+            entry.lens_model = fields[1] or None
         if len(fields) > 2:
             entry.aperture = fields[2] or None
         if len(fields) > 3:

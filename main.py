@@ -50,7 +50,19 @@ def main():
     logger.info("=" * 60)
     
     try:
+        # Create application / 创建应用程序
         app = QApplication(sys.argv)
+        
+        # CRITICAL: Use Fusion style to eliminate Windows-specific rendering artifacts
+        # 使用 Fusion 样式以消除 Windows 特定的渲染问题（如蓝色单元格分隔线）
+        from PySide6.QtWidgets import QStyleFactory
+        app.setStyle(QStyleFactory.create('Fusion'))
+        
+        # Initialize Design System / 初始化设计系统
+        from src.ui.style_manager import StyleManager
+        StyleManager.load_theme("studio_dark")
+        
+        # Set application metadata / 设置应用程序元数据
         window = MainWindow()
         window.show()
         
