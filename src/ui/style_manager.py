@@ -310,7 +310,6 @@ class StyleManager:
                 padding: 12px;
                 border: none;
                 border-bottom: 1px solid {cls.c("border")};
-                text-transform: uppercase;
                 letter-spacing: 1px;
                 font-size: {cls.t("size_tiny")};
             }}
@@ -348,13 +347,13 @@ class StyleManager:
                 color: {cls.c("accent")};
                 font-family: {cls.t("family_mono")};
                 font-size: {cls.t("size_lcd")};
-                font-weight: 600;
+                font-weight: 500;
             }}
             QLabel#LCDLabel {{
                 color: {cls.c("text_secondary")};
                 font-size: {cls.t("size_tiny")};
                 text-transform: uppercase;
-                font-weight: 700;
+                font-weight: 600;
                 margin-bottom: 4px;
             }}
         """

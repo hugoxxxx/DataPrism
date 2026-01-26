@@ -7,11 +7,12 @@ DataPrism 的主窗口，采用 macOS 美学设计
 
 from pathlib import Path
 from typing import List
+import re
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QSplitter, QFileDialog, QTableView, QHeaderView, QFormLayout,
-    QMessageBox, QProgressDialog, QDialog
+    QMessageBox, QProgressDialog, QDialog, QLineEdit, QPlainTextEdit
 )
 from PySide6.QtCore import Qt, QSize, QThread, Signal
 from PySide6.QtGui import QFont, QPixmap
@@ -68,36 +69,64 @@ class MainWindow(QMainWindow):
         left_layout.setSpacing(10)
         
         # Language toggle button / 语言切换按钮
-        self.lang_btn = QPushButton("中" if get_current_language() == 'en' else "EN")
+        self.lang_btn = QPushButton(tr("EN") if get_current_language() == 'zh' else tr("中"))
         self.lang_btn.setFixedSize(40, 32)
         self.lang_btn.setStyleSheet(StyleManager.get_button_style(tier='primary').replace("padding: 10px 18px;", "padding: 4px 8px;"))
         self.lang_btn.clicked.connect(self.toggle_language)
         left_layout.addWidget(self.lang_btn, alignment=Qt.AlignmentFlag.AlignRight)
         
-        self.sidebar_title = QLabel(tr("Filters & Presets"))
-        self.sidebar_title.setObjectName("SidebarTitle")
-        left_layout.addWidget(self.sidebar_title)
-        
-        # Sidebar buttons with professional styling
-        self.camera_btn = QPushButton(f"{tr('Camera')}")
-        self.lens_btn = QPushButton(f"{tr('Lens')}")
-        self.film_btn = QPushButton(f"{tr('Film Stock')}")
-        
-        for btn in [self.camera_btn, self.lens_btn, self.film_btn]:
-            btn.setCheckable(True)
-            btn.setStyleSheet(StyleManager.get_sidebar_item_style())
-            left_layout.addWidget(btn)
-        
-        # Metadata Import button
-        left_layout.addSpacing(16)
+        # Metadata Import button (Moved to TOP) / 导入元数据按钮（移至顶部）
         self.json_import_btn = QPushButton(f"{tr('Import Metadata')}")
         self.json_import_btn.setFixedHeight(44)
         self.json_import_btn.setStyleSheet(StyleManager.get_button_style(tier='primary'))
         self.json_import_btn.clicked.connect(self.import_metadata)
         left_layout.addWidget(self.json_import_btn)
         
+        left_layout.addSpacing(10)
+        
+        # Quick Write Section (Now below Import) / 一键写入区域（现在位于导入下方）
+        self.sidebar_title = QLabel(tr("Quick Write"))
+        self.sidebar_title.setObjectName("SidebarTitle")
+        left_layout.addWidget(self.sidebar_title)
+        
+        self.quick_camera_make = QLineEdit()
+        self.quick_camera_make.setPlaceholderText(tr("Camera Make"))
+        self.quick_camera_model = QLineEdit()
+        self.quick_camera_model.setPlaceholderText(tr("Camera Model"))
+        self.quick_lens_make = QLineEdit()
+        self.quick_lens_make.setPlaceholderText(tr("Lens Make"))
+        self.quick_lens_model = QLineEdit()
+        self.quick_lens_model.setPlaceholderText(tr("Lens Model"))
+        self.quick_focal = QLineEdit()
+        self.quick_focal.setPlaceholderText(tr("Focal Length"))
+        self.quick_focal_35mm = QLineEdit()
+        self.quick_focal_35mm.setPlaceholderText(tr("Focal Length (35mm)"))
+        self.quick_film = QLineEdit()
+        self.quick_film.setPlaceholderText(tr("Film Stock"))
+        
+        for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
+            edit.setStyleSheet(StyleManager.get_input_style().replace("padding: 8px 12px;", "padding: 6px 10px; font-size: 11px;"))
+            left_layout.addWidget(edit)
+            
+        btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(8)
+        
+        self.quick_apply_btn = QPushButton(tr("Apply to All"))
+        self.quick_apply_btn.setMinimumHeight(36)
+        self.quick_apply_btn.setStyleSheet(StyleManager.get_button_style(tier='secondary'))
+        self.quick_apply_btn.clicked.connect(self.on_quick_apply)
+        
+        self.quick_apply_selected_btn = QPushButton(tr("Apply to Selected"))
+        self.quick_apply_selected_btn.setMinimumHeight(36)
+        self.quick_apply_selected_btn.setStyleSheet(StyleManager.get_button_style(tier='secondary'))
+        self.quick_apply_selected_btn.clicked.connect(self.on_quick_apply_selected)
+        
+        btn_layout.addWidget(self.quick_apply_btn)
+        btn_layout.addWidget(self.quick_apply_selected_btn)
+        left_layout.addLayout(btn_layout)
+        
         left_layout.addStretch()
-        left_widget.setMaximumWidth(200)
+        left_widget.setMaximumWidth(220)
         left_widget.setMinimumWidth(180)
         
         # Main content area - Grid/List view
@@ -110,7 +139,7 @@ class MainWindow(QMainWindow):
         top_bar.setSpacing(12)
         top_bar.setContentsMargins(0, 5, 0, 15)
 
-        self.browse_btn = QPushButton(tr("Browse files…"))
+        self.browse_btn = QPushButton(tr("Add Photos"))
         self.browse_btn.setMinimumHeight(36)
         self.browse_btn.setStyleSheet(StyleManager.get_button_style())
         self.browse_btn.clicked.connect(self.browse_files)
@@ -127,19 +156,54 @@ class MainWindow(QMainWindow):
         
         center_layout.addLayout(top_bar)
         
-        self.placeholder = QLabel(tr("Click 'Browse files' button to import photos"))
+        self.table_view = BorderlessTableView()
+        self.table_view.setModel(self.model)
+        center_layout.addWidget(self.table_view, stretch=0)
+
+        # Placeholder (Below headers when empty) / 占位符（空态时在表头下方）
+        self.placeholder = QLabel(tr("Click 'Add Photos' button to import photos"))
         self.placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.placeholder.setStyleSheet("""
             QLabel {
                 color: #8e8e93;
                 font-size: 14px;
-                padding: 100px;
+                padding: 40px 100px;
             }
         """)
-        center_layout.addWidget(self.placeholder)
+        center_layout.addWidget(self.placeholder, stretch=1)
 
-        self.table_view = BorderlessTableView()
-        self.table_view.setModel(self.model)
+        # Log Console (Bottom position) / 日志控制台（底部位置）
+        self.console_card = QWidget()
+        self.console_card.setObjectName("ConsoleCard")
+        self.console_card.setStyleSheet(f"""
+            QWidget#ConsoleCard {{
+                background-color: #1c1c1e;
+                border-top: 1px solid {StyleManager.COLOR_BORDER};
+            }}
+        """)
+        self.console_card.setFixedHeight(120)
+        console_layout = QVBoxLayout(self.console_card)
+        console_layout.setContentsMargins(15, 10, 15, 10)
+        
+        console_title = QLabel(tr("Process Status"))
+        console_title.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;")
+        console_layout.addWidget(console_title)
+        
+        self.log_console = QPlainTextEdit()
+        self.log_console.setReadOnly(True)
+        self.log_console.setFrameShape(QPlainTextEdit.Shape.NoFrame)
+        self.log_console.setStyleSheet(f"""
+            QPlainTextEdit {{
+                background: transparent;
+                color: #8e8e93;
+                font-family: {StyleManager.FONT_FAMILY_MONO};
+                font-size: 11px;
+                line-height: 1.5;
+            }}
+        """)
+        console_layout.addWidget(self.log_console)
+        center_layout.addWidget(self.console_card)
+
         header = self.table_view.horizontalHeader()
         # Enable interactive column resizing and stretch last section
         # 启用交互式列宽调整并拉伸最后一列
@@ -160,9 +224,13 @@ class MainWindow(QMainWindow):
         header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)   # Aperture / 光圈
         header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)   # Shutter / 快门
         header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)   # ISO
+        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Fixed)   # Focal
+        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)   # F35mm
         header.resizeSection(5, 70)
         header.resizeSection(6, 80)
         header.resizeSection(7, 60)
+        header.resizeSection(8, 70)
+        header.resizeSection(9, 70)
         
         # Content-based sizing for variable-length columns / 可变长度列基于内容调整
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)  # File / 文件
@@ -172,13 +240,13 @@ class MainWindow(QMainWindow):
         
         # Stretch mode for long content to utilize available space / 长内容列拉伸以利用可用空间
         header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)  # L-Model / 镜头型号（最长）
-        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Stretch)  # Film / 胶片
+        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Stretch) # Film / 胶片
         
         # Location and Date use Interactive mode for user control / 位置和日期使用交互模式供用户控制
-        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Interactive)   # Location / 位置
-        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Interactive)  # Date / 日期
-        header.resizeSection(9, 200)
-        header.resizeSection(10, 140)
+        header.setSectionResizeMode(11, QHeaderView.ResizeMode.Interactive)  # Location / 位置
+        header.setSectionResizeMode(12, QHeaderView.ResizeMode.Interactive)  # Date / 日期
+        header.resizeSection(11, 200)
+        header.resizeSection(12, 140)
         
         # Status column stretches as last section / 状态列作为最后一列拉伸
         # (Already set by setStretchLastSection(True) above)
@@ -189,6 +257,8 @@ class MainWindow(QMainWindow):
         self.table_view.setAlternatingRowColors(True)
         self.table_view.setShowGrid(False)
         self.table_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.table_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.table_view.customContextMenuRequested.connect(self.show_context_menu)
         
         # CRITICAL: Disable frame and all visual artifacts
         self.table_view.setFrameShape(QTableView.Shape.NoFrame)
@@ -206,9 +276,9 @@ class MainWindow(QMainWindow):
         self.table_view.setItemDelegate(self.borderless_delegate)
         
         self.table_view.selectionModel().selectionChanged.connect(self.on_selection_changed)
-        center_layout.addWidget(self.table_view)
         
-        # Right inspector panel
+        # Connect log signal / 连接日志信号
+        self.worker.log_message.connect(self.add_log)
         # 右侧检查器面板
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
@@ -261,28 +331,28 @@ class MainWindow(QMainWindow):
         lcd_container.setContentsMargins(10, 10, 10, 10)
         lcd_container.setSpacing(8)
         
-        def create_lcd_panel(label_text):
+        def create_lcd_panel(label_text, object_name_suffix):
             panel = QWidget()
             panel.setObjectName("LCDPanel")
             panel.setStyleSheet(StyleManager.get_lcd_style())
             p_layout = QVBoxLayout(panel)
-            p_layout.setContentsMargins(15, 12, 15, 12)
-            p_layout.setSpacing(6)
+            p_layout.setContentsMargins(12, 10, 12, 10)
+            p_layout.setSpacing(4)
             
             lbl = QLabel(label_text)
-            lbl.setObjectName("LCDLabel")
+            lbl.setObjectName(f"LCDLabel_{object_name_suffix}")
             lbl.setStyleSheet(StyleManager.get_lcd_style())
             p_layout.addWidget(lbl, alignment=Qt.AlignLeft)
             
             val = QLabel("--")
-            val.setObjectName("LCDValue")
+            val.setObjectName(f"LCDValue_{object_name_suffix}")
             val.setStyleSheet(StyleManager.get_lcd_style())
             p_layout.addWidget(val, alignment=Qt.AlignLeft)
-            return panel, val
+            return panel, lbl, val
 
-        ap_panel, self.info_aperture = create_lcd_panel(tr("Aperture"))
-        sh_panel, self.info_shutter = create_lcd_panel(tr("Shutter"))
-        iso_panel, self.info_iso = create_lcd_panel(tr("ISO"))
+        ap_panel, self.ap_title_label, self.info_aperture = create_lcd_panel(tr("Aperture"), "Ap")
+        sh_panel, self.sh_title_label, self.info_shutter = create_lcd_panel(tr("Shutter"), "Sh")
+        iso_panel, self.iso_title_label, self.info_iso = create_lcd_panel(tr("ISO"), "Iso")
         
         lcd_container.addWidget(ap_panel)
         lcd_container.addWidget(sh_panel)
@@ -312,13 +382,15 @@ class MainWindow(QMainWindow):
         self.info_lens_make = QLabel("--")
         self.info_lens_model = QLabel("--")
         self.info_film = QLabel("--")
+        self.info_focal_native = QLabel("--")
+        self.info_focal_35mm = QLabel("--")
         self.info_location = QLabel("--")
         self.info_date = QLabel("--")
         self.info_status = QLabel("--")
         
         # High-end technical monospace style / 高端技术等宽字体样式
         value_style = f"color: {StyleManager.COLOR_TEXT_PRIMARY}; font-size: {StyleManager.FONT_SIZE_SMALL}; font-family: {StyleManager.FONT_FAMILY_MONO};"
-        for lbl in [self.info_file, self.info_camera_make, self.info_camera_model, self.info_lens_make, self.info_lens_model, self.info_film, self.info_location, self.info_date, self.info_status]:
+        for lbl in [self.info_file, self.info_camera_make, self.info_camera_model, self.info_lens_make, self.info_lens_model, self.info_film, self.info_focal_native, self.info_focal_35mm, self.info_location, self.info_date, self.info_status]:
             lbl.setStyleSheet(value_style)
             lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setWordWrap(True)
@@ -326,15 +398,29 @@ class MainWindow(QMainWindow):
         # Label style / 标签样式
         label_style = f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: {StyleManager.FONT_SIZE_TINY}; font-weight: {StyleManager.FONT_WEIGHT_MEDIUM}; letter-spacing: 0.5px;"
         
-        form.addRow(QLabel(tr("File:")), self.info_file)
-        form.addRow(QLabel(tr("Camera Make:")), self.info_camera_make)
-        form.addRow(QLabel(tr("Camera Model:")), self.info_camera_model)
-        form.addRow(QLabel(tr("Lens Make:")), self.info_lens_make)
-        form.addRow(QLabel(tr("Lens Model:")), self.info_lens_model)
-        form.addRow(QLabel(tr("Film Stock:")), self.info_film)
-        form.addRow(QLabel(tr("Location:")), self.info_location)
-        form.addRow(QLabel(tr("Date:")), self.info_date)
-        form.addRow(QLabel(tr("Status:")), self.info_status)
+        self.file_label = QLabel(tr("File:"))
+        self.camera_make_label = QLabel(tr("Camera Make:"))
+        self.camera_model_label = QLabel(tr("Camera Model:"))
+        self.lens_make_label = QLabel(tr("Lens Make:"))
+        self.lens_model_label = QLabel(tr("Lens Model:"))
+        self.film_label = QLabel(tr("Film Stock:"))
+        self.focal_native_label = QLabel(tr("Focal Length:"))
+        self.focal_35mm_label = QLabel(tr("Focal Length (35mm):"))
+        self.location_label = QLabel(tr("Location:"))
+        self.date_label = QLabel(tr("Date:"))
+        self.status_label = QLabel(tr("Status:"))
+
+        form.addRow(self.file_label, self.info_file)
+        form.addRow(self.camera_make_label, self.info_camera_make)
+        form.addRow(self.camera_model_label, self.info_camera_model)
+        form.addRow(self.lens_make_label, self.info_lens_make)
+        form.addRow(self.lens_model_label, self.info_lens_model)
+        form.addRow(self.film_label, self.info_film)
+        form.addRow(self.focal_native_label, self.info_focal_native)
+        form.addRow(self.focal_35mm_label, self.info_focal_35mm)
+        form.addRow(self.location_label, self.info_location)
+        form.addRow(self.date_label, self.info_date)
+        form.addRow(self.status_label, self.info_status)
         
         # Apply label styling to all labels in form
         for i in range(form.rowCount()):
@@ -368,19 +454,37 @@ class MainWindow(QMainWindow):
         # Apply global styles from StyleManager
         self.setStyleSheet(StyleManager.get_main_style() + StyleManager.get_sidebar_style())
 
+        # Initialize layout state / 初始化布局状态
+        self._update_layout_factors()
+
     def on_files_dropped(self, file_paths: List[str]):
         """Callback when files are imported / 当文件被导入时的回调"""
         unique_files = [p for p in file_paths if p not in {item.file_path for item in self.model.photos}]
         if unique_files:
             self.model.add_photos(unique_files)
             self.queue_exif_read(unique_files)
-        total = self.model.rowCount()
-        self.placeholder.setVisible(total == 0)
-        if total:
-            self.placeholder.setText(
-                tr("Imported {count} file(s).", count=total)
-            )
+            self.add_log(tr("Imported {count} file(s).").format(count=len(unique_files)))
+        
+        # Update layout factors
+        self._update_layout_factors()
         logger.info(f"Imported {len(unique_files)} files")
+
+    def _update_layout_factors(self):
+        """Adjust stretch based on photo count / 根据照片数量调整拉伸系数"""
+        total = self.model.rowCount()
+        is_empty = (total == 0)
+        self.placeholder.setVisible(is_empty)
+        
+        layout = self.table_view.parentWidget().layout()
+        if is_empty:
+            layout.setStretch(1, 0) # table_view
+            layout.setStretch(2, 1) # placeholder
+            self.table_view.setFixedHeight(self.table_view.horizontalHeader().height() + 2)
+        else:
+            layout.setStretch(1, 1) # table_view
+            layout.setStretch(2, 0) # placeholder
+            self.table_view.setMinimumHeight(0)
+            self.table_view.setMaximumHeight(16777215)
 
     # --- File dialog import / 通过对话框导入 ---
     def browse_files(self):
@@ -401,7 +505,8 @@ class MainWindow(QMainWindow):
         self.worker.result_ready.connect(self.on_exif_results)
         self.worker.error_occurred.connect(self.on_exif_error)
         self.worker.progress.connect(self.on_exif_progress)
-        self.worker.finished.connect(self.worker_thread.quit)
+        # Only quit when specifically told to or on cleanup, not on every single operation finishing
+        # self.worker.finished.connect(self.worker_thread.quit) 
         self.start_exif_read.connect(self.worker.read_exif)
         
         # Connect model signals for inline editing
@@ -449,6 +554,7 @@ class MainWindow(QMainWindow):
             # We'll just let the model keep the user's input.
             file_path = results["file"]
             logger.info(f"Write successful for {file_path}")
+            self.add_log(tr("Successfully wrote metadata to {file}").format(file=file_path))
             return
 
         for file_path, exif_data in results.items():
@@ -475,6 +581,7 @@ class MainWindow(QMainWindow):
     def on_exif_error(self, error_msg: str):
         """Handle worker errors / 处理工作线程错误"""
         logger.error(f"EXIF worker error: {error_msg}")
+        self.add_log(tr("Error: {msg}").format(msg=error_msg))
 
     def on_selection_changed(self, *_):
         """Update inspector when selection changes / 选择变化时更新检查器"""
@@ -501,24 +608,48 @@ class MainWindow(QMainWindow):
         row = selection[0].row()
         photo = self.model.photos[row]
         exif = photo.exif_data or {}
-        self.info_file.setText(photo.file_name)
-        self.info_camera_make.setText(exif.get("Make", "--") if photo.exif_data else "--")
-        self.info_camera_model.setText(exif.get("Model", "--") if photo.exif_data else "--")
-        self.info_lens_make.setText(exif.get("LensMake", "--") if photo.exif_data else "--")
-        self.info_lens_model.setText(exif.get("LensModel", "--") if photo.exif_data else "--")
-        self.info_film.setText(photo.film_stock or exif.get("Film", "--"))
+        self.info_file.setText(str(photo.file_name))
+        self.info_camera_make.setText(str(exif.get("Make", "--")) if photo.exif_data else "--")
+        self.info_camera_model.setText(str(exif.get("Model", "--")) if photo.exif_data else "--")
+        self.info_lens_make.setText(str(exif.get("LensMake", "--")) if photo.exif_data else "--")
+        self.info_lens_model.setText(str(exif.get("LensModel", "--")) if photo.exif_data else "--")
+        self.info_film.setText(str(photo.film_stock or exif.get("Film", "--")))
+        def format_focal(val):
+            if not val or val == "--": return "--"
+            val = str(val).replace('.0 ', ' ').replace('.0', '')
+            if val.replace('mm', '').strip().isdigit() and 'mm' not in val.lower():
+                val = f"{val.strip()} mm"
+            return val
+
+        self.info_focal_native.setText(format_focal(photo.focal_length or exif.get("FocalLength", "--")))
+        self.info_focal_35mm.setText(format_focal(photo.focal_length_35mm or exif.get("FocalLengthIn35mmFormat", "--")))
+        
         # Prefer cached location; else try GPS; else description
         gps_lat = exif.get("GPSLatitude")
         gps_lon = exif.get("GPSLongitude")
         gps_str = f"{gps_lat}, {gps_lon}" if gps_lat and gps_lon else None
         self.info_location.setText(photo.location or gps_str or exif.get("ImageDescription", "--"))
         self.info_date.setText(photo.exif_data.get("DateTimeOriginal", "--") if photo.exif_data else "--")
-        status_display = photo.status + (" (Modified)" if photo.is_modified else "")
+        status_display = tr(photo.status) + (tr(" (Modified)") if photo.is_modified else "")
         self.info_status.setText(status_display)
         
         # Exposure data / 曝光数据
-        self.info_aperture.setText(f"f/{photo.aperture}" if photo.aperture else "--")
-        self.info_shutter.setText(f"{photo.shutter_speed}s" if photo.shutter_speed else "--")
+        self.info_aperture.setText(f"{photo.aperture}" if photo.aperture else "--")
+        
+        # Shutter formatting: >= 1s adds 'S', fractions have no suffix
+        # 快门格式：1s 及以上带 S，分数不带后缀
+        shutter_display = "--"
+        if photo.shutter_speed:
+            if "/" in photo.shutter_speed:
+                shutter_display = photo.shutter_speed
+            else:
+                try:
+                    clean_sh = photo.shutter_speed.replace('S', '').replace('s', '').strip()
+                    s_val = float(clean_sh)
+                    shutter_display = f"{s_val:.1f}S" if s_val >= 1.0 else f"{s_val}"
+                except:
+                    shutter_display = photo.shutter_speed
+        self.info_shutter.setText(shutter_display)
         self.info_iso.setText(photo.iso or "--")
         
         self._ensure_thumbnail(photo)
@@ -548,36 +679,64 @@ class MainWindow(QMainWindow):
         """Toggle UI language between Chinese and English / 在中英文之间切换界面语言"""
         new_lang = toggle_language()
         self.refresh_ui()
+        # Header refresh
+        self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, self.model.columnCount() - 1)
+        self.table_view.horizontalHeader().viewport().update()
+        
         # Update language button text / 更新语言按钮文本
         self.lang_btn.setText("中" if new_lang == 'en' else "EN")
     
     def refresh_ui(self):
         """Refresh all UI text with current language / 用当前语言刷新所有 UI 文本"""
         # Update sidebar / 更新侧边栏
-        self.sidebar_title.setText(tr("Filters & Presets"))
-        self.camera_btn.setText(tr("Camera"))
-        self.lens_btn.setText(tr("Lens"))
-        self.film_btn.setText(tr("Film Stock"))
+        self.sidebar_title.setText(tr("Quick Write"))
         self.json_import_btn.setText(tr("Import Metadata"))
         self.refresh_btn.setText(tr("Refresh EXIF"))
         
+        self.quick_camera_make.setPlaceholderText(tr("Camera Make"))
+        self.quick_camera_model.setPlaceholderText(tr("Camera Model"))
+        self.quick_lens_make.setPlaceholderText(tr("Lens Make"))
+        self.quick_lens_model.setPlaceholderText(tr("Lens Model"))
+        self.quick_focal.setPlaceholderText(tr("Focal Length"))
+        self.quick_focal_35mm.setPlaceholderText(tr("Focal Length (35mm)"))
+        self.quick_film.setPlaceholderText(tr("Film Stock"))
+        self.quick_apply_btn.setText(tr("Apply to All"))
+        self.quick_apply_selected_btn.setText(tr("Apply to Selected"))
+        
         # Update content area / 更新内容区域
-        self.content_title.setText(tr("Imported Photos"))
-        self.browse_btn.setText(tr("Browse files…"))
-        self.placeholder.setText(tr("Drag and drop photos here or click to import"))
+        self.browse_btn.setText(tr("Add Photos"))
+        self.placeholder.setText(tr("Click 'Add Photos' button to import photos"))
+        self.console_card.findChild(QLabel).setText(tr("Process Status"))
         
         # Update inspector / 更新检查器
         self.inspector_title.setText(tr("Inspector"))
         self.basic_label.setText(tr("Basic Info"))
         self.file_label.setText(tr("File:"))
-        self.camera_label.setText(tr("Camera:"))
-        self.lens_label.setText(tr("Lens:"))
+        self.camera_make_label.setText(tr("Camera Make:"))
+        self.camera_model_label.setText(tr("Camera Model:"))
+        self.lens_make_label.setText(tr("Lens Make:"))
+        self.lens_model_label.setText(tr("Lens Model:"))
         self.film_label.setText(tr("Film Stock:"))
         self.location_label.setText(tr("Location:"))
         self.date_label.setText(tr("Date:"))
         self.status_label.setText(tr("Status:"))
+        self.focal_native_label.setText(tr("Focal Length:"))
+        self.focal_35mm_label.setText(tr("Focal Length (35mm):"))
+        
+        # Update LCD labels
+        self.ap_title_label.setText(tr("Aperture"))
+        self.sh_title_label.setText(tr("Shutter"))
+        self.iso_title_label.setText(tr("ISO"))
         
         self.exposure_label.setText(tr("Digital Back Display"))
+        
+        # Re-initialize layout state based on new language text sizes
+        # 根据新语言文本大小重新初始化布局状态
+        self._update_layout_factors()
+        
+        # Refresh current selection display
+        # 刷新当前选中项显示
+        self._refresh_inspector()
     
     def import_metadata(self):
         """Import metadata from JSON/CSV/TXT and show editor dialog / 从 JSON/CSV/TXT 导入元数据并显示编辑对话框"""
@@ -651,6 +810,7 @@ class MainWindow(QMainWindow):
                 
         except Exception as e:
             QMessageBox.critical(self, tr("Import Metadata"), f"Error: {str(e)}")
+            self.add_log(tr("Error importing metadata: {msg}").format(msg=str(e)))
     
     def on_metadata_written(self):
         """Handle metadata written successfully / 处理元数据成功写入"""
@@ -664,7 +824,137 @@ class MainWindow(QMainWindow):
         
         # Trigger model header refresh / 触发模型表头刷新
         self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, len(self.model.COLUMNS) - 1)
+        self.add_log(tr("Metadata written to selected photos."))
     
+    def on_quick_apply(self):
+        """Batch update Camera, Lens, and Film for all photos / 批量更新所有照片的相机、镜头和胶卷信息"""
+        count = len(self.model.photos)
+        if count == 0: return
+        
+        # Ensure worker is alive before signaling / 发送信号前确保工作者线程存活
+        if not self.worker_thread.isRunning():
+            self.worker_thread.start()
+        
+        c_make = self.quick_camera_make.text().strip()
+        c_model = self.quick_camera_model.text().strip()
+        l_make = self.quick_lens_make.text().strip()
+        l_model = self.quick_lens_model.text().strip()
+        focal = self.quick_focal.text().strip()
+        focal_35 = self.quick_focal_35mm.text().strip()
+        film = self.quick_film.text().strip()
+        
+        if not any([c_make, c_model, l_make, l_model, focal, focal_35, film]):
+            return
+            
+        reply = QMessageBox.question(
+            self, 
+            tr("Quick Write"), 
+            tr("Batch update {count} files?").format(count=count)
+        )
+        if reply != QMessageBox.Yes: return
+        
+        # Build batch metadata / 构建批量元数据
+        batch_meta = {}
+        if c_make: batch_meta["Make"] = c_make
+        if c_model: batch_meta["Model"] = c_model
+        if l_make: batch_meta["LensMake"] = l_make
+        if l_model: batch_meta["LensModel"] = l_model
+        if focal: batch_meta["FocalLength"] = focal
+        if focal_35: batch_meta["FocalLengthIn35mmFormat"] = focal_35
+        if film: batch_meta["Film"] = film
+        
+        # Prepare synchronous update list / 准备同步更新列表
+        metadata_list = [batch_meta] * count
+        
+        # Apply to model / 应用到模型
+        updated = self.model.apply_metadata_sequentially(metadata_list)
+        
+        if updated > 0:
+            QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
+            self.add_log(tr("Quick write applied to {count} photos.").format(count=updated))
+            # Clear fields after success / 成功后清空字段
+            for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
+                edit.clear()
+        
+    def on_quick_apply_selected(self):
+        """Batch update Camera, Lens, and Film for selected photos / 批量更新选中照片的相机、镜头和胶卷信息"""
+        selection = self.table_view.selectionModel().selectedRows()
+        if not selection:
+            QMessageBox.warning(self, tr("No photos selected"), tr("Please select photos first"))
+            return
+            
+        data = {
+            "Make": self.quick_camera_make.text().strip(),
+            "Model": self.quick_camera_model.text().strip(),
+            "LensMake": self.quick_lens_make.text().strip(),
+            "LensModel": self.quick_lens_model.text().strip(),
+            "FocalLength": self.quick_focal.text().strip(),
+            "FocalLengthIn35mmFormat": self.quick_focal_35mm.text().strip(),
+            "Film": self.quick_film.text().strip()
+        }
+        
+        # Remove empty values / 移除空值
+        data = {k: v for k, v in data.items() if v}
+        if not data:
+            return
+
+        rows = [idx.row() for idx in selection]
+        updated = self.model.apply_metadata_to_rows(rows, data)
+        
+        if updated > 0:
+            QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
+            self.add_log(tr("Quick write applied to {count} selected photos.").format(count=updated))
+            # Clear fields / 清空字段
+            for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
+                edit.clear()
+            
+    def show_context_menu(self, pos):
+        """Show context menu for table view / 显示表格右键菜单"""
+        if not self.table_view.selectionModel().hasSelection():
+            return
+            
+        from PySide6.QtWidgets import QMenu
+        from PySide6.QtGui import QAction
+        
+        menu = QMenu(self)
+        remove_action = QAction(tr("Remove"), self)
+        remove_action.triggered.connect(self.remove_selected_photos)
+        menu.addAction(remove_action)
+        
+        menu.exec_(self.table_view.viewport().mapToGlobal(pos))
+        
+    def remove_selected_photos(self):
+        """Remove selected photos from the list / 从列表中移除选中的照片"""
+        selection = self.table_view.selectionModel().selectedRows()
+        if not selection:
+            return
+            
+        reply = QMessageBox.question(
+            self,
+            tr("Remove"),
+            tr("Remove selected photos?"),
+            QMessageBox.Yes | QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            # Sort rows in reverse order to avoid index issues during removal
+            rows = sorted([index.row() for index in selection], reverse=True)
+            for row in rows:
+                self.model.removeRow(row)
+            
+            # Update placeholder visibility
+            self._update_layout_factors()
+            
+            self.add_log(tr("Removed selected photos."))
+    
+    def add_log(self, message: str):
+        """Add a message to the process console / 向进程控制台添加消息"""
+        from datetime import datetime
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        self.log_console.appendPlainText(f"[{timestamp}] {message}")
+        # Auto-scroll to bottom
+        self.log_console.moveCursor(self.log_console.textCursor().MoveOperation.End)
+                
     def refresh_exif(self):
         """Refresh EXIF data for all photos / 刷新所有照片的 EXIF 数据"""
         if not self.model.photos:

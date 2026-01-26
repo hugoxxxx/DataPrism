@@ -136,21 +136,35 @@ class MetadataEditorDialog(QDialog):
         self.map_form.setSpacing(12)
         
         self.exif_fields = [
-            "-- " + tr("Ignore") + " --",
-            "-- " + tr("ID Source") + " --",
-            "DateTimeOriginal", "GPSLatitude", "GPSLongitude",
-            "Make", "Model", "LensModel", "FNumber", "ExposureTime",
-            "ISO", "FocalLength", "Film", "Notes"
+            (tr("Ignore"), "IGNORE"),
+            (tr("ID Source"), "ID_SOURCE"),
+            (tr("DateTimeOriginal"), "DateTimeOriginal"),
+            (tr("GPSLatitude"), "GPSLatitude"),
+            (tr("GPSLongitude"), "GPSLongitude"),
+            (tr("Make"), "Make"),
+            (tr("Model"), "Model"),
+            (tr("LensModel"), "LensModel"),
+            (tr("FNumber"), "FNumber"),
+            (tr("ExposureTime"), "ExposureTime"),
+            (tr("ISO"), "ISO"),
+            (tr("FocalLength"), "FocalLength"),
+            (tr("Film"), "Film"),
+            (tr("Notes"), "Notes")
         ]
         
         if self.raw_headers:
             for col in self.raw_headers:
                 f_combo = QComboBox()
-                f_combo.addItems(self.exif_fields)
+                for label, key in self.exif_fields:
+                    f_combo.addItem(label, key)
+                
                 # Smart Match logic simplified here
-                suggested = self._smart_match_header(col)
-                f_combo.setCurrentText(suggested)
-                f_combo.currentTextChanged.connect(self.on_mapping_changed)
+                suggested_key = self._smart_match_header(col)
+                index = f_combo.findData(suggested_key)
+                if index >= 0:
+                    f_combo.setCurrentIndex(index)
+                
+                f_combo.currentIndexChanged.connect(self.on_mapping_changed)
                 
                 g_combo = QComboBox()
                 g_combo.setFixedWidth(80)
@@ -198,7 +212,7 @@ class MetadataEditorDialog(QDialog):
         self.photo_list = QListWidget(photo_box)
         self.photo_list.setStyleSheet(StyleManager.get_list_style())
         for i, photo in enumerate(self.photos):
-            item = QListWidgetItem(photo.file_name or f"Photo {i+1}")
+            item = QListWidgetItem(photo.file_name or tr("Photo {num}").format(num=i+1))
             item.setData(Qt.ItemDataRole.UserRole, i)
             self.photo_list.addItem(item)
         self.photo_list.itemClicked.connect(self.on_photo_selected)
@@ -294,10 +308,12 @@ class MetadataEditorDialog(QDialog):
         self.edit_shutter = QLineEdit(s2)
         self.edit_iso = QLineEdit(s2)
         self.edit_focal_length = QLineEdit(s2)
+        self.edit_focal_35mm = QLineEdit(s2)
         add_field(f2, tr("Aperture:"), self.edit_aperture)
         add_field(f2, tr("Shutter:"), self.edit_shutter)
         add_field(f2, tr("ISO:"), self.edit_iso)
         add_field(f2, tr("Focal Length:"), self.edit_focal_length)
+        add_field(f2, tr("Focal Length (35mm):"), self.edit_focal_35mm)
         scroll_vbox.addWidget(s2)
 
         s3, f3 = add_section(tr("Context"), scroll_content)
@@ -383,7 +399,7 @@ class MetadataEditorDialog(QDialog):
         # Styles
         self.setStyleSheet(StyleManager.get_main_style())
         for e in [self.edit_make, self.edit_model, self.edit_lens_make, self.edit_lens_model,
-                  self.edit_aperture, self.edit_shutter, self.edit_iso, self.edit_focal_length,
+                  self.edit_aperture, self.edit_shutter, self.edit_iso, self.edit_focal_length, self.edit_focal_35mm,
                   self.edit_film_stock, self.edit_shot_date, self.edit_location, self.edit_notes]:
             e.setStyleSheet(StyleManager.get_input_style())
 
@@ -408,8 +424,10 @@ class MetadataEditorDialog(QDialog):
         if 'iso' in h: return "ISO"
         if any(k in h for k in ['aperture', 'f-']): return "FNumber"
         if any(k in h for k in ['shutter', 'speed']): return "ExposureTime"
+        if '35mm' in h or 'equivalent' in h: return "FocalLengthIn35mmFormat"
+        if 'focal' in h: return "FocalLength"
         if 'film' in h: return "Film"
-        return "-- " + tr("Ignore") + " --"
+        return "IGNORE"
 
     def on_mapping_changed(self):
         """Real-time re-processing using industrial-grade CSVConverter"""
@@ -423,13 +441,13 @@ class MetadataEditorDialog(QDialog):
         }
         
         for col, config in self.mappings.items():
-            field = config['field'].currentText()
-            if tr("ID Source") in field:
+            field_key = config['field'].currentData()
+            if field_key == "ID_SOURCE":
                 mappings_dict['id_column'] = col
-            elif tr("Ignore") not in field:
-                mappings_dict['fields'][col] = field
+            elif field_key != "IGNORE":
+                mappings_dict['fields'][col] = field_key
                 # Add GPS Ref if applicable
-                if field in ["GPSLatitude", "GPSLongitude"]:
+                if field_key in ["GPSLatitude", "GPSLongitude"]:
                     mappings_dict['gps_refs'][col] = config['gps'].currentText()
         
         # Use existing converter logic for robustness
@@ -498,13 +516,25 @@ class MetadataEditorDialog(QDialog):
         self.edit_model.setText(entry.camera_model or "")
         self.edit_lens_make.setText(entry.lens_make or "")
         self.edit_lens_model.setText(entry.lens_model or "")
-        self.edit_aperture.setText(entry.aperture or "")
-        self.edit_shutter.setText(entry.shutter_speed or "")
+        # Formatting for professional display in editor / 编辑器中的专业显示格式化
+        ap_val = (entry.aperture or "").replace('f/', '').replace('F/', '')
+        self.edit_aperture.setText(ap_val)
+        
+        sh_val = entry.shutter_speed or ""
+        if sh_val and "/" not in sh_val:
+            try:
+                clean_sh = sh_val.replace('S', '').replace('s', '').strip()
+                f_sh = float(clean_sh)
+                if f_sh >= 1.0:
+                    sh_val = f"{f_sh:.1f}S"
+            except: pass
+        self.edit_shutter.setText(sh_val)
         self.edit_iso.setText(entry.iso or "")
         self.edit_film_stock.setText(entry.film_stock or "")
         self.edit_focal_length.setText(entry.focal_length or "")
         self.edit_shot_date.setText(entry.shot_date or "")
         self.edit_location.setText(entry.location or "")
+        self.edit_focal_35mm.setText(entry.focal_length_35mm or "")
         self.edit_notes.setText(entry.notes or "")
 
     def _update_preview(self, photo_idx):
@@ -540,7 +570,20 @@ class MetadataEditorDialog(QDialog):
         e.shutter_speed = self.edit_shutter.text().strip() or None
         e.iso = self.edit_iso.text().strip() or None
         e.film_stock = self.edit_film_stock.text().strip() or None
-        e.focal_length = self.edit_focal_length.text().strip() or None
+        
+        # Validate and format Focal Lengths / 验证并格式化焦距
+        focal_val = self.edit_focal_length.text().strip()
+        if focal_val:
+            try: e.focal_length = MetadataValidator.validate_focal_length(focal_val)
+            except: e.focal_length = focal_val
+        else: e.focal_length = None
+            
+        f35_val = self.edit_focal_35mm.text().strip()
+        if f35_val:
+            try: e.focal_length_35mm = MetadataValidator.validate_focal_length(f35_val)
+            except: e.focal_length_35mm = f35_val
+        else: e.focal_length_35mm = None
+            
         e.shot_date = self.edit_shot_date.text().strip() or None
         e.location = self.edit_location.text().strip() or None
         e.notes = self.edit_notes.text().strip() or None
@@ -597,9 +640,19 @@ class MetadataEditorDialog(QDialog):
         if entry.camera_model: exif['Model'] = entry.camera_model
         if entry.lens_make: exif['LensMake'] = entry.lens_make
         if entry.lens_model: exif['LensModel'] = entry.lens_model
-        if entry.aperture: exif['FNumber'] = entry.aperture.replace('f/', '').replace('F/', '')
-        if entry.shutter_speed: exif['ExposureTime'] = entry.shutter_speed
+        if entry.aperture: 
+            exif['FNumber'] = entry.aperture.replace('f/', '').replace('F/', '').strip()
+        if entry.shutter_speed: 
+            # Strip 'S' or 's' suffix for EXIF writing / 写入 EXIF 时移除 'S' 后缀
+            sh_clean = entry.shutter_speed.replace('S', '').replace('s', '').strip()
+            exif['ExposureTime'] = sh_clean
         if entry.iso: exif['ISO'] = entry.iso
+        if entry.focal_length: 
+            # Ensure only number is written to EXIF if needed, but ExifTool handled "X mm" fine
+            # We'll just strip for maximum compatibility
+            exif['FocalLength'] = entry.focal_length.replace('mm', '').replace('MM', '').strip()
+        if entry.focal_length_35mm: 
+            exif['FocalLengthIn35mmFormat'] = entry.focal_length_35mm.replace('mm', '').replace('MM', '').strip()
         if entry.film_stock:
             exif['Film'] = entry.film_stock
             exif['ImageDescription'] = entry.film_stock
@@ -607,5 +660,16 @@ class MetadataEditorDialog(QDialog):
             gps = gps_utils.parse_gps_to_exif(entry.location)
             if gps:
                 exif['GPSLatitude'], exif['GPSLatitudeRef'], exif['GPSLongitude'], exif['GPSLongitudeRef'] = gps
+        
+        # Shot Date - Map to DateTimeOriginal
+        if entry.shot_date:
+            # Standardize date format for EXIF: Replace -, / with :
+            # 将日期格式标准化为 EXIF 要求的 YYYY:MM:DD HH:MM:SS
+            d_clean = entry.shot_date.strip().replace('-', ':').replace('/', ':').replace('.', ':')
+            # If it's only date without time, append 00:00:00
+            if len(d_clean) == 10 and d_clean.count(':') == 2:
+                d_clean += " 00:00:00"
+            exif['DateTimeOriginal'] = d_clean
+            
         if entry.notes: exif['UserComment'] = entry.notes
         return exif

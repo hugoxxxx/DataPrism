@@ -21,10 +21,13 @@ class TranslationManager:
         self.translations: Dict[str, Dict[str, str]] = {
             # UI Elements / UI 元素
             "Imported Photos": {"zh": "已导入照片", "en": "Imported Photos"},
-            "Browse files…": {"zh": "浏览文件…", "en": "Browse files…"},
-            "Click 'Browse files' button to import photos": {
-                "zh": "点击'浏览文件'按钮导入照片",
-                "en": "Click 'Browse files' button to import photos"
+            "Browse files…": {"zh": "添加照片...", "en": "Add Photos..."},
+            "Add Photos": {"zh": "添加照片", "en": "Add Photos"},
+            "Remove": {"zh": "移除", "en": "Remove"},
+            "Remove selected photos?": {"zh": "是否移除选中的照片？", "en": "Remove selected photos?"},
+            "Click 'Add Photos' button to import photos": {
+                "zh": "点击'添加照片'按钮导入照片",
+                "en": "Click 'Add Photos' button to import photos"
             },
             
             # Sidebar / 侧边栏
@@ -37,28 +40,42 @@ class TranslationManager:
             "Inspector": {"zh": "检查器", "en": "Inspector"},
             "Basic Info": {"zh": "基本信息", "en": "Basic Info"},
             "File:": {"zh": "文件：", "en": "File:"},
+            # Inspector & Sidebar / 检查器与侧边栏
             "Camera Make:": {"zh": "相机品牌：", "en": "Camera Make:"},
             "Camera Model:": {"zh": "相机型号：", "en": "Camera Model:"},
             "Lens Make:": {"zh": "镜头品牌：", "en": "Lens Make:"},
             "Lens Model:": {"zh": "镜头型号：", "en": "Lens Model:"},
+            "Film Stock:": {"zh": "胶卷型号：", "en": "Film Stock:"},
+            "Location:": {"zh": "位置：", "en": "Location:"},
             "Date:": {"zh": "日期：", "en": "Date:"},
             "Status:": {"zh": "状态：", "en": "Status:"},
-            
-            # Exposure Section / 曝光区域
-            "Exposure": {"zh": "曝光参数", "en": "Exposure"},
+            "Focal Length:": {"zh": "焦距：", "en": "Focal Length:"},
+            "Focal Length (35mm):": {"zh": "等效焦距 (35mm)：", "en": "Focal Length (35mm):"},
             "Aperture:": {"zh": "光圈：", "en": "Aperture:"},
             "Shutter:": {"zh": "快门：", "en": "Shutter:"},
             "ISO:": {"zh": "ISO：", "en": "ISO:"},
             
-            # Table Columns / 表格列
-            "File": {"zh": "文件", "en": "File"},
-            "Make": {"zh": "品牌", "en": "Make"},
-            "Model": {"zh": "型号", "en": "Model"},
+            # Exposure Section / 曝光区域
+            "Exposure": {"zh": "曝光参数", "en": "Exposure"},
             "Aperture": {"zh": "光圈", "en": "Aperture"},
             "Shutter": {"zh": "快门", "en": "Shutter"},
             "ISO": {"zh": "ISO", "en": "ISO"},
+            
+            # Table Columns / 表格列 (Exact Match with PhotoDataModel.COLUMNS)
+            "File": {"zh": "文件", "en": "File"},
+            "C-Make": {"zh": "相机品牌", "en": "C-Make"},
+            "C-Model": {"zh": "相机型号", "en": "C-Model"},
+            "L-Make": {"zh": "镜头品牌", "en": "L-Make"},
+            "L-Model": {"zh": "镜头型号", "en": "L-Model"},
+            "Focal": {"zh": "焦距", "en": "Focal"},
+            "F35mm": {"zh": "等效", "en": "F35mm"},
+            "Film Stock": {"zh": "胶卷型号", "en": "Film Stock"},
+            "Location": {"zh": "位置", "en": "Location"},
             "Date": {"zh": "日期", "en": "Date"},
             "Status": {"zh": "状态", "en": "Status"},
+            "Notes": {"zh": "备注", "en": "Notes"},
+            "Ignore": {"zh": "忽略", "en": "Ignore"},
+            "ID Source": {"zh": "ID 来源", "en": "ID Source"},
             
             # Status Messages / 状态消息
             "Loading...": {"zh": "加载中...", "en": "Loading..."},
@@ -66,12 +83,28 @@ class TranslationManager:
             "EXIF loaded": {"zh": "EXIF 已加载", "en": "EXIF loaded"},
             "Modified": {"zh": "已修改", "en": "Modified"},
             "Error loading EXIF": {"zh": "加载 EXIF 出错", "en": "Error loading EXIF"},
+            "pending": {"zh": "待处理", "en": "Pending"},
+            "loaded": {"zh": "已加载", "en": "Loaded"},
+            "error": {"zh": "出错", "en": "Error"},
+            "modified": {"zh": "已修改", "en": "Modified"},
             
             # Import Messages / 导入消息
             "Imported {count} file(s).": {
                 "zh": "已导入 {count} 个文件。",
                 "en": "Imported {count} file(s)."
             },
+            " (Modified)": {"zh": " (已修改)", "en": " (Modified)"},
+            "Successfully wrote metadata to {file}": {"zh": "成功将元数据写入 {file}", "en": "Successfully wrote metadata to {file}"},
+            "Metadata written to selected photos.": {"zh": "元数据已写入选中的照片。", "en": "Metadata written to selected photos."},
+            "Quick write applied to {count} photos.": {"zh": "一键写入已应用到 {count} 张照片。", "en": "Quick write applied to {count} photos."},
+            "Quick write applied to {count} selected photos.": {"zh": "一键写入已应用到 {count} 张选中的照片。", "en": "Quick write applied to {count} selected photos."},
+            "Removed selected photos.": {"zh": "已移除选中的照片。", "en": "Removed selected photos."},
+            "Error: {msg}": {"zh": "错误：{msg}", "en": "Error: {msg}"},
+            "Error importing metadata: {msg}": {"zh": "导入元数据出错：{msg}", "en": "Error importing metadata: {msg}"},
+            "Reading EXIF: {file_path}": {"zh": "正在读取 EXIF：{file_path}", "en": "Reading EXIF: {file_path}"},
+            "Writing single EXIF to: {file_path}": {"zh": "正在写入单个 EXIF：{file_path}", "en": "Writing single EXIF to: {file_path}"},
+            "Writing EXIF to: {file_path}": {"zh": "正在写入 EXIF：{file_path}", "en": "Writing EXIF to: {file_path}"},
+            "Process Status / Log": {"zh": "执行状态 / 日志", "en": "Process Status / Log"},
             "Select photos": {"zh": "选择照片", "en": "Select photos"},
             "Images (*.jpg *.jpeg *.png *.tif *.tiff *.dng)": {
                 "zh": "图像 (*.jpg *.jpeg *.png *.tif *.tiff *.dng)",
@@ -85,7 +118,8 @@ class TranslationManager:
             "Parsing JSON...": {"zh": "解析 JSON...", "en": "Parsing JSON..."},
             "Matching photos...": {"zh": "匹配照片...", "en": "Matching photos..."},
             "Match Preview": {"zh": "匹配预览", "en": "Match Preview"},
-            "Apply to All": {"zh": "应用到全部", "en": "Apply to All"},
+            "Apply to All": {"zh": "全部", "en": "All"},
+            "Apply to Selected": {"zh": "选中", "en": "Selected"},
             "Cancel": {"zh": "取消", "en": "Cancel"},
             "Matched: {matched}/{total}": {"zh": "已匹配：{matched}/{total}", "en": "Matched: {matched}/{total}"},
             "No photos imported": {"zh": "没有导入照片", "en": "No photos imported"},
@@ -163,6 +197,32 @@ class TranslationManager:
                 "zh": "成功写入元数据到 {count} 个文件",
                 "en": "Successfully wrote metadata to {count} file(s)"
             },
+            "Focal Length (35mm):": {"zh": "等效焦距 (35mm)：", "en": "Focal Length (35mm):"},
+            "Quick Write": {"zh": "一键写入", "en": "Quick Write"},
+            "Batch Modify": {"zh": "批量修改", "en": "Batch Modify"},
+            "Apply": {"zh": "应用", "en": "Apply"},
+            "Camera Make": {"zh": "相机品牌", "en": "Camera Make"},
+            "Camera Model": {"zh": "相机型号", "en": "Camera Model"},
+            "Lens Make": {"zh": "镜头品牌", "en": "Lens Make"},
+            "Lens Model": {"zh": "镜头型号", "en": "Lens Model"},
+            "Focal Length": {"zh": "焦距", "en": "Focal Length"},
+            "Digital Back Display": {"zh": "后背数据屏", "en": "Digital Back Display"},
+            "Batch update {count} files?": {"zh": "是否批量修改 {count} 个文件的元数据？", "en": "Batch update {count} files?"},
+            "Photo {num}": {"zh": "照片 {num}", "en": "Photo {num}"},
+            "Make": {"zh": "相机品牌", "en": "Make"},
+            "Model": {"zh": "相机型号", "en": "Model"},
+            "LensModel": {"zh": "镜头型号", "en": "LensModel"},
+            "FNumber": {"zh": "光圈", "en": "FNumber"},
+            "ExposureTime": {"zh": "快门速度", "en": "ExposureTime"},
+            "FocalLength": {"zh": "焦距", "en": "FocalLength"},
+            "DateTimeOriginal": {"zh": "拍摄时间", "en": "DateTimeOriginal"},
+            "GPSLatitude": {"zh": "纬度", "en": "GPSLatitude"},
+            "GPSLongitude": {"zh": "经度", "en": "GPSLongitude"},
+            "Correlate Data": {"zh": "数据关联 / 映射", "en": "Correlate Data / Mapping"},
+            "Mapping Configuration": {"zh": "映射配置", "en": "Mapping Configuration"},
+            "Ignore": {"zh": "忽略", "en": "Ignore"},
+            "ID Source": {"zh": "ID 来源", "en": "ID Source"},
+            "Metadata Studio": {"zh": "元数据工作室", "en": "Metadata Studio"},
         }
     
     def _detect_system_language(self) -> str:

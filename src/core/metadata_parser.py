@@ -32,6 +32,7 @@ class MetadataEntry:
     iso: Optional[str] = None  # ISO value / ISO 值
     film_stock: Optional[str] = None  # e.g. "Kodak Portra 400" / 胶片型号
     focal_length: Optional[str] = None  # e.g. "50mm" / 焦距
+    focal_length_35mm: Optional[str] = None # 35mm equivalent / 等效焦距
     timestamp: Optional[datetime] = None  # Shot timestamp / 拍摄时间
     shot_date: Optional[str] = None  # Shot date string / 拍摄日期
     location: Optional[str] = None  # Geographic location / 地理位置
@@ -289,7 +290,8 @@ class MetadataParser:
         shutter_fields = ['shutter_speed', 'shutter', 'exposure_time', 'exposuretime', 'ExposureTime']
         iso_fields = ['iso', 'sensitivity', 'ISO', 'ISOSpeed']
         film_fields = ['film', 'film_stock', 'filmstock', 'emulsion', 'Description', 'ReelName', 'SpectralSensitivity']
-        focal_fields = ['focal_length', 'focallength', 'focal', 'FocalLength', 'FocalLengthIn35mmFormat']
+        focal_fields = ['focal_length', 'focallength', 'focal', 'FocalLength']
+        focal_35mm_fields = ['focal_length_35mm', 'focal35mm', '35mm_focal', 'FocalLengthIn35mmFormat']
         timestamp_fields = ['timestamp', 'date', 'time', 'datetime', 'DateTimeOriginal']
         shot_date_fields = ['shot_date', 'shot_date_str', 'date_string', 'DateString', 'DateTimeOriginal', 'DateTime', 'CreateDate', 'ModifyDate', 'SubSecDateTimeOriginal']
         location_fields = ['location', 'geo', 'gps', 'GPSInfo', 'GPSLatitude', 'GPSLongitude', 'GPSAltitude', 'GPSLatitudeRef', 'GPSLongitudeRef']
@@ -314,24 +316,21 @@ class MetadataParser:
         for field in aperture_fields:
             if field in entry and entry[field]:
                 value = entry[field]
-                # Handle numeric aperture values (EXIF FNumber/MaxApertureValue) / 处理数字光圈值
                 if isinstance(value, (int, float)):
-                    metadata.aperture = f"f/{value}"
-                else:
                     metadata.aperture = str(value)
+                else:
+                    metadata.aperture = str(value).replace('f/', '').replace('F/', '')
                 break
         
         for field in shutter_fields:
             if field in entry and entry[field]:
                 value = entry[field]
-                # Handle numeric shutter speed (EXIF ExposureTime as float) / 处理数字快门速度
                 if isinstance(value, (int, float)):
                     if value < 1:
-                        # Convert to fraction like 1/125 / 转换为 1/125 的格式
                         denom = round(1 / value)
                         metadata.shutter_speed = f"1/{denom}"
                     else:
-                        metadata.shutter_speed = str(value)
+                        metadata.shutter_speed = f"{value:.1f}"
                 else:
                     metadata.shutter_speed = str(value)
                 break
@@ -359,6 +358,15 @@ class MetadataParser:
                     metadata.focal_length = f"{int(value)}mm"
                 else:
                     metadata.focal_length = str(value)
+                break
+        
+        for field in focal_35mm_fields:
+            if field in entry and entry[field]:
+                value = entry[field]
+                if isinstance(value, (int, float)):
+                    metadata.focal_length_35mm = f"{int(value)}mm"
+                else:
+                    metadata.focal_length_35mm = str(value)
                 break
         
         # Parse timestamp / 解析时间戳

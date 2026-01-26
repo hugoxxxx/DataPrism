@@ -12,6 +12,7 @@ import json
 import time
 from src.utils.logger import get_logger
 from src.core.config import get_config
+from src.utils.i18n import tr
 
 logger = get_logger('DataPrism.ExifWorker')
 config = get_config()
@@ -31,6 +32,7 @@ class ExifToolWorker(QObject):
     finished = Signal()  # Operation finished
     start_write = Signal(list)  # Trigger batch write with tasks / 触发批量写入
     single_write = Signal(str, dict) # Trigger single write (file_path, exif_data)
+    log_message = Signal(str)  # Real-time log message for UI / UI 实时日志消息
     
     def __init__(self, exiftool_path: str = None):
         """
@@ -73,6 +75,7 @@ class ExifToolWorker(QObject):
             
             for idx, file_path in enumerate(file_paths):
                 try:
+                    self.log_message.emit(tr("Reading EXIF: {file_path}").format(file_path=file_path))
                     # Execute exiftool command
                     # 执行 exiftool 命令
                     cmd = [self.exiftool_path, "-json", file_path]
@@ -230,7 +233,9 @@ class ExifToolWorker(QObject):
 
             cmd.append(file_path)
 
-            logger.info(f"Writing single EXIF to: {file_path}")
+            msg = tr("Writing single EXIF to: {file_path}").format(file_path=file_path)
+            logger.info(msg)
+            self.log_message.emit(msg)
             # Use retry mechanism / 使用重试机制
             self._run_exiftool_with_retry(cmd, timeout=30)
             
@@ -282,7 +287,9 @@ class ExifToolWorker(QObject):
                 cmd.append(file_path)
 
                 try:
-                    logger.info(f"Writing EXIF to: {file_path}")
+                    msg = tr("Writing EXIF to: {file_path}").format(file_path=file_path)
+                    logger.info(msg)
+                    self.log_message.emit(msg)
                     logger.info(f"Full Command: {' '.join(cmd)}")
                     
                     # Use retry mechanism / 使用重试机制

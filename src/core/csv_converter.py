@@ -96,6 +96,9 @@ class CSVConverter:
                 elif exif_field == 'FocalLength':
                     entry.focal_length = value
                 
+                elif exif_field == 'FocalLengthIn35mmFormat':
+                    entry.focal_length_35mm = value
+                
                 elif exif_field == 'Film':
                     entry.film_stock = value
                 

@@ -24,4 +24,5 @@ htmlcov/
 *.jpeg
 *.JPG
 *.PNG
-*.JPEG 
+*.JPEG
+*.log

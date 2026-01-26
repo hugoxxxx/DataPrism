@@ -130,7 +130,7 @@ class MetadataValidator:
             focal = float(cleaned)
             if focal < 1 or focal > 2000:
                 raise ValueError(f"焦距超出合理范围 (1-2000mm): {value}")
-            return str(int(focal))  # Return as integer string / 返回整数字符串
+            return f"{int(focal)} mm"  # Format as "80 mm" for both internal and display / 为内部存储和显示格式化为 "80 mm"
         except ValueError:
             raise ValueError(f"无效的焦距值 / Invalid focal length: {value}")
     
@@ -202,8 +202,9 @@ class MetadataValidator:
         if len(cleaned) > 100:
             raise ValueError("相机型号过长 (最多100字符) / Camera model too long (max 100 chars)")
         
-        # Check for invalid characters / 检查无效字符
-        if re.search(r'[<>:"/\\|?*]', cleaned):
+        # Check for invalid characters (standard OS filename restricted characters minus / and | for gear names)
+        # 检查无效字符（标准的系统文件名限制字符，移除 / 和 | 以支持器材型号）
+        if re.search(r'[<>:"\\?*]', cleaned):
             raise ValueError("相机型号包含非法字符 / Camera model contains invalid characters")
         
         return cleaned
@@ -231,8 +232,9 @@ class MetadataValidator:
         if len(cleaned) > 150:
             raise ValueError("镜头型号过长 (最多150字符) / Lens model too long (max 150 chars)")
         
-        # Check for invalid characters / 检查无效字符
-        if re.search(r'[<>:"/\\|?*]', cleaned):
+        # Check for invalid characters (standard OS filename restricted characters minus / and | for gear names)
+        # 检查无效字符（标准的系统文件名限制字符，移除 / 和 | 以支持器材型号）
+        if re.search(r'[<>:"\\?*]', cleaned):
             raise ValueError("镜头型号包含非法字符 / Lens model contains invalid characters")
         
         return cleaned
