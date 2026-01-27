@@ -39,7 +39,8 @@ class BorderlessTableView(QTableView):
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         
         # Fill viewport background
-        painter.fillRect(event.rect(), QColor("#101012"))
+        from src.ui.style_manager import StyleManager
+        painter.fillRect(event.rect(), QColor(StyleManager.c("bg_main")))
         
         # Get visible range
         first_row = self.rowAt(event.rect().top())

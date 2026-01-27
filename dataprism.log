@@ -5278,3 +5278,77 @@ NameError: name 'QPlainTextEdit' is not defined
 [2026-01-26 23:59:10] [DataPrism] [INFO] Main window displayed successfully
 [2026-01-26 23:59:25] [DataPrism.MainWindow] [INFO] Imported 3 files
 [2026-01-26 23:59:31] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 11:39:28] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:39:28] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:39:28] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:39:28] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 11:39:28] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:39:29] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 11:47:52] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 11:48:03] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:48:03] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:48:03] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:48:03] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 11:48:03] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:48:04] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 11:50:21] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 11:55:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:55:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:55:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:55:47] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 11:55:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:55:48] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 11:55:56] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 11:56:07] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 270 degrees
+[2026-01-27 11:56:08] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 180 degrees
+[2026-01-27 11:56:08] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 90 degrees
+[2026-01-27 11:56:09] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 0 degrees
+[2026-01-27 11:56:11] [DataPrism.MainWindow] [INFO] Rotated photo 66.jpg to 270 degrees
+[2026-01-27 11:56:11] [DataPrism.MainWindow] [INFO] Rotated photo 66.jpg to 180 degrees
+[2026-01-27 11:56:11] [DataPrism.MainWindow] [INFO] Rotated photo 66.jpg to 90 degrees
+[2026-01-27 11:56:11] [DataPrism.MainWindow] [INFO] Rotated photo 66.jpg to 0 degrees
+[2026-01-27 11:56:14] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 270 degrees
+[2026-01-27 11:56:15] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 180 degrees
+[2026-01-27 11:56:15] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 90 degrees
+[2026-01-27 11:56:15] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 0 degrees
+[2026-01-27 11:58:38] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 11:58:44] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:58:44] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 11:58:44] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:58:44] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 11:58:44] [DataPrism] [INFO] ============================================================
+[2026-01-27 11:58:46] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 11:58:54] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 12:00:36] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 12:00:38] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:00:38] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:00:38] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:00:38] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 12:00:38] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:00:39] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 12:00:46] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 12:01:40] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 12:03:00] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:03:00] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:03:00] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:03:00] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 12:03:00] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:03:01] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 12:03:09] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 12:06:34] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 12:06:36] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:06:36] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 12:06:36] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:06:36] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 12:06:36] [DataPrism] [INFO] ============================================================
+[2026-01-27 12:06:37] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 12:06:45] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 12:06:53] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 13:27:22] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 13:27:22] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 13:27:22] [DataPrism] [INFO] ============================================================
+[2026-01-27 13:27:22] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 13:27:22] [DataPrism] [INFO] ============================================================
+[2026-01-27 13:27:24] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 13:27:51] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 13:48:45] [DataPrism] [INFO] Application exiting with code 0

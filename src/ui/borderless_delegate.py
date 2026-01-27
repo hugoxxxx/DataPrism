@@ -17,18 +17,20 @@ class BorderlessDelegate(QStyledItemDelegate):
     
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.bg_main = QColor("#101012")
-        self.bg_alternate = QColor("#1D1D21")
-        self.text_primary = QColor("#E0E0E0")
-        self.accent = QColor("#FF6B1A")  # Brighter orange for better visibility
+        from src.ui.style_manager import StyleManager
+        self.bg_main = QColor(StyleManager.c("bg_main"))
+        self.bg_alternate = QColor(StyleManager.c("table_alternate"))
+        self.text_primary = QColor(StyleManager.c("text_primary"))
+        self.accent = QColor(StyleManager.c("accent"))
         # More opaque selection background for better contrast
-        self.selection_bg = QColor(209, 84, 0, 120)  # Increased from 80 to 120
+        self.selection_bg = QColor(StyleManager.c("table_selection_bg"))
     
     def paint(self, painter, option, index):
         """
         Custom paint with proper selection background.
         自定义绘制，带有适当的选中背景。
         """
+        from src.ui.style_manager import StyleManager
         painter.save()
         
         # Enable text anti-aliasing for crisp font rendering
@@ -54,9 +56,15 @@ class BorderlessDelegate(QStyledItemDelegate):
         painter.fillRect(option.rect, bg_color)
         
         # Set font for text rendering / 设置文本渲染字体
-        # 使用 11px 以获得精致紧凑的布局 / Use 11px for refined, compact layout
+        # Use coordinated font from StyleManager / 使用 StyleManager 中的协调字体
         from PySide6.QtGui import QFont
-        font = QFont("Inter", 11)  # 11px - 精致紧凑 / Refined and compact
+        
+        # Get font name and size from theme
+        font_family = StyleManager.t("family_main").strip('"')
+        # Use 10px for ultimate "Large smaller" effect as requested by 老大
+        font_size = 10
+        
+        font = QFont(font_family, font_size)
         font.setWeight(QFont.Weight.Normal)
         painter.setFont(font)
         

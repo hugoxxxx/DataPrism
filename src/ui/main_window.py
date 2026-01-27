@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QProgressDialog, QDialog, QLineEdit, QPlainTextEdit
 )
 from PySide6.QtCore import Qt, QSize, QThread, Signal
-from PySide6.QtGui import QFont, QPixmap
+from PySide6.QtGui import QFont, QPixmap, QTransform
 
 from src.core.photo_model import PhotoDataModel
 from src.core.exif_worker import ExifToolWorker
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
                 border-top: 1px solid {StyleManager.COLOR_BORDER};
             }}
         """)
-        self.console_card.setFixedHeight(120)
+        self.console_card.setFixedHeight(180)
         console_layout = QVBoxLayout(self.console_card)
         console_layout.setContentsMargins(15, 10, 15, 10)
         
@@ -266,6 +266,17 @@ class MainWindow(QMainWindow):
         self.table_view.setLineWidth(0)
         self.table_view.setMidLineWidth(0)
         
+        # Ultra-precision font coordination in code / 代码中的顶级字号协调
+        # Content: 10px for ultimate professional refinement / 内容：10px 极致专业观感
+        content_font = QFont(StyleManager.FONT_FAMILY_MAIN, 10)
+        self.table_view.setFont(content_font)
+        
+        # Header: 9px Bold with extreme tracking / 表头：9px 粗体配合极端字间距
+        header_font = QFont(StyleManager.FONT_FAMILY_MAIN, 9)
+        header_font.setBold(True)
+        header_font.setWeight(QFont.Weight.ExtraBold)
+        header.setFont(header_font)
+        
         self.table_view.setStyleSheet(StyleManager.get_table_style())
         
         # Apply custom style to disable Qt's selection border rendering
@@ -300,6 +311,30 @@ class MainWindow(QMainWindow):
         self.thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.thumb_label.setStyleSheet("border: none; background: transparent;")
         thumb_layout.addWidget(self.thumb_label)
+        
+        # Rotation Controls / 旋转控制
+        rotate_layout = QHBoxLayout()
+        rotate_layout.setContentsMargins(0, 5, 0, 5)
+        rotate_layout.setSpacing(10)
+        
+        self.rotate_ccw_btn = QPushButton("↺")
+        self.rotate_ccw_btn.setToolTip(tr("Rotate Left"))
+        self.rotate_ccw_btn.setFixedWidth(40)
+        self.rotate_ccw_btn.setStyleSheet(StyleManager.get_button_style('ghost'))
+        self.rotate_ccw_btn.clicked.connect(lambda: self.rotate_photo(-90))
+        
+        self.rotate_cw_btn = QPushButton("↻")
+        self.rotate_cw_btn.setToolTip(tr("Rotate Right"))
+        self.rotate_cw_btn.setFixedWidth(40)
+        self.rotate_cw_btn.setStyleSheet(StyleManager.get_button_style('ghost'))
+        self.rotate_cw_btn.clicked.connect(lambda: self.rotate_photo(90))
+        
+        rotate_layout.addStretch()
+        rotate_layout.addWidget(self.rotate_ccw_btn)
+        rotate_layout.addWidget(self.rotate_cw_btn)
+        rotate_layout.addStretch()
+        
+        thumb_layout.addLayout(rotate_layout)
         right_layout.addWidget(thumb_card)
 
         
@@ -667,7 +702,37 @@ class MainWindow(QMainWindow):
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
-        self.thumb_label.setPixmap(photo.thumbnail)
+        
+        # Apply rotation if needed / 如果需要，应用旋转
+        if photo.rotation != 0:
+            transform = QTransform().rotate(photo.rotation)
+            rotated_pix = photo.thumbnail.transformed(transform, Qt.TransformationMode.SmoothTransformation)
+            # Scale again to ensure it fits the label after rotation / 旋转后再次缩放以确保适配标签
+            final_pix = rotated_pix.scaled(
+                self.thumb_label.width(),
+                self.thumb_label.height(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            self.thumb_label.setPixmap(final_pix)
+        else:
+            self.thumb_label.setPixmap(photo.thumbnail)
+
+    def rotate_photo(self, angle: int):
+        """Rotate the currently selected photo / 旋转当前选中的照片"""
+        selection = self.table_view.selectionModel().selectedRows()
+        if not selection:
+            return
+        
+        row = selection[0].row()
+        photo = self.model.photos[row]
+        
+        # Update rotation state (0, 90, 180, 270)
+        photo.rotation = (photo.rotation + angle) % 360
+        
+        # Refresh inspector to show new orientation
+        self._refresh_inspector()
+        logger.info(f"Rotated photo {photo.file_name} to {photo.rotation} degrees")
 
     def _stop_worker(self):
         """Gracefully stop worker thread / 优雅停止工作线程"""

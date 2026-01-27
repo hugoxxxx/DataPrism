@@ -42,6 +42,7 @@ class PhotoItem:
     focal_length_35mm: Optional[str] = None # e.g., "50mm"
     location: Optional[str] = None  # e.g., "Tokyo, JP"
     serial_number: Optional[str] = None
+    rotation: int = 0  # Rotation in degrees / 旋转角度 (0, 90, 180, 270)
 
 
 class PhotoDataModel(QAbstractTableModel):

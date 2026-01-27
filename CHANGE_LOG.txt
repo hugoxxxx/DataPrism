@@ -1,3 +1,13 @@
+## [2026-01-27] 环境就绪与 UI 进阶优化
+- **环境配置**: 成功搭建 `venv` 虚拟环境，并解决由于本地代理导致的 SSL/pip 安装问题。
+- **控制台高度优化**: 将底部的“进程状态” (Process Status) 控制台高度从 120 像素增加至 180 像素，提升日志可读性。
+- **预览图像增强**: 
+    - 实现了 Inspector 预览图的自动居中显示。
+    - 新增“旋转”功能，支持对预览图进行左/右 90 度旋转查看。
+- **表格视觉精修**: 
+    - **双重字号协调 (Precision Sync)**: 落实“大调小、小调大”策略。内容统一调至 **11px (Tiny)** 以显精致；表头协调至 **12px (Small)** 并结合 **Bold (700)** 与 **2.0px 字间距**，完美对齐顶部按钮美学。
+    - **彻底移除硬编码**: 剥离了所有代理 (Delegate) 与视图中的硬编码字号，通过代码+CSS双重保险确保样式绝对统合。
+
 ## [2026-01-26] 工业级元数据深度扩展
 ### 🔍 焦距系统升级 (Dual-Focal Engine)
 - **双焦距表项支持**: 
@@ -97,7 +107,7 @@ DataPrism change log
 - GPS display cleanup (v0.3.1): GPS lat/lon now formatted without duplicated direction words (N/S/E/W) for cleaner Location display.
 - Metadata import fix (v0.3.1): Fixed MetadataParser to support ExifTool EXIF tags (Make, Model, FNumber, ExposureTime, ISO, FocalLength, DateTimeOriginal, etc.) in JSON exports; added automatic numeric format conversion (f-stop for FNumber, fraction for ExposureTime, mm for focal length, etc.); extended field mapping across all 10 metadata attributes to handle both Lightme format and ExifTool format simultaneously.
 - Editor dialog debugging (v0.3.1): Added logging to metadata_editor_dialog.py load_photo() method for diagnostic support.
-- Additional metadata fields (v0.3.1): Added shot_date and location fields to MetadataEntry dataclass; extended field mapping in _parse_entry() for shot_date (DateTimeOriginal, DateTime, CreateDate, ModifyDate, SubSecDateTimeOriginal) and location (GPSLatitude, GPSLongitude, GPSAltitude, GPSLatitudeRef, GPSLongitudeRef, etc.) with support for GPS coordinate tuples and ExifTool native tags; updated MetadataEditorDialog UI with 2 new QLineEdit fields for shot date and location; added translations for "Shot Date:" and "Location:" to i18n.py.
+- Additional metadata fields (v0.3.1): Added shot_date and location fields to MetadataEntry dataclass; extended field mapping in _parse_entry() for shot_date (DateTimeOriginal, DateTime, CreateDate, ModifyDate, SubSecDateTimeOriginal) and location (GPSLatitude, GPSLongitude, GPSAltitude, GPSLatitudeRef, GPSLongitudeRef, etc.) with tags; updated MetadataEditorDialog UI with 2 new QLineEdit fields for shot date and location; added translations for "Shot Date:" and "Location:" to i18n.py.
 - Write metadata fix (v0.3.1): Fixed on_write_metadata() to correctly map each photo to its corresponding metadata entry with offset consideration; updated _build_exif_dict() to include shot_date and location fields; improved exif_worker.py value validation (check for None and empty string) to ensure all valid metadata is written; added debug logging to track photo-to-metadata mapping during batch write.
 - Main window refresh button (v0.3.1): Added "Refresh EXIF" button to main window sidebar for reloading all photos' EXIF data after external modifications; implemented refresh_exif() method that re-reads EXIF asynchronously via queue_exif_read(); button styled with blue gradient matching metadata import button; added translations for "Refresh EXIF" and "No photos to refresh" to i18n.py.
 - Cleanup: Removed temporary test scripts, diagnostic documentation files, and all v0.3.1 development draft reports; kept only core implementation and production files.

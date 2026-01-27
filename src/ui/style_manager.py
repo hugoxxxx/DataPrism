@@ -295,6 +295,11 @@ class StyleManager:
 
     @classmethod
     def get_table_style(cls):
+        # Ultra-refined pixel values for "High-End Studio" aesthetic
+        # 极简影像工作站美学：采用更小的像素值以获得顶级的精致感
+        font_size_content = "10px" # Refined Content
+        font_size_header = "9px"   # Studio Header
+        
         return f"""
             QTableView {{
                 background-color: {cls.c("bg_main")};
@@ -303,15 +308,18 @@ class StyleManager:
                 selection-color: {cls.c("accent")};
                 border: none;
                 gridline-color: transparent;
+                font-size: {font_size_content};
             }}
             QHeaderView::section {{
                 background-color: {cls.c("bg_main")};
                 color: {cls.c("text_secondary")};
                 padding: 12px;
                 border: none;
-                border-bottom: 1px solid {cls.c("border")};
-                letter-spacing: 1px;
-                font-size: {cls.t("size_tiny")};
+                border-bottom: 2px solid {cls.c("border")};
+                letter-spacing: 2.5px;
+                font-size: {font_size_header};
+                font-weight: 800;
+                text-transform: uppercase;
             }}
         """
 
