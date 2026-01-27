@@ -1,0 +1,21 @@
+{
+    "exiftool_path": "exiftool",
+    "exiftool_timeout": 30,
+    "exiftool_max_retries": 3,
+    "window_width": 1200,
+    "window_height": 800,
+    "theme": "dark",
+    "language": "zh_CN",
+    "max_cache_size": 100,
+    "worker_threads": 2,
+    "auto_save": false,
+    "confirm_on_exit": true,
+    "show_completion_dialog": true,
+    "overwrite_original": true,
+    "preserve_modify_date": true,
+    "last_import_path": "",
+    "portable_mode": false,
+    "log_level": "INFO",
+    "log_to_file": true,
+    "log_file_path": "dataprism.log"
+}

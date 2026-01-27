@@ -61,7 +61,7 @@ class PhotoDataModel(QAbstractTableModel):
     # 列定义
     # Column definitions
     # 列定义
-    COLUMNS = ["File", "C-Make", "C-Model", "L-Make", "L-Model", "Aperture", "Shutter", "ISO", "Focal", "F35mm", "Film Stock", "Location", "Date", "Status"]
+    COLUMNS = ["File", "C-Make", "C-Model", "L-Make", "L-Model", "Aperture", "Shutter", "ISO", "Focal", "F35mm", "Film Stock", "Location", "Date"]
     
     # Signal emitted when data changes and needs to be written to EXIF
     # 当数据改变且需要写入 EXIF 时发出的信号
@@ -365,42 +365,6 @@ class PhotoDataModel(QAbstractTableModel):
                     return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
                 val = photo.exif_data.get("DateTimeOriginal", "")
                 return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
-            elif col == 13:  # Status
-                # Return empty string - we'll show dot in DecorationRole
-                return ""
-        
-        elif role == Qt.ItemDataRole.DecorationRole and col == 13:
-            # Show colored dot based on status
-            color_map = {
-                "pending": QColor("#999999"),  # Gray
-                "loaded": QColor("#34c759"),   # Green
-                "modified": QColor("#007aff"), # Blue
-                "error": QColor("#ff3b30")     # Red
-            }
-            status_key = "modified" if photo.is_modified else photo.status
-            color = color_map.get(status_key, QColor("#999999"))
-            
-            # Create a small colored circle pixmap
-            pixmap = QPixmap(12, 12)
-            pixmap.fill(Qt.GlobalColor.transparent)
-            painter = QPainter(pixmap)
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-            painter.setBrush(QBrush(color))
-            painter.setPen(Qt.PenStyle.NoPen)
-            painter.drawEllipse(2, 2, 8, 8)
-            painter.end()
-            return pixmap
-        
-        elif role == Qt.ItemDataRole.ToolTipRole and col == 13:
-            # Tooltip for status column
-            status_key = "modified" if photo.is_modified else photo.status
-            tooltip_map = {
-                "pending": tr("Pending EXIF read"),
-                "loaded": tr("EXIF loaded"),
-                "modified": tr("Modified"),
-                "error": tr("Error loading EXIF")
-            }
-            return tooltip_map.get(status_key, "Unknown")
         
         return None
     

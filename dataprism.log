@@ -5352,3 +5352,1111 @@ NameError: name 'QPlainTextEdit' is not defined
 [2026-01-27 13:27:24] [DataPrism] [INFO] Main window displayed successfully
 [2026-01-27 13:27:51] [DataPrism.MainWindow] [INFO] Imported 3 files
 [2026-01-27 13:48:45] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:26:08] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:26:08] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:26:08] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:26:08] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:26:08] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:26:08] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:26:13] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:27:14] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:27:14] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:27:14] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:27:14] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:27:14] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:27:15] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:28:04] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:33:44] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:33:46] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:33:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:33:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:33:47] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:33:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:33:47] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:33:54] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:34:24] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 270 degrees
+[2026-01-27 19:34:25] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 180 degrees
+[2026-01-27 19:34:25] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 90 degrees
+[2026-01-27 19:34:26] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 0 degrees
+[2026-01-27 19:34:30] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 90 degrees
+[2026-01-27 19:34:30] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 180 degrees
+[2026-01-27 19:34:30] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 270 degrees
+[2026-01-27 19:34:31] [DataPrism.MainWindow] [INFO] Rotated photo 1.jpg to 0 degrees
+[2026-01-27 19:36:44] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:36:46] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:36:46] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:36:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:36:46] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:36:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:36:46] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:36:50] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:39:18] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:40:01] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:40:01] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:40:01] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:40:01] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:40:01] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:40:02] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:40:05] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:44:06] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:44:08] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:44:08] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:44:08] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:44:08] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:44:08] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:44:08] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:44:12] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:51:19] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:51:21] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:51:21] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:51:21] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:51:21] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:51:21] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:51:22] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:51:28] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 19:59:32] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 19:59:34] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:59:34] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 19:59:34] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:59:34] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 19:59:34] [DataPrism] [INFO] ============================================================
+[2026-01-27 19:59:34] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 19:59:38] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:03:57] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:03:58] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:03:58] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:03:58] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:03:58] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:03:58] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:03:59] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:04:06] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:06:45] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:06:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:06:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:06:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:06:47] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:06:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:06:47] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:06:51] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:17:36] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:17:49] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:17:49] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:17:49] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:17:49] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:17:49] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:17:49] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:20:59] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:21:01] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:21:01] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:21:01] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:21:01] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:21:01] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:21:01] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:22:59] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:23:49] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:23:49] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:23:49] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:23:49] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:23:49] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:23:49] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:26:14] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:26:16] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:26:16] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:26:16] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:26:16] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:26:16] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:26:16] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: exiftool_path = exiftool
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: exiftool_timeout = 30
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: worker_threads = 2
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: auto_save = True
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: confirm_on_exit = True
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: show_completion_dialog = True
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: overwrite_original = True
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration updated: preserve_modify_date = True
+[2026-01-27 20:26:29] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:37:10] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:37:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:37:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:37:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:37:11] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:37:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:37:12] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:39:35] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:43:28] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:43:28] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:43:28] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:43:28] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:43:28] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:43:28] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:43:31] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 20:43:31] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:43:31] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:43:35] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism\assets
+[2026-01-27 20:43:35] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:43:40] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism\assets
+[2026-01-27 20:43:40] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:43:56] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:56] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:56] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:57] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:58] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:43:59] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 20:46:49] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:46:51] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:46:51] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:46:51] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:46:51] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:46:51] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:46:52] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:47:01] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 20:47:01] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:47:01] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:47:36] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism\assets
+[2026-01-27 20:47:36] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:40] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [INFO] 正在写入 EXIF：D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 20:47:41] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 20:54:31] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:54:33] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:54:33] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:54:33] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:54:33] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:54:33] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:54:34] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 20:58:38] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 20:58:38] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:58:38] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 20:58:47] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism\assets
+[2026-01-27 20:58:47] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 20:59:54] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 20:59:56] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:59:56] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 20:59:56] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:59:56] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 20:59:56] [DataPrism] [INFO] ============================================================
+[2026-01-27 20:59:56] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:00:03] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 21:00:03] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:00:03] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 21:00:06] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism\assets
+[2026-01-27 21:00:06] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:00:28] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:28] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:51:48 -GPSLatitude=31deg 8' 37.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 32.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:28] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:52:02 -GPSLatitude=31deg 8' 38.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 33.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:52:15 -GPSLatitude=31deg 8' 42.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 38.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:51:48 -GPSLatitude=31deg 8' 37.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 32.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:29] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:52:02 -GPSLatitude=31deg 8' 38.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 33.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:23 17:52:15 -GPSLatitude=31deg 8' 42.00" N -GPSLatitudeRef=North -GPSLongitude=121deg 24' 38.00" E -GPSLongitudeRef=East D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:00:30] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 3/3 successful
+[2026-01-27 21:01:25] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:25] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:01:25] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:26] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:26] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:01:27] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:33] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:01:34] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/66.jpg
+[2026-01-27 21:01:42] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:01:42] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:01:43] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:01:47] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:01:47] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:01:48] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/67_L.jpg
+[2026-01-27 21:01:53] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 90 degrees
+[2026-01-27 21:01:53] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 180 degrees
+[2026-01-27 21:01:54] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 270 degrees
+[2026-01-27 21:01:54] [DataPrism.MainWindow] [INFO] Rotated photo 67_L.jpg to 0 degrees
+[2026-01-27 21:07:44] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:08:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:08:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:08:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:08:11] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:08:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:08:11] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:08:21] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:08:21] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:08:21] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:08:27] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:08:27] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/1.jpg
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/2.jpg
+[2026-01-27 21:08:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/3.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/4.jpg
+[2026-01-27 21:08:34] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/5.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:03:47 -ExposureTime=1/60 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 34.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/6.jpg
+[2026-01-27 21:08:35] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:31:14 -ExposureTime=1/125 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=150 -FocalLengthIn35mmFormat=83 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 35.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Sonnar T* 150mm f/4 CF -Make=Hasselblad -Model=500C/M D:/INBOX/7.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:51:34 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 53.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 52.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/8.jpg
+[2026-01-27 21:08:36] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:57:09 -ExposureTime=1/125 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 54.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 51.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/9.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 16:33:47 -ExposureTime=1/60 -FNumber=11 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 30' 58.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 48.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/10.jpg
+[2026-01-27 21:08:37] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:06:11 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 31.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/11.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:10:54 -ExposureTime=1/30 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/12.jpg
+[2026-01-27 21:08:38] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 12/12 successful
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/1.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/2.jpg
+[2026-01-27 21:08:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/3.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/4.jpg
+[2026-01-27 21:08:40] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/5.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:03:47 -ExposureTime=1/60 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 34.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/6.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:31:14 -ExposureTime=1/125 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=150 -FocalLengthIn35mmFormat=83 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 35.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Sonnar T* 150mm f/4 CF -Make=Hasselblad -Model=500C/M D:/INBOX/7.jpg
+[2026-01-27 21:08:41] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:51:34 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 53.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 52.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/8.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:57:09 -ExposureTime=1/125 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 54.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 51.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/9.jpg
+[2026-01-27 21:08:42] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 16:33:47 -ExposureTime=1/60 -FNumber=11 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 30' 58.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 48.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/10.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:06:11 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 31.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/11.jpg
+[2026-01-27 21:08:43] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:10:54 -ExposureTime=1/30 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/12.jpg
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:08:44] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 12/12 successful
+[2026-01-27 21:13:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:13:11] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:13:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:13:11] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:13:11] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:13:12] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:13:17] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:13:17] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:13:17] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:13:27] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:13:27] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:13:30] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:13:30] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/1.jpg
+[2026-01-27 21:13:30] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/2.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/3.jpg
+[2026-01-27 21:13:31] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/4.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/5.jpg
+[2026-01-27 21:13:32] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:03:47 -ExposureTime=1/60 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 34.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/6.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:31:14 -ExposureTime=1/125 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=150 -FocalLengthIn35mmFormat=83 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 35.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Sonnar T* 150mm f/4 CF -Make=Hasselblad -Model=500C/M D:/INBOX/7.jpg
+[2026-01-27 21:13:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:51:34 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 53.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 52.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/8.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:57:09 -ExposureTime=1/125 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 54.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 51.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/9.jpg
+[2026-01-27 21:13:34] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 16:33:47 -ExposureTime=1/60 -FNumber=11 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 30' 58.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 48.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/10.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:06:11 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 31.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/11.jpg
+[2026-01-27 21:13:35] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:10:54 -ExposureTime=1/30 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/12.jpg
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:13:36] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 12/12 successful
+[2026-01-27 21:17:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:17:47] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:17:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:17:47] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:17:47] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:17:47] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:17:52] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:17:58] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:17:58] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:17:58] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:17:58] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:17:58] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:17:59] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:18:02] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:18:02] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:18:02] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:18:04] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:18:04] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:18:09] [DataPrism] [CRITICAL] Unhandled exception:
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 976, in execute_metadata_write_tasks
+    self.worker.write_finished.connect(self, on_batch_complete)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Expected signal or callable, got "MainWindow"
+
+[2026-01-27 21:19:15] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:19:15] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:19:15] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:19:15] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:19:15] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:19:16] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:19:59] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:20:05] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:20:05] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:20:05] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:20:05] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:20:05] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:20:06] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:20:09] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:20:09] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:20:09] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:20:13] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:20:13] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:20:15] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:20:15] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/1.jpg
+[2026-01-27 21:20:15] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/2.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/3.jpg
+[2026-01-27 21:20:16] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/4.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/5.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:03:47 -ExposureTime=1/60 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 34.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/6.jpg
+[2026-01-27 21:20:17] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:31:14 -ExposureTime=1/125 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=150 -FocalLengthIn35mmFormat=83 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 35.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Sonnar T* 150mm f/4 CF -Make=Hasselblad -Model=500C/M D:/INBOX/7.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:51:34 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 53.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 52.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/8.jpg
+[2026-01-27 21:20:18] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:57:09 -ExposureTime=1/125 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 54.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 51.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/9.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 16:33:47 -ExposureTime=1/60 -FNumber=11 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 30' 58.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 48.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/10.jpg
+[2026-01-27 21:20:19] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:06:11 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 31.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/11.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:10:54 -ExposureTime=1/30 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/12.jpg
+[2026-01-27 21:20:20] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:20:21] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:20:21] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 12/12 successful
+[2026-01-27 21:20:40] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:20:40] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:22:30] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/17.jpg
+[2026-01-27 21:22:30] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/18.jpg
+[2026-01-27 21:22:31] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/17.jpg
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:22:31] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/18.jpg
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/19.jpg
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/20.jpg
+[2026-01-27 21:22:31] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/19.jpg
+[2026-01-27 21:22:31] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:22:32] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/20.jpg
+[2026-01-27 21:22:37] [DataPrism.MainWindow] [INFO] Rotated photo 17.jpg to 90 degrees
+[2026-01-27 21:22:38] [DataPrism.MainWindow] [INFO] Rotated photo 17.jpg to 180 degrees
+[2026-01-27 21:22:38] [DataPrism.MainWindow] [INFO] Rotated photo 17.jpg to 270 degrees
+[2026-01-27 21:26:50] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:26:52] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:26:52] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:26:52] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:26:52] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:26:52] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:26:52] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:26:56] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:26:56] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:26:56] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:27:02] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:27:02] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:27:04] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:27:04] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/1.jpg
+[2026-01-27 21:27:04] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/1.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 11:54:34 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/2.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/2.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 12:11:28 -ExposureTime=1/30 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/3.jpg
+[2026-01-27 21:27:05] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/3.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:28:59 -ExposureTime=1/60 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/4.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:01 13:58:59 -ExposureTime=1/15 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/5.jpg
+[2026-01-27 21:27:06] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/5.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:03:47 -ExposureTime=1/60 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 34.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/6.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 10:31:14 -ExposureTime=1/125 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=150 -FocalLengthIn35mmFormat=83 -GPSLatitude=28deg 31' 30.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 35.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Sonnar T* 150mm f/4 CF -Make=Hasselblad -Model=500C/M D:/INBOX/7.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:51:34 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 53.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 52.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/8.jpg
+[2026-01-27 21:27:07] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 11:57:09 -ExposureTime=1/125 -FNumber=4 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 26' 54.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 28' 51.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/9.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/9.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 16:33:47 -ExposureTime=1/60 -FNumber=11 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 30' 58.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 48.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/10.jpg
+[2026-01-27 21:27:08] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:06:11 -ExposureTime=1/60 -FNumber=8 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 31.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/11.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/11.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Writing EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [INFO] Full Command: exiftool -charset filename=utf8 -charset utf8 -overwrite_original -P -DateTimeOriginal=2026:01:02 17:10:54 -ExposureTime=1/30 -FNumber=5.6 -Film=Kodak Portra 400 -FocalLength=80 -FocalLengthIn35mmFormat=44 -GPSLatitude=28deg 31' 31.00" N -GPSLatitudeRef=North -GPSLongitude=119deg 30' 30.00" E -GPSLongitudeRef=East -ISO=400 -ImageDescription=Kodak Portra 400 -LensMake=Carl Zeiss -LensModel=Planar 80mm f/2.8 C -Make=Hasselblad -Model=500C/M D:/INBOX/12.jpg
+[2026-01-27 21:27:09] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:27:10] [DataPrism.ExifWorker] [INFO] Successfully wrote EXIF to: D:/INBOX/12.jpg
+[2026-01-27 21:27:10] [DataPrism.ExifWorker] [DEBUG] Stored batch write result: 12/12 successful
+[2026-01-27 21:28:38] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:30:35] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:30:35] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:30:35] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:30:35] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:30:35] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:30:36] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:30:39] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:30:39] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:30:39] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:31:08] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:31:08] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:31:08] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/4.jpg
+[2026-01-27 21:32:00] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/4.jpg
+[2026-01-27 21:32:00] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:01] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/4.jpg
+[2026-01-27 21:32:04] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/6.jpg
+[2026-01-27 21:32:04] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:05] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/6.jpg
+[2026-01-27 21:32:17] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/7.jpg
+[2026-01-27 21:32:17] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:17] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/7.jpg
+[2026-01-27 21:32:18] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/8.jpg
+[2026-01-27 21:32:18] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:18] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/8.jpg
+[2026-01-27 21:32:19] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:32:19] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:19] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/10.jpg
+[2026-01-27 21:32:20] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/10.jpg
+[2026-01-27 21:32:20] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 21:32:21] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/10.jpg
+[2026-01-27 21:32:24] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:33:05] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:33:05] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 21:33:05] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:33:05] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:33:05] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:33:05] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 21:33:09] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 21:33:09] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 21:33:09] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 21:53:51] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 21:59:15] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 21:59:15] [DataPrism.Config] [ERROR] Failed to load configuration: name 'json' is not defined
+[2026-01-27 21:59:15] [DataPrism.Config] [INFO] Using default configuration
+[2026-01-27 21:59:15] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 21:59:15] [DataPrism.Config] [ERROR] Failed to load configuration: name 'json' is not defined
+[2026-01-27 21:59:15] [DataPrism.Config] [INFO] Using default configuration
+[2026-01-27 21:59:15] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:59:15] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 21:59:15] [DataPrism] [INFO] ============================================================
+[2026-01-27 21:59:15] [DataPrism] [CRITICAL] Failed to start application: name 'border' is not defined
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\main.py", line 66, in main
+    window = MainWindow()
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 55, in __init__
+    self.setup_ui()
+    ~~~~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 121, in setup_ui
+    edit.setStyleSheet(StyleManager.get_input_style().replace("padding: 8px 12px;", "padding: 6px 10px; font-size: 11px;"))
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\style_manager.py", line 288, in get_input_style
+    border-color: {cls.c("accent")};
+    ^^^^^^
+NameError: name 'border' is not defined
+[2026-01-27 22:03:46] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:03:46] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:03:46] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:03:46] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:03:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:03:46] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:03:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:03:47] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:03:52] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 22:03:52] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 22:03:52] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 22:04:01] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:01] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:01] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:04:12] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:12] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:13] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:04:16] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:16] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:16] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:04:18] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:18] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:18] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:04:21] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:21] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:21] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:04:33] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/INBOX/1.jpg
+[2026-01-27 22:04:33] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:04:33] [DataPrism.MainWindow] [INFO] Write successful for D:/INBOX/1.jpg
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: exiftool_path = exiftool
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: exiftool_timeout = 30
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: worker_threads = 2
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: auto_save = True
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: confirm_on_exit = True
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: show_completion_dialog = True
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: overwrite_original = True
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: preserve_modify_date = True
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration updated: portable_mode = False
+[2026-01-27 22:07:31] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 22:07:31] [DataPrism.Config] [INFO] Migrating storage to STANDARD mode...
+[2026-01-27 22:07:31] [DataPrism.Config] [INFO] Migration successful
+[2026-01-27 22:10:37] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Loaded system default configuration
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Loaded system default configuration
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:10:39] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:10:39] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:10:39] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:10:39] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:10:40] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:11:00] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\INBOX
+[2026-01-27 22:11:00] [DataPrism.Config] [DEBUG] Configuration saved to config.json
+[2026-01-27 22:11:00] [DataPrism.MainWindow] [INFO] Imported 34 files
+[2026-01-27 22:12:58] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Loaded system default configuration
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Loaded system default configuration
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:13:00] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:13:00] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:13:00] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:13:00] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:13:00] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:16:31] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:16:33] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:16:33] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:16:33] [DataPrism.Config] [INFO] Found local config, starting in PORTABLE mode
+[2026-01-27 22:16:33] [DataPrism.Config] [INFO] Configuration loaded from config.json
+[2026-01-27 22:16:33] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:16:33] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:16:33] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:16:33] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:16:40] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:16:56] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:16:56] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:16:56] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:16:56] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:16:56] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:16:56] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:16:56] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:16:56] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:17:18] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:17:48] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:17:48] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:17:48] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:17:48] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:17:48] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:17:48] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:17:48] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:17:49] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:17:53] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:19:17] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:19:17] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:19:17] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:19:17] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:19:17] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:19:17] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:19:17] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:19:17] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:19:33] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:19:41] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:19:41] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:19:41] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:19:41] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:19:41] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:19:41] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:19:41] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:19:41] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:21:10] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Loaded history stats: Cameras=1, Lenses=1, Films=0
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:21:12] [DataPrism.Config] [INFO] Loaded history stats: Cameras=1, Lenses=1, Films=0
+[2026-01-27 22:21:12] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:21:12] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:21:12] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:21:12] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:21:59] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Fresh install, defaulting to STANDARD (AppData) mode
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Initialized configuration from template
+[2026-01-27 22:22:53] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] History file not found, initializing from template...
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Initialized history from template
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:22:53] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:22:53] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:22:53] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:22:53] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:22:53] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:26:55] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 22:26:55] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:26:55] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 22:30:04] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:30:06] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:30:06] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:30:06] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:30:06] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:30:06] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:30:24] [DataPrism] [CRITICAL] Unhandled exception:
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 1021, in <lambda>
+    combo.customContextMenuRequested.connect(lambda pos, c=combo: self._on_history_context_menu(pos, c))
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 1053, in _on_history_context_menu
+    menu = QMenu(self)
+           ^^^^^
+NameError: name 'QMenu' is not defined
+
+[2026-01-27 22:30:35] [DataPrism] [CRITICAL] Unhandled exception:
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 1021, in <lambda>
+    combo.customContextMenuRequested.connect(lambda pos, c=combo: self._on_history_context_menu(pos, c))
+                                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 1053, in _on_history_context_menu
+    menu = QMenu(self)
+           ^^^^^
+NameError: name 'QMenu' is not defined
+
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:33:07] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:33:07] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:33:07] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:33:07] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:33:07] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:34:43] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:34:45] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:34:45] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:34:45] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:34:45] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:34:45] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:43:32] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:43:34] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:43:34] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:43:34] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:43:34] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:43:34] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:49:43] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:49:45] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:49:45] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:49:45] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:49:45] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:49:46] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:52:22] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:52:24] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:52:24] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:52:24] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:52:24] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:52:24] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:52:37] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 22:52:37] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:52:37] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 22:54:52] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:54:57] [DataPrism.Config] [INFO] Loaded history stats: Cameras=7, Lenses=9, Films=8
+[2026-01-27 22:54:57] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:54:57] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:54:57] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:54:57] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 22:55:51] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 22:55:51] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:55:51] [DataPrism.MainWindow] [INFO] Imported 1 files
+[2026-01-27 22:55:59] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 22:55:59] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 22:56:00] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/1.jpg
+[2026-01-27 22:57:23] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 22:57:25] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 22:57:25] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:57:25] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 22:57:25] [DataPrism] [INFO] ============================================================
+[2026-01-27 22:57:25] [DataPrism] [CRITICAL] Failed to start application: Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): name 'QEvent' is not defined
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\main.py", line 66, in main
+    window = MainWindow()
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 83, in __init__
+    self.setup_ui()
+    ~~~~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 125, in setup_ui
+    self.quick_camera_model.setEditable(True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 61, in eventFilter
+    if event.type() == QEvent.MouseButtonPress:
+       ~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 61, in eventFilter
+    if event.type() == QEvent.MouseButtonPress:
+       ~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 61, in eventFilter
+    if event.type() == QEvent.MouseButtonPress:
+       ~~~~~~~~~~^^
+  [Previous line repeated 3 more times]
+NameError: Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): Error calling Python override of QComboBox::eventFilter(): name 'QEvent' is not defined. Did you mean: 'event'?
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:00:04] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:00:04] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:00:04] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:00:04] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:00:04] [DataPrism] [CRITICAL] Failed to start application: name 'QLineEdit' is not defined
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\main.py", line 66, in main
+    window = MainWindow()
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 82, in __init__
+    self.setup_ui()
+    ~~~~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 119, in setup_ui
+    self.quick_camera_make = QLineEdit()
+                             ^^^^^^^^^
+NameError: name 'QLineEdit' is not defined
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:01:31] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:01:31] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:01:31] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:01:31] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:01:31] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 23:01:42] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 23:01:43] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:01:43] [DataPrism.MainWindow] [INFO] Imported 1 files
+[2026-01-27 23:01:47] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:01:47] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 23:01:48] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:28] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:03:30] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:03:30] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:03:30] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:03:30] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:03:30] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 23:03:34] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 23:03:34] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:03:34] [DataPrism.MainWindow] [INFO] Imported 1 files
+[2026-01-27 23:03:39] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:39] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 23:03:39] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:49] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:49] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 23:03:50] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:56] [DataPrism.ExifWorker] [INFO] Writing single EXIF to: D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:03:56] [DataPrism.ExifWorker] [DEBUG] ExifTool attempt 1/3: exiftool -charset filename=utf8...
+[2026-01-27 23:03:56] [DataPrism.MainWindow] [INFO] Write successful for D:/Projects/DataPrism/1.jpg
+[2026-01-27 23:06:10] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:06:26] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:06:26] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:06:26] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:06:26] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:06:27] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 23:06:31] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 23:06:31] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:06:31] [DataPrism.MainWindow] [INFO] Imported 1 files
+[2026-01-27 23:08:28] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:08:30] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:08:30] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:08:30] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:08:30] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:08:30] [DataPrism] [CRITICAL] Failed to start application: name 'QGridLayout' is not defined
+Traceback (most recent call last):
+  File "D:\Projects\DataPrism\main.py", line 66, in main
+    window = MainWindow()
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 83, in __init__
+    self.setup_ui()
+    ~~~~~~~~~~~~~^^
+  File "D:\Projects\DataPrism\src\ui\main_window.py", line 500, in setup_ui
+    grid = QGridLayout()
+           ^^^^^^^^^^^
+NameError: name 'QGridLayout' is not defined. Did you mean: 'QVBoxLayout'?
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:09:51] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:09:51] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:09:51] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:09:51] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:09:51] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 23:09:55] [DataPrism.Config] [DEBUG] Configuration updated: last_import_path = D:\Projects\DataPrism
+[2026-01-27 23:09:55] [DataPrism.Config] [DEBUG] Configuration saved to C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:09:55] [DataPrism.MainWindow] [INFO] Imported 3 files
+[2026-01-27 23:10:06] [DataPrism] [INFO] Application exiting with code 0
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-27 23:14:46] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-27 23:14:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:14:46] [DataPrism] [INFO] DataPrism starting...
+[2026-01-27 23:14:46] [DataPrism] [INFO] ============================================================
+[2026-01-27 23:14:46] [DataPrism] [INFO] Main window displayed successfully
+[2026-01-27 23:15:02] [DataPrism] [INFO] Application exiting with code 0

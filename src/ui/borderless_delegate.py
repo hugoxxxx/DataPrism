@@ -61,10 +61,17 @@ class BorderlessDelegate(QStyledItemDelegate):
         
         # Get font name and size from theme
         font_family = StyleManager.t("family_main").strip('"')
-        # Use 10px for ultimate "Large smaller" effect as requested by 老大
-        font_size = 10
         
-        font = QFont(font_family, font_size)
+        # USE PIXEL SIZE! Stylesheet uses pixels, delegate must match exactly.
+        # 使用像素单位！样式表使用像素，代理类必须完全匹配。
+        try:
+            font_size_str = StyleManager.t("size_tiny").replace('px', '')
+            font_size = int(font_size_str)
+        except:
+            font_size = 11
+        
+        font = QFont(font_family)
+        font.setPixelSize(font_size)
         font.setWeight(QFont.Weight.Normal)
         painter.setFont(font)
         

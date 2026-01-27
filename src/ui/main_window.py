@@ -11,10 +11,11 @@ import re
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QPushButton, QSplitter, QFileDialog, QTableView, QHeaderView, QFormLayout,
-    QMessageBox, QProgressDialog, QDialog, QLineEdit, QPlainTextEdit
+    QLabel, QPushButton, QSplitter, QFileDialog, QTableView, QHeaderView, QFormLayout, QGridLayout,
+    QMessageBox, QProgressDialog, QDialog, QLineEdit, QPlainTextEdit,
+    QComboBox, QMenu, QSizePolicy
 )
-from PySide6.QtCore import Qt, QSize, QThread, Signal
+from PySide6.QtCore import Qt, QSize, QThread, Signal, QEvent
 from PySide6.QtGui import QFont, QPixmap, QTransform
 
 from src.core.photo_model import PhotoDataModel
@@ -23,20 +24,52 @@ from src.core.json_parser import FilmLogParser
 from src.core.json_matcher import PhotoMatcher
 from src.core.metadata_parser import MetadataParser
 from src.ui.metadata_editor_dialog import MetadataEditorDialog
+from src.ui.settings_dialog import SettingsDialog
 from src.utils.i18n import tr, toggle_language, get_current_language
 from src.utils.logger import get_logger
 from src.ui.style_manager import StyleManager
 from src.ui.borderless_delegate import BorderlessDelegate
+from src.core.config import get_config
 from src.ui.borderless_table_view import BorderlessTableView
 from src.ui.borderless_style import BorderlessStyle
 
 logger = get_logger('DataPrism.MainWindow')
 
 
+class HistoryComboBox(QComboBox):
+    """
+    Subclass to prevent popup closing when context menu is opened.
+    防止上下文菜单打开时关闭弹出窗口的子类。
+    """
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._skip_hide = False
+        # Install event filter on view and viewport to catch clicks early
+        # 在视图和视口上安装事件过滤器以尽早捕获点击
+        self.view().installEventFilter(self)
+        self.view().viewport().installEventFilter(self)
+        
+    def hidePopup(self):
+        if self._skip_hide:
+            return
+        super().hidePopup()
+        
+    def set_skip_hide(self, skip: bool):
+        self._skip_hide = skip
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            if event.button() == Qt.RightButton:
+                self._skip_hide = True
+        return super().eventFilter(obj, event)
+
+
 class MainWindow(QMainWindow):
     """Main application window / 主应用窗口"""
 
     start_exif_read = Signal(list)
+    start_batch_write = Signal(list)
+    start_single_write = Signal(str, dict)
 
     def __init__(self):
         """Initialize main window / 初始化主窗口"""
@@ -68,12 +101,7 @@ class MainWindow(QMainWindow):
         left_layout.setContentsMargins(12, 20, 12, 20)
         left_layout.setSpacing(10)
         
-        # Language toggle button / 语言切换按钮
-        self.lang_btn = QPushButton(tr("EN") if get_current_language() == 'zh' else tr("中"))
-        self.lang_btn.setFixedSize(40, 32)
-        self.lang_btn.setStyleSheet(StyleManager.get_button_style(tier='primary').replace("padding: 10px 18px;", "padding: 4px 8px;"))
-        self.lang_btn.clicked.connect(self.toggle_language)
-        left_layout.addWidget(self.lang_btn, alignment=Qt.AlignmentFlag.AlignRight)
+        left_layout.addSpacing(10)
         
         # Metadata Import button (Moved to TOP) / 导入元数据按钮（移至顶部）
         self.json_import_btn = QPushButton(f"{tr('Import Metadata')}")
@@ -91,22 +119,39 @@ class MainWindow(QMainWindow):
         
         self.quick_camera_make = QLineEdit()
         self.quick_camera_make.setPlaceholderText(tr("Camera Make"))
-        self.quick_camera_model = QLineEdit()
-        self.quick_camera_model.setPlaceholderText(tr("Camera Model"))
+        
+        # Smart History Comboboxes / 智能历史组合框
+        self.quick_camera_model = HistoryComboBox()
+        self.quick_camera_model.setEditable(True)
+        self.quick_camera_model.lineEdit().setPlaceholderText(tr("Camera Model"))
+        # self.quick_camera_model.setInsertPolicy(QComboBox.NoInsert) # Manually handled / 手动处理
+        
         self.quick_lens_make = QLineEdit()
         self.quick_lens_make.setPlaceholderText(tr("Lens Make"))
-        self.quick_lens_model = QLineEdit()
-        self.quick_lens_model.setPlaceholderText(tr("Lens Model"))
+        
+        self.quick_lens_model = HistoryComboBox()
+        self.quick_lens_model.setEditable(True)
+        self.quick_lens_model.lineEdit().setPlaceholderText(tr("Lens Model"))
+        
         self.quick_focal = QLineEdit()
         self.quick_focal.setPlaceholderText(tr("Focal Length"))
         self.quick_focal_35mm = QLineEdit()
         self.quick_focal_35mm.setPlaceholderText(tr("Focal Length (35mm)"))
-        self.quick_film = QLineEdit()
-        self.quick_film.setPlaceholderText(tr("Film Stock"))
+        
+        self.quick_film = HistoryComboBox()
+        self.quick_film.setEditable(True)
+        self.quick_film.lineEdit().setPlaceholderText(tr("Film Stock"))
+        
+        # Initialize History / 初始化历史记录
+        self._init_quick_write_history()
         
         for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
             edit.setStyleSheet(StyleManager.get_input_style().replace("padding: 8px 12px;", "padding: 6px 10px; font-size: 11px;"))
             left_layout.addWidget(edit)
+
+        # Connect auto-fill signals / 连接自动填充信号
+        self.quick_camera_model.currentTextChanged.connect(self._on_camera_model_changed)
+        self.quick_lens_model.currentTextChanged.connect(self._on_lens_model_changed)
             
         btn_layout = QHBoxLayout()
         btn_layout.setSpacing(8)
@@ -126,6 +171,36 @@ class MainWindow(QMainWindow):
         left_layout.addLayout(btn_layout)
         
         left_layout.addStretch()
+
+        # Bottom Controls (Settings & Language) / 底部控制件（设置与语言）
+        bottom_ctrl_layout = QHBoxLayout()
+        bottom_ctrl_layout.setSpacing(8)
+        
+        # Settings button / 设置按钮
+        self.settings_btn = QPushButton("⚙")
+        self.settings_btn.setFixedSize(40, 32)
+        self.settings_btn.setStyleSheet(StyleManager.get_button_style(tier='secondary').replace("padding: 10px 18px;", "padding: 0; font-size: 18px;"))
+        self.settings_btn.setToolTip(tr("Settings"))
+        self.settings_btn.clicked.connect(self.show_settings)
+        
+        # Language toggle button / 语言切换按钮
+        self.lang_btn = QPushButton(tr("EN") if get_current_language() == 'zh' else tr("中"))
+        self.lang_btn.setFixedSize(40, 32)
+        self.lang_btn.setStyleSheet(StyleManager.get_button_style(tier='primary').replace("padding: 10px 18px;", "padding: 4px 8px;"))
+        self.lang_btn.clicked.connect(self.toggle_language)
+        
+        # About button / 关于按钮
+        self.about_btn = QPushButton("ℹ")
+        self.about_btn.setFixedSize(40, 32)
+        self.about_btn.setStyleSheet(StyleManager.get_button_style(tier='secondary').replace("padding: 10px 18px;", "padding: 0; font-size: 16px; font-weight: bold;"))
+        self.about_btn.setToolTip(tr("About"))
+        self.about_btn.clicked.connect(self.show_about)
+        
+        bottom_ctrl_layout.addStretch()
+        bottom_ctrl_layout.addWidget(self.settings_btn)
+        bottom_ctrl_layout.addWidget(self.lang_btn)
+        bottom_ctrl_layout.addWidget(self.about_btn)
+        left_layout.addLayout(bottom_ctrl_layout)
         left_widget.setMaximumWidth(220)
         left_widget.setMinimumWidth(180)
         
@@ -217,39 +292,25 @@ class MainWindow(QMainWindow):
         header.setSectionsMovable(False)    # Disable section reordering / 禁用区块重排
         header.setMinimumSectionSize(60)    # Minimum width for readability / 最小宽度以保证可读性
         
-        # Adaptive column sizing strategy / 自适应列宽策略
-        # 根据内容和可用空间智能调整列宽 / Intelligently adjust widths based on content and available space
+        # Industrial Interactive Layout: Enable manual resizing for all columns
+        # 工业级交互式布局：允许手动调整所有列宽
+        header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
         
-        # Fixed-width columns for short content / 短内容列使用固定宽度
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)   # Aperture / 光圈
-        header.setSectionResizeMode(6, QHeaderView.ResizeMode.Fixed)   # Shutter / 快门
-        header.setSectionResizeMode(7, QHeaderView.ResizeMode.Fixed)   # ISO
-        header.setSectionResizeMode(8, QHeaderView.ResizeMode.Fixed)   # Focal
-        header.setSectionResizeMode(9, QHeaderView.ResizeMode.Fixed)   # F35mm
-        header.resizeSection(5, 70)
-        header.resizeSection(6, 80)
-        header.resizeSection(7, 60)
-        header.resizeSection(8, 70)
-        header.resizeSection(9, 70)
+        # Initial smart sizing: Set sensible starting widths for columns
+        # 初始智能调宽：设置合理的起始宽度，防止关键信息被截断
+        header.resizeSection(0, 150)  # File / 文件名
+        header.resizeSection(10, 160) # Film Stock / 胶卷型号 (Fix truncation)
+        header.resizeSection(11, 200) # Location / 位置
+        header.resizeSection(12, 140) # Date / 日期
         
-        # Content-based sizing for variable-length columns / 可变长度列基于内容调整
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)  # File / 文件
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)  # C-Make / 相机品牌
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)  # C-Model / 相机型号
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)  # L-Make / 镜头品牌
+        # For technical parameters, use a balanced medium width
+        # 对于技术参数，使用均衡的适中宽度
+        for i in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+            header.resizeSection(i, 90)
         
-        # Stretch mode for long content to utilize available space / 长内容列拉伸以利用可用空间
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)  # L-Model / 镜头型号（最长）
-        header.setSectionResizeMode(10, QHeaderView.ResizeMode.Stretch) # Film / 胶片
-        
-        # Location and Date use Interactive mode for user control / 位置和日期使用交互模式供用户控制
-        header.setSectionResizeMode(11, QHeaderView.ResizeMode.Interactive)  # Location / 位置
-        header.setSectionResizeMode(12, QHeaderView.ResizeMode.Interactive)  # Date / 日期
-        header.resizeSection(11, 200)
-        header.resizeSection(12, 140)
-        
-        # Status column stretches as last section / 状态列作为最后一列拉伸
-        # (Already set by setStretchLastSection(True) above)
+        # Stretch last section to utilize remaining horizontal space
+        # 拉伸最后一列以利用剩余的水平空间
+        header.setStretchLastSection(True)
         
         self.table_view.verticalHeader().setVisible(False)
         self.table_view.verticalHeader().setDefaultSectionSize(52)  # Breathable row height
@@ -266,17 +327,8 @@ class MainWindow(QMainWindow):
         self.table_view.setLineWidth(0)
         self.table_view.setMidLineWidth(0)
         
-        # Ultra-precision font coordination in code / 代码中的顶级字号协调
-        # Content: 10px for ultimate professional refinement / 内容：10px 极致专业观感
-        content_font = QFont(StyleManager.FONT_FAMILY_MAIN, 10)
-        self.table_view.setFont(content_font)
-        
-        # Header: 9px Bold with extreme tracking / 表头：9px 粗体配合极端字间距
-        header_font = QFont(StyleManager.FONT_FAMILY_MAIN, 9)
-        header_font.setBold(True)
-        header_font.setWeight(QFont.Weight.ExtraBold)
-        header.setFont(header_font)
-        
+        # Ultra-precision style sync handled via StyleManager CSS
+        # 顶级视觉同步已由 StyleManager CSS 统一接管
         self.table_view.setStyleSheet(StyleManager.get_table_style())
         
         # Apply custom style to disable Qt's selection border rendering
@@ -286,10 +338,8 @@ class MainWindow(QMainWindow):
         self.borderless_delegate = BorderlessDelegate(self)
         self.table_view.setItemDelegate(self.borderless_delegate)
         
+        # Connect selection changed / 连接选择变化
         self.table_view.selectionModel().selectionChanged.connect(self.on_selection_changed)
-        
-        # Connect log signal / 连接日志信号
-        self.worker.log_message.connect(self.add_log)
         # 右侧检查器面板
         right_widget = QWidget()
         right_layout = QVBoxLayout(right_widget)
@@ -299,34 +349,51 @@ class MainWindow(QMainWindow):
         self.inspector_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
         self.inspector_title.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; text-transform: uppercase; letter-spacing: 2.5px; padding: 10px 0;")
         right_layout.addWidget(self.inspector_title)
-        # 1. Thumbnail Card (置顶)
-        thumb_card = QWidget()
-        thumb_card.setObjectName("Card")
-        thumb_card.setStyleSheet(StyleManager.get_card_style())
-        thumb_layout = QVBoxLayout(thumb_card)
-        thumb_layout.setContentsMargins(1, 1, 1, 1)
+        # 1. Thumbnail Card (置顶 - 强化居中黑盒设计)
+        self.thumb_card = QWidget()
+        self.thumb_card.setObjectName("CinemaBox")
+        self.thumb_card.setFixedSize(280, 190) # Explicit box size
+        # Force black background and border / 强制黑色背景与边框
+        self.thumb_card.setStyleSheet(f"""
+            QWidget#CinemaBox {{
+                background-color: #000000;
+                border: 1px solid {StyleManager.c("border")};
+                border-radius: 4px;
+            }}
+        """)
+        
+        thumb_layout = QVBoxLayout(self.thumb_card)
+        thumb_layout.setContentsMargins(0, 10, 0, 10) # 10px vertical breath margins / 10px 垂直呼吸边距
         
         self.thumb_label = QLabel()
-        self.thumb_label.setFixedSize(276, 184) # 3:2 Cinematic aspect
+        # Scale pixmap to fit this area while maintaining aspect ratio
         self.thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.thumb_label.setStyleSheet("border: none; background: transparent;")
         thumb_layout.addWidget(self.thumb_label)
         
-        # Rotation Controls / 旋转控制
+        # Center the box itself in the right layout / 在右侧布局中居中整个盒子
+        right_layout.addWidget(self.thumb_card, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        # 2. Rotation Controls (独立布局 - 移出卡片以获得更多呼吸感)
         rotate_layout = QHBoxLayout()
-        rotate_layout.setContentsMargins(0, 5, 0, 5)
-        rotate_layout.setSpacing(10)
+        rotate_layout.setContentsMargins(0, 5, 0, 10)
+        rotate_layout.setSpacing(15)
+        
+        # Reinforce with injected CSS to override StyleManager defaults
+        # 使用注入式 CSS 强制覆盖 StyleManager 的默认字号，确保加粗加大 (Ultra-Bold 900)
+        btn_style_base = StyleManager.get_button_style('primary')
+        large_icon_css = " QPushButton { font-size: 24px; font-weight: 900; padding: 2px; } "
         
         self.rotate_ccw_btn = QPushButton("↺")
         self.rotate_ccw_btn.setToolTip(tr("Rotate Left"))
-        self.rotate_ccw_btn.setFixedWidth(40)
-        self.rotate_ccw_btn.setStyleSheet(StyleManager.get_button_style('ghost'))
+        self.rotate_ccw_btn.setFixedSize(48, 34) # Refined minimalist size
+        self.rotate_ccw_btn.setStyleSheet(btn_style_base + large_icon_css)
         self.rotate_ccw_btn.clicked.connect(lambda: self.rotate_photo(-90))
         
         self.rotate_cw_btn = QPushButton("↻")
         self.rotate_cw_btn.setToolTip(tr("Rotate Right"))
-        self.rotate_cw_btn.setFixedWidth(40)
-        self.rotate_cw_btn.setStyleSheet(StyleManager.get_button_style('ghost'))
+        self.rotate_cw_btn.setFixedSize(48, 34) # Refined minimalist size
+        self.rotate_cw_btn.setStyleSheet(btn_style_base + large_icon_css)
         self.rotate_cw_btn.clicked.connect(lambda: self.rotate_photo(90))
         
         rotate_layout.addStretch()
@@ -334,8 +401,7 @@ class MainWindow(QMainWindow):
         rotate_layout.addWidget(self.rotate_cw_btn)
         rotate_layout.addStretch()
         
-        thumb_layout.addLayout(rotate_layout)
-        right_layout.addWidget(thumb_card)
+        right_layout.addLayout(rotate_layout)
 
         
         
@@ -369,31 +435,32 @@ class MainWindow(QMainWindow):
         def create_lcd_panel(label_text, object_name_suffix):
             panel = QWidget()
             panel.setObjectName("LCDPanel")
-            panel.setStyleSheet(StyleManager.get_lcd_style())
             p_layout = QVBoxLayout(panel)
             p_layout.setContentsMargins(12, 10, 12, 10)
             p_layout.setSpacing(4)
             
             lbl = QLabel(label_text)
             lbl.setObjectName(f"LCDLabel_{object_name_suffix}")
-            lbl.setStyleSheet(StyleManager.get_lcd_style())
-            p_layout.addWidget(lbl, alignment=Qt.AlignLeft)
+            p_layout.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignCenter)
             
             val = QLabel("--")
             val.setObjectName(f"LCDValue_{object_name_suffix}")
-            val.setStyleSheet(StyleManager.get_lcd_style())
-            p_layout.addWidget(val, alignment=Qt.AlignLeft)
+            p_layout.addWidget(val, alignment=Qt.AlignmentFlag.AlignCenter)
             return panel, lbl, val
 
         ap_panel, self.ap_title_label, self.info_aperture = create_lcd_panel(tr("Aperture"), "Ap")
         sh_panel, self.sh_title_label, self.info_shutter = create_lcd_panel(tr("Shutter"), "Sh")
         iso_panel, self.iso_title_label, self.info_iso = create_lcd_panel(tr("ISO"), "Iso")
         
-        lcd_container.addWidget(ap_panel)
-        lcd_container.addWidget(sh_panel)
-        lcd_container.addWidget(iso_panel)
+        lcd_container.addWidget(ap_panel, 1)
+        lcd_container.addWidget(sh_panel, 1)
+        lcd_container.addWidget(iso_panel, 1)
         
         exposure_card_layout.addLayout(lcd_container)
+        
+        # Apply LCD styles globally to the card for optimal cascading
+        # 在 Card 层级统一应用 LCD 样式以获得最佳层叠效果
+        exposure_card.setStyleSheet(StyleManager.get_card_style() + StyleManager.get_lcd_style())
         right_layout.addWidget(exposure_card)
         
         # 3. Basic Info Section (底部的元数据细节)
@@ -410,6 +477,8 @@ class MainWindow(QMainWindow):
         form = QFormLayout()
         form.setVerticalSpacing(8)
         form.setContentsMargins(0, 10, 0, 0)
+        # Ensure fields can grow vertically to accommodate wrapped text / 确保字段可以垂直增长以容纳自动换行文本
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         
         self.info_file = QLabel("--")
         self.info_camera_make = QLabel("--")
@@ -429,10 +498,30 @@ class MainWindow(QMainWindow):
             lbl.setStyleSheet(value_style)
             lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             lbl.setWordWrap(True)
+            # Allow vertical expansion for wrapped text / 允许换行文本垂直扩展
+            lbl.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
         
         # Label style / 标签样式
         label_style = f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: {StyleManager.FONT_SIZE_TINY}; font-weight: {StyleManager.FONT_WEIGHT_MEDIUM}; letter-spacing: 0.5px;"
-        
+        # Use GridLayout instead of FormLayout for better control over wrapping/height
+        # 使用网格布局代替表单布局，以更好地控制换行/高度
+        grid = QGridLayout()
+        grid.setVerticalSpacing(8)
+        grid.setContentsMargins(0, 10, 0, 0)
+        grid.setColumnStretch(1, 1) # Allow value column to expand / 允许值列扩展
+
+        row = 0
+        def add_row(label, value):
+            nonlocal row
+            # Label aligns top-left to handle multi-line string values gracefully
+            # 标签左上对齐，以优雅地处理多行字符串值
+            grid.addWidget(label, row, 0, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+            grid.addWidget(value, row, 1)
+            
+            # Apply label style directly here
+            label.setStyleSheet(label_style)
+            row += 1
+
         self.file_label = QLabel(tr("File:"))
         self.camera_make_label = QLabel(tr("Camera Make:"))
         self.camera_model_label = QLabel(tr("Camera Model:"))
@@ -445,30 +534,23 @@ class MainWindow(QMainWindow):
         self.date_label = QLabel(tr("Date:"))
         self.status_label = QLabel(tr("Status:"))
 
-        form.addRow(self.file_label, self.info_file)
-        form.addRow(self.camera_make_label, self.info_camera_make)
-        form.addRow(self.camera_model_label, self.info_camera_model)
-        form.addRow(self.lens_make_label, self.info_lens_make)
-        form.addRow(self.lens_model_label, self.info_lens_model)
-        form.addRow(self.film_label, self.info_film)
-        form.addRow(self.focal_native_label, self.info_focal_native)
-        form.addRow(self.focal_35mm_label, self.info_focal_35mm)
-        form.addRow(self.location_label, self.info_location)
-        form.addRow(self.date_label, self.info_date)
-        form.addRow(self.status_label, self.info_status)
+        add_row(self.file_label, self.info_file)
+        add_row(self.camera_make_label, self.info_camera_make)
+        add_row(self.camera_model_label, self.info_camera_model)
+        add_row(self.lens_make_label, self.info_lens_make)
+        add_row(self.lens_model_label, self.info_lens_model)
+        add_row(self.film_label, self.info_film)
+        add_row(self.focal_native_label, self.info_focal_native)
+        add_row(self.focal_35mm_label, self.info_focal_35mm)
+        add_row(self.location_label, self.info_location)
+        add_row(self.date_label, self.info_date)
+        add_row(self.status_label, self.info_status)
         
-        # Apply label styling to all labels in form
-        for i in range(form.rowCount()):
-            lbl = form.itemAt(i, QFormLayout.ItemRole.LabelRole).widget()
-            if isinstance(lbl, QLabel):
-                lbl.setStyleSheet(label_style)
-        
-        basic_card_layout.addLayout(form)
+        basic_card_layout.addLayout(grid)
         right_layout.addWidget(basic_card)
         right_layout.addStretch()
         
-        right_widget.setMaximumWidth(300)
-        right_widget.setMinimumWidth(280)
+        right_widget.setFixedWidth(300)
         
         # Add sections to main layout with splitter for resizing
         # 使用分割条添加到主布局以支持调整大小
@@ -524,10 +606,33 @@ class MainWindow(QMainWindow):
     # --- File dialog import / 通过对话框导入 ---
     def browse_files(self):
         """Open file dialog to import images / 打开文件对话框导入图像"""
+        from src.core.config import get_config
+        cfg = get_config()
+        last_path = cfg.get('last_import_path', '')
+        
         filters = tr("Images (*.jpg *.jpeg *.png *.tif *.tiff *.dng)")
-        files, _ = QFileDialog.getOpenFileNames(self, tr("Select photos"), "", filters)
+        files, _ = QFileDialog.getOpenFileNames(self, tr("Select photos"), last_path, filters)
         if files:
+            # Save the directory of the first file / 保存第一个文件所在的目录
+            new_path = str(Path(files[0]).parent)
+            cfg.set('last_import_path', new_path)
             self.on_files_dropped(files)
+
+    def show_settings(self):
+        """Show settings dialog / 显示设置对话框"""
+        dialog = SettingsDialog(self)
+        if dialog.exec():
+            # Refresh anything that needs immediate update if necessary
+            # 如果需要，刷新任何需要立即更新的内容
+            self.add_log(tr("Settings updated"))
+
+    def show_about(self):
+        """Show about dialog / 显示关于对话框"""
+        QMessageBox.about(
+            self,
+            tr("About DataPrism"),
+            tr("DataPrism v1.0.0\nA professional EXIF metadata editor.")
+        )
 
     # --- Worker wiring / 工作者连接 ---
     def _setup_worker(self):
@@ -537,16 +642,20 @@ class MainWindow(QMainWindow):
         self.worker.moveToThread(self.worker_thread)
 
         # Connect signals
-        self.worker.result_ready.connect(self.on_exif_results)
+        # Connect signals
+        self.worker.read_finished.connect(self.on_exif_read_results)
+        self.worker.write_finished.connect(self.on_exif_write_results)
         self.worker.error_occurred.connect(self.on_exif_error)
         self.worker.progress.connect(self.on_exif_progress)
-        # Only quit when specifically told to or on cleanup, not on every single operation finishing
-        # self.worker.finished.connect(self.worker_thread.quit) 
-        self.start_exif_read.connect(self.worker.read_exif)
+        self.worker.log_message.connect(self.add_log)
         
-        # Connect model signals for inline editing
-        # 连接模型信号以进行内联编辑
-        self.model.dataChangedForWrite.connect(self.worker.single_write)
+        self.start_exif_read.connect(self.worker.read_exif)
+        self.start_batch_write.connect(self.worker.batch_write_exif)
+        self.start_single_write.connect(self.worker.write_exif)
+        
+        # Connect model signals for inline editing via MainWindow delegator
+        # 通过 MainWindow 委托信号连接模型的内联编辑
+        self.model.dataChangedForWrite.connect(self.start_single_write)
 
         # Ensure the thread stops when window closes
         self.destroyed.connect(lambda: self._stop_worker())
@@ -579,30 +688,30 @@ class MainWindow(QMainWindow):
         # Emit signal to run in worker thread (queued connection)
         self.start_exif_read.emit(file_paths)
 
-    def on_exif_results(self, results: dict):
-        """Handle EXIF results / 处理 EXIF 结果"""
-        # Distinguish between read results and write results
-        # 区分读取结果和写入结果
-        if "status" in results and results["status"] == "success" and "file" in results:
-            # Single write success - no need to trigger full re-read as model is already updated
-            # and marking it as modified/loaded locally is enough for UX.
-            # We'll just let the model keep the user's input.
-            file_path = results["file"]
-            logger.info(f"Write successful for {file_path}")
-            self.add_log(tr("Successfully wrote metadata to {file}").format(file=file_path))
-            return
-
+    def on_exif_read_results(self, results: dict):
+        """Handle EXIF read results / 处理 EXIF 读取结果"""
         for file_path, exif_data in results.items():
-            # Skip non-dict data in case of unexpected structure
             if isinstance(exif_data, dict):
                 self.model.set_exif_data(file_path, exif_data)
         
         self._refresh_inspector()
         
-        # Close progress dialog and show completion message
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
+
+    def on_exif_write_results(self, results: dict):
+        """Handle EXIF write results (Internal/Single/Batch) / 处理 EXIF 写入结果"""
+        if results.get("batch_write"):
+            # Batch summary is handled by the temporary connection in execute_metadata_write_tasks or here
+            # We'll let MainWindow level logic handle batch status if needed
+            pass
+        elif "status" in results and results["status"] == "success" and "file" in results:
+            # Single write success
+            file_path = results["file"]
+            logger.info(f"Write successful for {file_path}")
+            self.add_log(tr("Successfully wrote metadata to {file}").format(file=file_path))
+            # Optional: silent refresh if needed
 
     def on_exif_progress(self, progress: int):
         """Handle progress update / 处理进度更新
@@ -696,9 +805,10 @@ class MainWindow(QMainWindow):
             if pix.isNull():
                 self.thumb_label.setText("No preview")
                 return
+            # Use explicit dimensions matching CinemaBox (minus margins) to ensure perfect centering
+            # 使用适配 CinemaBox（扣除边距）的明确尺寸，确保完美居中
             photo.thumbnail = pix.scaled(
-                self.thumb_label.width(),
-                self.thumb_label.height(),
+                280, 170, # 190 - 20 (padding)
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
@@ -707,10 +817,9 @@ class MainWindow(QMainWindow):
         if photo.rotation != 0:
             transform = QTransform().rotate(photo.rotation)
             rotated_pix = photo.thumbnail.transformed(transform, Qt.TransformationMode.SmoothTransformation)
-            # Scale again to ensure it fits the label after rotation / 旋转后再次缩放以确保适配标签
+            # Scale again to ensure it fits the box / 再次缩放以适配盒子
             final_pix = rotated_pix.scaled(
-                self.thumb_label.width(),
-                self.thumb_label.height(),
+                280, 170,
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
@@ -759,12 +868,12 @@ class MainWindow(QMainWindow):
         self.refresh_btn.setText(tr("Refresh EXIF"))
         
         self.quick_camera_make.setPlaceholderText(tr("Camera Make"))
-        self.quick_camera_model.setPlaceholderText(tr("Camera Model"))
+        self.quick_camera_model.lineEdit().setPlaceholderText(tr("Camera Model"))
         self.quick_lens_make.setPlaceholderText(tr("Lens Make"))
-        self.quick_lens_model.setPlaceholderText(tr("Lens Model"))
+        self.quick_lens_model.lineEdit().setPlaceholderText(tr("Lens Model"))
         self.quick_focal.setPlaceholderText(tr("Focal Length"))
         self.quick_focal_35mm.setPlaceholderText(tr("Focal Length (35mm)"))
-        self.quick_film.setPlaceholderText(tr("Film Stock"))
+        self.quick_film.lineEdit().setPlaceholderText(tr("Film Stock"))
         self.quick_apply_btn.setText(tr("Apply to All"))
         self.quick_apply_selected_btn.setText(tr("Apply to Selected"))
         
@@ -772,6 +881,13 @@ class MainWindow(QMainWindow):
         self.browse_btn.setText(tr("Add Photos"))
         self.placeholder.setText(tr("Click 'Add Photos' button to import photos"))
         self.console_card.findChild(QLabel).setText(tr("Process Status"))
+        
+        # Tooltips / 工具提示
+        self.settings_btn.setToolTip(tr("Settings"))
+        self.about_btn.setToolTip(tr("About"))
+        self.rotate_ccw_btn.setToolTip(tr("Rotate Left"))
+        self.rotate_cw_btn.setToolTip(tr("Rotate Right"))
+        self.lang_btn.setToolTip(tr("Switch to Chinese") if get_current_language() == 'en' else tr("Switch to English"))
         
         # Update inspector / 更新检查器
         self.inspector_title.setText(tr("Inspector"))
@@ -815,15 +931,22 @@ class MainWindow(QMainWindow):
             return
         
         # Select metadata file / 选择元数据文件
+        from src.core.config import get_config
+        cfg = get_config()
+        last_path = cfg.get('last_import_path', '')
+        
         file_path, _ = QFileDialog.getOpenFileName(
             self,
             tr("Select metadata file"),
-            "",
+            last_path,
             tr("Metadata Files (*.json *.csv *.txt)")
         )
         
         if not file_path:
             return
+            
+        # Update last path memory / 更新路径记忆
+        cfg.set('last_import_path', str(Path(file_path).parent))
         
         try:
             # Check file type and parse accordingly
@@ -841,9 +964,10 @@ class MainWindow(QMainWindow):
                 
                 # Direct to Unified Editor
                 editor = MetadataEditorDialog(self.model.photos, [], headers, rows, self)
+                editor.requests_write.connect(self.execute_metadata_write_tasks)
                 editor.metadata_written.connect(self.on_metadata_written)
                 editor.exec()
-                return # Task handled internally by dialog
+                return 
             
             else:
                 # JSON import (existing logic)
@@ -870,6 +994,7 @@ class MainWindow(QMainWindow):
             
             # Show editor dialog / 显示编辑对话框
             editor = MetadataEditorDialog(self.model.photos, metadata_entries, parent=self)
+            editor.requests_write.connect(self.execute_metadata_write_tasks)
             editor.metadata_written.connect(self.on_metadata_written)
             editor.exec()
                 
@@ -883,14 +1008,165 @@ class MainWindow(QMainWindow):
         for photo in self.model.photos:
             self.model.mark_modified(photo.file_path)
         
-        # Refresh photo data with progress dialog / 刷新照片数据并显示进度
+        # Refresh photo data in background / 在后台刷新照片数据
         file_paths = [photo.file_path for photo in self.model.photos]
-        self.queue_exif_read(file_paths, show_progress=True)
+        self.queue_exif_read(file_paths, show_progress=False)
         
-        # Trigger model header refresh / 触发模型表头刷新
         self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, len(self.model.COLUMNS) - 1)
         self.add_log(tr("Metadata written to selected photos."))
+
+    def execute_metadata_write_tasks(self, tasks: list):
+        """Execute batch EXIF write tasks with console logging / 在控制台记录下执行批量 EXIF 写入任务"""
+        if not tasks: return
+        
+        # Ensure worker is alive / 确保工作子线程在线
+        if not self.worker_thread.isRunning():
+            self.worker_thread.start()
+            
+        self.add_log(tr("Writing metadata..."))
+        
+        # Connect to the completion handler / 连接到完成处理程序
+        self.worker.write_finished.connect(self._on_batch_write_complete)
+        self.start_batch_write.emit(tasks)
+
+    def _on_batch_write_complete(self, result):
+        """Handle batch write completion in Main Thread / 在主线程处理批量写入完成"""
+        if not result.get("batch_write"): return
+        
+        # Disconnect to prevent double firing on next op
+        try: self.worker.write_finished.disconnect(self._on_batch_write_complete)
+        except: pass
+        
+        success = result.get('success', 0)
+        QMessageBox.information(self, tr("Write Metadata"), tr("Successfully wrote metadata to {count} file(s)").format(count=success))
+        self.on_metadata_written()
     
+    def _init_quick_write_history(self):
+        """Initialize combobox history from Config / 从配置初始化组合框历史"""
+        config = get_config()
+        if not config.history:
+
+            return
+            
+        # Block signals to prevent auto-fill during init
+        self.quick_camera_model.blockSignals(True)
+        self.quick_lens_model.blockSignals(True)
+        
+        # Camera Models
+        cameras = config.history.get_cameras()
+
+        self.quick_camera_model.clear()
+        self.quick_camera_model.addItems(sorted(cameras.keys()))
+        self.quick_camera_model.lineEdit().clear()
+        
+        # Lens Models
+        lenses = config.history.get_lenses()
+
+        self.quick_lens_model.clear()
+        self.quick_lens_model.addItems(sorted(lenses.keys()))
+        self.quick_lens_model.lineEdit().clear()
+        
+        # Film Stocks
+        films = config.history.get_films()
+
+        self.quick_film.clear()
+        self.quick_film.addItems(films)
+        self.quick_film.lineEdit().clear()
+        
+        self.quick_camera_model.blockSignals(False)
+        self.quick_lens_model.blockSignals(False)
+        
+        # Setup context menu for removing items / 设置上下文菜单以删除项目
+        for combo in [self.quick_camera_model, self.quick_lens_model, self.quick_film]:
+            # Must attach to the view() (the popup list) to get right-clicks on items
+            view = combo.view()
+            view.setContextMenuPolicy(Qt.CustomContextMenu)
+            view.customContextMenuRequested.connect(lambda pos, c=combo: self._on_history_context_menu(pos, c))
+        
+    def _on_camera_model_changed(self, text):
+        """Auto-fill camera make when model changes / 当型号改变时自动填充品牌"""
+        config = get_config()
+        if not config.history: return
+        
+        make = config.history.get_cameras().get(text)
+        if make:
+            self.quick_camera_make.setText(make)
+            
+    def _on_lens_model_changed(self, text):
+        """Auto-fill lens make when model changes / 当镜头型号改变时自动填充品牌"""
+        config = get_config()
+        if not config.history: return
+        
+        make = config.history.get_lenses().get(text)
+        if make:
+            self.quick_lens_make.setText(make)
+            
+    def _on_history_context_menu(self, pos, combo):
+        """Show context menu to delete history item / 显示上下文菜单以删除历史项目"""
+        view = combo.view()
+        # Ensure we clicked on an item / 确保点击了项目
+        index = view.indexAt(pos)
+        if not index.isValid():
+            return
+            
+        text = combo.itemText(index.row())
+        if not text:
+            return
+            
+        # Parent menu to the view to try and keep context / 将菜单父级设置为视图以保持上下文
+        menu = QMenu(view)
+        delete_action = menu.addAction(tr("Remove '{text}'").format(text=text))
+        
+        # Prevent popup from closing / 防止弹出窗口关闭
+        if hasattr(combo, 'set_skip_hide'):
+            combo.set_skip_hide(True)
+            
+        try:
+            action = menu.exec(view.mapToGlobal(pos))
+        finally:
+            if hasattr(combo, 'set_skip_hide'):
+                combo.set_skip_hide(False)
+        
+        if action == delete_action:
+            # Confirm deletion / 确认删除
+            reply = QMessageBox.question(
+                self, 
+                tr("Confirm Deletion"), 
+                tr("Are you sure you want to remove '{text}' from history?").format(text=text),
+                QMessageBox.Yes | QMessageBox.No, 
+                QMessageBox.No
+            )
+            
+            if reply == QMessageBox.Yes:
+                # Remove from UI first
+                combo.removeItem(index.row())
+                # Clear text if it matches deleted item
+                if combo.currentText() == text:
+                    combo.setEditText("")
+                
+                # Remove from config / 从配置中移除
+                config = get_config()
+                if not config.history: return
+                
+                if combo == self.quick_camera_model:
+                     config.history.remove_camera(text)
+                elif combo == self.quick_lens_model:
+                    config.history.remove_lens(text)
+                elif combo == self.quick_film:
+                    config.history.remove_film(text)
+                    
+                # If deleted item was currently selected, clear related fields
+                # 如果删除的项目当前被选中，清除相关字段
+                if combo == self.quick_camera_model:
+                    self.quick_camera_make.clear()
+                elif combo == self.quick_lens_model:
+                    self.quick_lens_make.clear()
+                    
+                # Re-show popup to allow continuous editing/viewing
+                # 重新显示弹出窗口以允许连续编辑/查看
+                # With HistoryComboBox, the popup might still be open, but we ensure it here
+                combo.showPopup()
+
     def on_quick_apply(self):
         """Batch update Camera, Lens, and Film for all photos / 批量更新所有照片的相机、镜头和胶卷信息"""
         count = len(self.model.photos)
@@ -901,15 +1177,22 @@ class MainWindow(QMainWindow):
             self.worker_thread.start()
         
         c_make = self.quick_camera_make.text().strip()
-        c_model = self.quick_camera_model.text().strip()
+        c_model = self.quick_camera_model.currentText().strip()
         l_make = self.quick_lens_make.text().strip()
-        l_model = self.quick_lens_model.text().strip()
+        l_model = self.quick_lens_model.currentText().strip()
         focal = self.quick_focal.text().strip()
         focal_35 = self.quick_focal_35mm.text().strip()
-        film = self.quick_film.text().strip()
+        film = self.quick_film.currentText().strip()
         
         if not any([c_make, c_model, l_make, l_model, focal, focal_35, film]):
             return
+            
+        # Update History Logic / 更新历史逻辑
+        config = get_config()
+        if config.history:
+            if c_model: config.history.add_camera(c_model, c_make) # Make can be empty
+            if l_model: config.history.add_lens(l_model, l_make)
+            if film: config.history.add_film(film)
             
         reply = QMessageBox.question(
             self, 
@@ -938,8 +1221,12 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
             self.add_log(tr("Quick write applied to {count} photos.").format(count=updated))
             # Clear fields after success / 成功后清空字段
+            # Clear fields after success / 成功后清空字段
             for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
-                edit.clear()
+                if isinstance(edit, QComboBox):
+                    edit.setEditText("")
+                else:
+                    edit.clear()
         
     def on_quick_apply_selected(self):
         """Batch update Camera, Lens, and Film for selected photos / 批量更新选中照片的相机、镜头和胶卷信息"""
@@ -950,13 +1237,26 @@ class MainWindow(QMainWindow):
             
         data = {
             "Make": self.quick_camera_make.text().strip(),
-            "Model": self.quick_camera_model.text().strip(),
+            "Model": self.quick_camera_model.currentText().strip(),
             "LensMake": self.quick_lens_make.text().strip(),
-            "LensModel": self.quick_lens_model.text().strip(),
+            "LensModel": self.quick_lens_model.currentText().strip(),
             "FocalLength": self.quick_focal.text().strip(),
             "FocalLengthIn35mmFormat": self.quick_focal_35mm.text().strip(),
-            "Film": self.quick_film.text().strip()
+            "Film": self.quick_film.currentText().strip()
         }
+        
+        # Save History on Apply to Selected too
+        c_make = data.get("Make", "")
+        c_model = data.get("Model", "")
+        l_make = data.get("LensMake", "")
+        l_model = data.get("LensModel", "")
+        film = data.get("Film", "")
+        
+        config = get_config()
+        if config.history:
+            if c_model: config.history.add_camera(c_model, c_make)
+            if l_model: config.history.add_lens(l_model, l_make)
+            if film: config.history.add_film(film)
         
         # Remove empty values / 移除空值
         data = {k: v for k, v in data.items() if v}
@@ -970,8 +1270,12 @@ class MainWindow(QMainWindow):
             QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
             self.add_log(tr("Quick write applied to {count} selected photos.").format(count=updated))
             # Clear fields / 清空字段
+            # Clear fields / 清空字段
             for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
-                edit.clear()
+                if isinstance(edit, QComboBox):
+                    edit.setEditText("")
+                else:
+                    edit.clear()
             
     def show_context_menu(self, pos):
         """Show context menu for table view / 显示表格右键菜单"""

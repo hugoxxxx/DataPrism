@@ -177,6 +177,38 @@ class StyleManager:
                 border-left: 1px solid {cls.c("border")};
                 width: 1px;
             }}
+            
+            /* Menu Styling */
+            QMenu {{
+                background-color: {cls.c("bg_card")};
+                border: 1px solid {cls.c("border")};
+                border-radius: 4px;
+                padding: 4px;
+            }}
+            QMenu::item {{
+                padding: 6px 24px 6px 12px;
+                background-color: transparent;
+                color: {cls.c("text_primary")};
+                border-radius: 4px;
+            }}
+            QMenu::item:selected {{
+                background-color: {cls.c("btn_secondary_hover")};
+                color: {cls.c("text_primary")};
+            }}
+            QMenu::separator {{
+                height: 1px;
+                background: {cls.c("border")};
+                margin: 4px 0px;
+            }}
+            
+            /* Tooltip Styling */
+            QToolTip {{
+                background-color: {cls.c("bg_card")};
+                color: {cls.c("text_primary")};
+                border: 1px solid {cls.c("border")};
+                border-radius: 4px;
+                padding: 4px;
+            }}
         """
 
     @classmethod
@@ -289,16 +321,58 @@ class StyleManager:
             }}
             QComboBox::drop-down {{
                 border: none;
-                width: 20px;
+                width: 24px;
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+            }}
+            QComboBox::down-arrow {{
+                width: 12px;
+                height: 12px;
+                image: none; /* Clear default arrow if problematic / 如果有问题则清除默认箭头 */
+                border-left: 1px solid transparent; /* Placeholder / 占位符 */
+                border-top: 1px solid {cls.c("text_secondary")};
+                border-right: 1px solid transparent; 
+                margin-top: 4px; 
+            }}
+            /* Attempt a pure CSS arrow trick or relies on default but colorized */
+            QComboBox::down-arrow {{
+                image: none;
+                width: 0; 
+                height: 0; 
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid {cls.c("text_secondary")};
+                margin-right: 6px;
+                margin-top: 2px;
+            }}
+            QComboBox QAbstractItemView {{
+                background-color: {cls.c("bg_card")};
+                border: 1px solid {cls.c("border")};
+                selection-background-color: {cls.c("accent")};
+                selection-color: #FFFFFF;
+                color: {cls.c("text_primary")};
+                outline: none;
+                padding: 4px;
+                min-width: 150px;
+            }}
+            QComboBox QAbstractItemView::item {{
+                min-height: 24px;
+                padding: 4px 8px;
+            }}
+            QComboBox QAbstractItemView::item:hover {{
+                background-color: {cls.c("btn_secondary_hover")};
+            }}
+            QComboBox QAbstractItemView::item:selected {{
+                background-color: {cls.c("accent")};
+                color: #FFFFFF;
             }}
         """
 
     @classmethod
     def get_table_style(cls):
-        # Ultra-refined pixel values for "High-End Studio" aesthetic
-        # 极简影像工作站美学：采用更小的像素值以获得顶级的精致感
-        font_size_content = "10px" # Refined Content
-        font_size_header = "9px"   # Studio Header
+        # Unify for professional "Precision Sync" aesthetic
+        # 统一字号以达成极简且严谨的“视觉协调”感
+        font_size = cls.t("size_tiny") # 11px
         
         return f"""
             QTableView {{
@@ -308,7 +382,7 @@ class StyleManager:
                 selection-color: {cls.c("accent")};
                 border: none;
                 gridline-color: transparent;
-                font-size: {font_size_content};
+                font-size: {font_size};
             }}
             QHeaderView::section {{
                 background-color: {cls.c("bg_main")};
@@ -316,10 +390,9 @@ class StyleManager:
                 padding: 12px;
                 border: none;
                 border-bottom: 2px solid {cls.c("border")};
-                letter-spacing: 2.5px;
-                font-size: {font_size_header};
-                font-weight: 800;
-                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                font-size: {font_size};
+                font-weight: 600;
             }}
         """
 
@@ -351,13 +424,14 @@ class StyleManager:
                 border: 1px solid {cls.c("border")};
                 border-radius: 4px;
             }}
-            QLabel#LCDValue {{
+            /* Specific ID list for better compatibility / 为了更好的兼容性使用具体 ID 列表 */
+            QLabel#LCDValue_Ap, QLabel#LCDValue_Sh, QLabel#LCDValue_Iso {{
                 color: {cls.c("accent")};
                 font-family: {cls.t("family_mono")};
                 font-size: {cls.t("size_lcd")};
-                font-weight: 500;
+                font-weight: 700;
             }}
-            QLabel#LCDLabel {{
+            QLabel#LCDLabel_Ap, QLabel#LCDLabel_Sh, QLabel#LCDLabel_Iso {{
                 color: {cls.c("text_secondary")};
                 font-size: {cls.t("size_tiny")};
                 text-transform: uppercase;

@@ -1,0 +1,33 @@
+{
+    "camera_history": {
+        "500C/M": "Hasselblad",
+        "503CW": "Hasselblad",
+        "SWC/M": "Hasselblad",
+        "G2": "Contax",
+        "T3": "Contax",
+        "EOS5": "Canon",
+        "OM-10": "Olympus",
+        "4B": "Seagull"
+    },
+    "lens_history": {
+        "Planar 80mm f/2.8 C": "Carl Zeiss",
+        "Planar 80mm f/2.8 C T*": "Carl Zeiss",
+        "Distagon T* 50mm f/4 CF": "Carl Zeiss",
+        "Sonnar T* 150mm f/4 CF": "Carl Zeiss",
+        "Biogon T* 28mm f/2.8": "Carl Zeiss",
+        "Sonnar T* 35mm f/2.8": "Carl Zeiss",
+        "EF50mm f/1.2L USM": "Canon",
+        "OM G.ZUIKO 50mm F1.4": "Olympus",
+        "Seagull 75mm f/3.5": "Seagull"
+    },
+    "film_history": [
+        "EKTACHROME E100",
+        "FUJICHROME RDP III",
+        "FUJICHROME RVP 100",
+        "FUJICHROME RVP 50",
+        "KODAK GOLD 200",
+        "KODAK PORTRA 400",
+        "KODAK PORTRA 160",
+        "ILFORD HP5 PLUS"
+    ]
+}

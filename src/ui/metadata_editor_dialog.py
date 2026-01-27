@@ -39,6 +39,7 @@ class MetadataEditorDialog(QDialog):
     """
     
     metadata_written = Signal()
+    requests_write = Signal(list)  # Signal to pass tasks to MainWindow / 将任务传递给主窗口的信号
     
     def __init__(
         self,
@@ -169,10 +170,10 @@ class MetadataEditorDialog(QDialog):
                 g_combo = QComboBox()
                 g_combo.setFixedWidth(80)
                 g_combo.hide()
-                if suggested == "GPSLatitude":
+                if suggested_key == "GPSLatitude":
                     g_combo.addItems(["N", "S"])
                     g_combo.show()
-                elif suggested == "GPSLongitude":
+                elif suggested_key == "GPSLongitude":
                     g_combo.addItems(["E", "W"])
                     g_combo.show()
                 g_combo.currentTextChanged.connect(self.on_mapping_changed)
@@ -347,9 +348,8 @@ class MetadataEditorDialog(QDialog):
         self.warning_label.setStyleSheet(f"color: {StyleManager.COLOR_TEXT_SECONDARY}; font-size: 11px;")
         off_hbox.addWidget(off_lbl)
         off_hbox.addWidget(self.offset_spin)
-        off_hbox.addSpacing(20)
-        off_hbox.addWidget(self.warning_label)
-        off_hbox.addStretch()
+        off_hbox.addSpacing(30)
+        off_hbox.addWidget(self.warning_label, 1)
         bot_vbox.addWidget(off_cont)
         
         btn_cont = QWidget(bottom)
@@ -614,24 +614,8 @@ class MetadataEditorDialog(QDialog):
                     
         if not tasks: return
         
-        progress = QProgressDialog(tr("Writing metadata..."), None, 0, 100, self)
-        progress.setWindowModality(Qt.WindowModality.WindowModal)
-        progress.show()
-        
-        self.worker = ExifToolWorker()
-        self.thread = QThread()
-        self.worker.moveToThread(self.thread)
-        self.worker.progress.connect(progress.setValue)
-        self.worker.result_ready.connect(lambda r: self._on_write_complete(r, progress))
-        self.thread.started.connect(lambda: self.worker.start_write.emit(tasks))
-        self.thread.start()
-
-    def _on_write_complete(self, result, progress):
-        progress.close()
-        self.thread.quit()
-        self.thread.wait()
-        self.metadata_written.emit()
-        QMessageBox.information(self, tr("Write Metadata"), tr("Successfully wrote metadata to {count} file(s)").format(count=result.get('success', 0)))
+        # Emit request signal to MainWindow and close / 向主窗口发射请求信号并关闭
+        self.requests_write.emit(tasks)
         self.accept()
 
     def _build_exif_dict(self, entry: MetadataEntry) -> Dict[str, str]:

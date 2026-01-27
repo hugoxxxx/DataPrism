@@ -27,7 +27,8 @@ class ExifToolWorker(QObject):
     # Signals for communication with main thread
     # 与主线程通信的信号
     progress = Signal(int)  # Current progress (0-100)
-    result_ready = Signal(dict)  # Results from ExifTool
+    read_finished = Signal(dict)  # Results from reading EXIF
+    write_finished = Signal(dict) # Results from writing metadata
     error_occurred = Signal(str)  # Error message
     finished = Signal()  # Operation finished
     start_write = Signal(list)  # Trigger batch write with tasks / 触发批量写入
@@ -51,15 +52,8 @@ class ExifToolWorker(QObject):
         self.RETRY_DELAY = 0.5  # Fixed delay / 固定延迟
         
         self.task_queue: List[Dict[str, Any]] = []
-        
-        # Connect internal signals for thread-safe method execution
-        self.start_write.connect(self.batch_write_exif)
-        self.single_write.connect(self.write_exif)
         self._is_running = False
         self.last_result: Optional[Dict[str, Any]] = None  # Store last batch write result
-        
-        # Connect internal signal to slot / 连接内部信号到槽
-        self.start_write.connect(self.batch_write_exif)
     
     def read_exif(self, file_paths: List[str]) -> None:
         """
@@ -110,7 +104,7 @@ class ExifToolWorker(QObject):
                 progress = int((idx + 1) / total_files * 100)
                 self.progress.emit(progress)
             
-            self.result_ready.emit(results)
+            self.read_finished.emit(results)
         
         except Exception as e:
             self.error_occurred.emit(f"Batch read failed: {str(e)}")
@@ -225,7 +219,13 @@ class ExifToolWorker(QObject):
         """
         try:
             # Build exiftool command / 构建 exiftool 命令
-            cmd = [self.exiftool_path, "-overwrite_original", "-charset", "filename=utf8", "-charset", "utf8"]
+            cmd = [self.exiftool_path, "-charset", "filename=utf8", "-charset", "utf8"]
+            
+            # Dynamic flags from config / 来自配置的动态标志
+            if config.get('overwrite_original', True):
+                cmd.append("-overwrite_original")
+            if config.get('preserve_modify_date', True):
+                cmd.append("-P") # Preserve date/time of original file
 
             for tag, value in exif_data.items():
                 if value is not None:
@@ -239,7 +239,7 @@ class ExifToolWorker(QObject):
             # Use retry mechanism / 使用重试机制
             self._run_exiftool_with_retry(cmd, timeout=30)
             
-            self.result_ready.emit({
+            self.write_finished.emit({
                 "status": "success",
                 "file": file_path,
                 "message": "EXIF data written successfully"
@@ -276,7 +276,13 @@ class ExifToolWorker(QObject):
                     continue
 
                 # Build exiftool command / 构建 exiftool 命令
-                cmd = [self.exiftool_path, "-overwrite_original", "-charset", "filename=utf8", "-charset", "utf8"]
+                cmd = [self.exiftool_path, "-charset", "filename=utf8", "-charset", "utf8"]
+                
+                # Dynamic flags from config / 来自配置的动态标志
+                if config.get('overwrite_original', True):
+                    cmd.append("-overwrite_original")
+                if config.get('preserve_modify_date', True):
+                    cmd.append("-P") # Preserve date/time of original file
 
                 for tag, value in exif_data.items():
                     if value is not None:
@@ -332,16 +338,12 @@ class ExifToolWorker(QObject):
             # Store result for retrieval in finished handler
             self.last_result = result_dict
             logger.debug(f"Stored batch write result: {result_dict['success']}/{result_dict['total']} successful")
-            # SKIP: result_ready.emit() blocks the thread, we use last_result instead
+            # Emit write_finished for batch results / 发出批量结果信号
+            self.write_finished.emit(result_dict)
         
         except Exception as e:
             logger.critical(f"Exception in batch_write_exif: {e}", exc_info=True)
             self.error_occurred.emit(f"Batch write failed: {str(e)}")
         finally:
-            # CRITICAL: Quit thread FIRST, before any logger calls
-            # Logger calls might also block in cross-thread context
-            try:
-                self.thread().quit()
-            except Exception:
-                pass
+            self.finished.emit()
 
