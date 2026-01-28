@@ -7,10 +7,20 @@
 ## 2. Basic Use / 基本用法
 1. **Import / 导入**: Click "Add Photos" to select images (点击“添加照片”按钮选择文件).
 2. **Edit / 编辑**: Click a photo and change its information on the right (点击照片，在右侧修改信息).
-3. **Quick Apply / 一键写入**: Use **All** or **Selected** buttons in the sidebar to batch update basic info (使用侧边栏的“全部”或“选中”按钮批量更新基础信息).
-4. **Refresh / 刷新**: Click **Refresh EXIF** to reload data from files (点击“刷新 EXIF”从文件重新读取数据).
+3. **Refresh / 刷新**: Click **Refresh EXIF** to reload data from files (点击“刷新 EXIF”从文件重新读取数据).
 
-## 3. JSON/CSV/TXT Import / 导入元数据
+## 3. Quick Write / 一键写入 (Batch Update)
+For quickly batch-setting equipment or film info (用于快速批量设置器材或胶卷信息):
+1. **Fill Info / 填写信息**: Use the left sidebar to enter Camera, Lens, or Film details (在左侧边栏填写相机、镜头或胶卷)。
+2. **History & Auto-fill / 历史与自动填充**: 
+   - Previously used names will appear in the dropdown (历史输入过的型号会自动出现在下拉列表)。
+   - **Smart Matching / 品牌联动**: When you select a **Model**, the **Make** (Brand) will be automatically filled based on your history (当您选择“型号”时，程序会自动根据历史记录填充对应的“品牌”，无需重复输入)。
+   - **Clean History / 清理历史**: Right-click an item in the dropdown to remove it (在下拉列表中点击鼠标右键可删除该记录)。
+3. **Apply / 应用**:
+   - **All / 全部**: Click **All** to apply to every photo in the list (点击“全部”应用到列表中所有照片)。
+   - **Selected / 选中**: Click **Selected** to only update highlighted photos (点击“选中”仅更新选中的行)。
+
+## 4. JSON/CSV/TXT Import / 导入元数据
 1. **Import Photos / 导入照片**: Click "Add Photos" first (先点击“添加照片”导入扫描件).
 2. **Select File / 选择文件**: Click **📄 Import Metadata**, choose a JSON, CSV, or TXT file (点击“导入元数据”，选择对应的日志文件).
 3. **Mapping (CSV/TXT only) / 映射配置**:

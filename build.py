@@ -50,9 +50,18 @@ def build():
         
     cmd.append("main.py")
     
-    # Filter out None icons
+    # Filter out None values (e.g. if icon not found)
     cmd = [c for c in cmd if c is not None]
     
+    # 5. UPX Optimization (Optional)
+    upx_dir = os.getcwd() # Look in project root
+    upx_exe = os.path.join(upx_dir, "upx.exe")
+    if os.path.exists(upx_exe):
+        print(f"💎 UPX found: {upx_exe}. Enabling maximum compression...")
+        cmd.extend(["--upx-dir", upx_dir])
+    else:
+        print("💡 Tip: Place 'upx.exe' in project root to reduce EXE size by ~40%!")
+        
     print(f"📦 Running Optimized Build: {' '.join(cmd)}")
     
     try:

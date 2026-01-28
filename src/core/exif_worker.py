@@ -10,6 +10,13 @@ from typing import List, Dict, Any, Optional
 import subprocess
 import json
 import time
+import os
+import platform
+
+# Windows-specific flag to hide console window for subprocesses
+# Windows 特定的标志，用于隐藏子进程的控制台窗口
+CREATE_NO_WINDOW = 0x08000000 if platform.system() == "Windows" else 0
+
 from src.utils.logger import get_logger
 from src.core.config import get_config
 from src.utils.i18n import tr
@@ -77,7 +84,8 @@ class ExifToolWorker(QObject):
                         cmd,
                         capture_output=True,
                         text=False,  # handle bytes to avoid codec issues
-                        timeout=15
+                        timeout=15,
+                        creationflags=CREATE_NO_WINDOW
                     )
 
                     stdout = result.stdout.decode("utf-8", errors="replace")
@@ -128,7 +136,8 @@ class ExifToolWorker(QObject):
                 cmd,
                 capture_output=True,
                 text=False,
-                timeout=5
+                timeout=5,
+                creationflags=CREATE_NO_WINDOW
             )
             
             stdout = result.stdout.decode("utf-8", errors="replace")
@@ -168,7 +177,8 @@ class ExifToolWorker(QObject):
                     cmd,
                     capture_output=True,
                     text=True,
-                    timeout=timeout
+                    timeout=timeout,
+                    creationflags=CREATE_NO_WINDOW
                 )
                 
                 if result.returncode == 0:
