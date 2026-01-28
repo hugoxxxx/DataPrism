@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="DataPrism",
-    version="0.1.0",
+    version="1.0.0",
     description="A lightweight, high-aesthetic, high-performance ExifTool GUI station",
     author="Your Name",
     packages=find_packages(),

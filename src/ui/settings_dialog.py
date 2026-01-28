@@ -7,7 +7,7 @@ DataPrism 设置对话框
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
-    QLineEdit, QSpinBox, QCheckBox, QPushButton, QFormLayout, QFileDialog, QWidget
+    QLineEdit, QSpinBox, QCheckBox, QPushButton, QFormLayout, QFileDialog, QWidget, QComboBox
 )
 from PySide6.QtCore import Qt
 from src.core.config import get_config
@@ -25,23 +25,28 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.config = get_config()
         self.setWindowTitle(tr("Settings"))
-        self.setMinimumWidth(500)
+        self.setMinimumWidth(850) # Increased width for horizontal layout / 增加宽度以适配横屏
         self.setup_ui()
         self.load_settings()
         
     def setup_ui(self):
-        """Setup UI with Hasselblad aesthetics / 采用哈苏美学设置 UI"""
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(30, 30, 30, 30)
-        layout.setSpacing(25)
+        """Setup UI with Hasselblad aesthetics and horizontal layout / 采用哈苏美学与横屏布局设置 UI"""
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(30, 30, 30, 30)
+        main_layout.setSpacing(25)
         
+        # Content content split into two columns / 内容分为左右两栏
+        content_layout = QHBoxLayout()
+        content_layout.setSpacing(40)
+
         # Style constants / 样式常量
         accent_color = StyleManager.c('accent')
         label_style = f"color: {StyleManager.c('text_secondary')}; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"
         hint_style = f"color: {StyleManager.c('text_secondary')}; font-size: 11px; margin-top: 2px;"
+        group_header_style = f"color: {accent_color}; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;"
         input_style = StyleManager.get_input_style()
         
-        # Custom CheckBox style - Cleaner and warning-free / 自定义复选框样式 - 更简洁且无警告
+        # Custom CheckBox style
         checkbox_style = f"""
             QCheckBox {{
                 color: {StyleManager.c('text_primary')};
@@ -64,20 +69,12 @@ class SettingsDialog(QDialog):
             }}
         """
         
-        # Form layout for settings / 设置的表单布局
-        form = QFormLayout()
-        form.setSpacing(20)
-        form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        
         # Helper to add hint labels / 增加提示标签的辅助函数
-        def add_setting_row(label_text, widget, hint_text=None, has_browse=False):
+        def create_form_row(label_text, widget, hint_text=None, has_browse=False):
             lbl = QLabel(tr(label_text))
             lbl.setStyleSheet(label_style)
-            # Add top margin to align with input field
             lbl.setContentsMargins(0, 8, 0, 0)
             
-            # Container for the field + hint to ensure perfect alignment
-            # 使用容器包裹字段和提示，确保绝对对齐
             field_container = QWidget()
             field_v_layout = QVBoxLayout(field_container)
             field_v_layout.setContentsMargins(0, 0, 0, 0)
@@ -88,9 +85,8 @@ class SettingsDialog(QDialog):
                 h_layout.setSpacing(10)
                 h_layout.addWidget(widget)
                 browse_btn = QPushButton(tr("Browse"))
-                browse_btn.setMinimumWidth(90)
+                browse_btn.setMinimumWidth(80)
                 browse_btn.setFixedHeight(34)
-                # Use Primary style for maximum visibility / 使用 Primary 风格以获得最大可见度
                 browse_style = StyleManager.get_button_style(tier='primary').replace(
                     "padding: 10px 18px;", 
                     "padding: 0; font-size: 11px; font-weight: 700;"
@@ -108,56 +104,112 @@ class SettingsDialog(QDialog):
                 hint.setWordWrap(True)
                 field_v_layout.addWidget(hint)
             
-            form.addRow(lbl, field_container)
+            return lbl, field_container
 
-        # ExifTool Path / ExifTool 路径
+        # -- LEFT COLUMN: System & Engine --
+        left_column = QWidget()
+        left_vbox = QVBoxLayout(left_column)
+        left_vbox.setContentsMargins(0, 0, 0, 0)
+        
+        left_header = QLabel(tr("Engine & System"))
+        left_header.setStyleSheet(group_header_style)
+        left_vbox.addWidget(left_header)
+        
+        left_form = QFormLayout()
+        left_form.setSpacing(18)
+        left_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
+        # ExifTool Path
         self.exiftool_path_edit = QLineEdit()
         self.exiftool_path_edit.setMinimumHeight(34)
         self.exiftool_path_edit.setStyleSheet(input_style)
-        add_setting_row("ExifTool Path", self.exiftool_path_edit, "Specify the path to exiftool executable", has_browse=True)
+        left_form.addRow(*create_form_row("ExifTool Path", self.exiftool_path_edit, "Specify the path to exiftool executable", has_browse=True))
         
-        # Timeout / 超时
+        # Timeout
         self.timeout_spin = QSpinBox()
         self.timeout_spin.setMinimumHeight(34)
         self.timeout_spin.setRange(1, 300)
         self.timeout_spin.setSuffix(f" {tr('S')}")
         self.timeout_spin.setStyleSheet(input_style)
-        add_setting_row("ExifTool Timeout", self.timeout_spin, "Max time to wait for ExifTool (seconds)")
+        left_form.addRow(*create_form_row("ExifTool Timeout", self.timeout_spin, "Max time to wait for ExifTool (seconds)"))
         
-        # Worker Threads / 工作线程
+        # Worker Threads
         self.threads_spin = QSpinBox()
         self.threads_spin.setMinimumHeight(34)
         self.threads_spin.setRange(1, 16)
         self.threads_spin.setStyleSheet(input_style)
-        add_setting_row("Worker Threads", self.threads_spin, "Number of parallel worker threads")
-        
-        # Behavior Checkboxes / 行为复选框
+        left_form.addRow(*create_form_row("Worker Threads", self.threads_spin, "Number of parallel worker threads"))
+
+        # Log Level
+        self.log_level_combo = QComboBox()
+        self.log_level_combo.setMinimumHeight(34)
+        self.log_level_combo.addItems(["DEBUG", "INFO", "WARNING", "ERROR"])
+        self.log_level_combo.setStyleSheet(input_style)
+        left_form.addRow(*create_form_row("Log Level", self.log_level_combo, "Detail level of log records"))
+
+        # Log Settings
+        self.log_size_spin = QSpinBox()
+        self.log_size_spin.setMinimumHeight(34)
+        self.log_size_spin.setRange(1, 100)
+        self.log_size_spin.setSuffix(" MB")
+        self.log_size_spin.setStyleSheet(input_style)
+        left_form.addRow(*create_form_row("Log Max Size (MB)", self.log_size_spin, "Maximum size of a single log file in megabytes"))
+
+        self.log_backups_spin = QSpinBox()
+        self.log_backups_spin.setMinimumHeight(34)
+        self.log_backups_spin.setRange(0, 20)
+        self.log_backups_spin.setStyleSheet(input_style)
+        left_form.addRow(*create_form_row("Log Backup Count", self.log_backups_spin, "Number of old log files to keep"))
+
+        left_vbox.addLayout(left_form)
+        left_vbox.addStretch()
+
+        # -- RIGHT COLUMN: General Behavior --
+        right_column = QWidget()
+        right_vbox = QVBoxLayout(right_column)
+        right_vbox.setContentsMargins(0, 0, 0, 0)
+
+        right_header = QLabel(tr("Workflow & Behavior"))
+        right_header.setStyleSheet(group_header_style)
+        right_vbox.addWidget(right_header)
+
+        right_form = QFormLayout()
+        right_form.setSpacing(12)
+        right_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
         self.auto_save_check = QCheckBox(tr("Auto Save Changes"))
         self.auto_save_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.auto_save_check, "Automatically save changes to config.json")
+        right_form.addRow(*create_form_row("", self.auto_save_check, "Automatically save changes to config.json"))
         
         self.confirm_exit_check = QCheckBox(tr("Confirm on Exit"))
         self.confirm_exit_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.confirm_exit_check, "Show confirmation dialog before exiting")
+        right_form.addRow(*create_form_row("", self.confirm_exit_check, "Show confirmation dialog before exiting"))
         
         self.show_completion_check = QCheckBox(tr("Show Completion Dialog"))
         self.show_completion_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.show_completion_check, "Show summary after batch operations")
+        right_form.addRow(*create_form_row("", self.show_completion_check, "Show summary after batch operations"))
         
         self.overwrite_original_check = QCheckBox(tr("Overwrite Original Files"))
         self.overwrite_original_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.overwrite_original_check, "Overwrite photos directly or keep backups")
+        right_form.addRow(*create_form_row("", self.overwrite_original_check, "Overwrite photos directly or keep backups"))
         
         self.preserve_date_check = QCheckBox(tr("Preserve File Modify Date"))
         self.preserve_date_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.preserve_date_check, "Keep original file system 'Modify Date'")
+        right_form.addRow(*create_form_row("", self.preserve_date_check, "Keep original file system 'Modify Date'"))
         
         self.portable_mode_check = QCheckBox(tr("Portable Mode"))
         self.portable_mode_check.setStyleSheet(checkbox_style)
-        add_setting_row("", self.portable_mode_check, tr("Store config/history locally next to EXE"))
-        
-        layout.addLayout(form)
-        layout.addStretch()
+        right_form.addRow(*create_form_row("", self.portable_mode_check, tr("Store config/history locally next to EXE")))
+
+        right_vbox.addLayout(right_form)
+        right_vbox.addStretch()
+
+        # Add columns to content layout / 将两栏加入内容布局
+        content_layout.addWidget(left_column, 5) # Left has more complex fields, give more weight
+        content_layout.addWidget(right_column, 4)
+
+        main_layout.addLayout(content_layout)
+        main_layout.addStretch()
         
         # Buttons / 按钮
         btn_layout = QHBoxLayout()
@@ -179,7 +231,7 @@ class SettingsDialog(QDialog):
         btn_layout.addWidget(self.cancel_btn)
         btn_layout.addWidget(self.save_btn)
         
-        layout.addLayout(btn_layout)
+        main_layout.addLayout(btn_layout)
         self.setStyleSheet(f"background-color: {StyleManager.c('bg_main')};")
 
     def browse_exiftool(self):
@@ -201,6 +253,13 @@ class SettingsDialog(QDialog):
         self.overwrite_original_check.setChecked(self.config.get('overwrite_original', True))
         self.preserve_date_check.setChecked(self.config.get('preserve_modify_date', True))
         self.portable_mode_check.setChecked(self.config.get('portable_mode', False))
+        self.log_size_spin.setValue(self.config.get('log_max_size_mb', 10))
+        self.log_backups_spin.setValue(self.config.get('log_backup_count', 5))
+        
+        level = self.config.get('log_level', 'INFO')
+        index = self.log_level_combo.findText(level)
+        if index >= 0:
+            self.log_level_combo.setCurrentIndex(index)
         
     def save_settings(self):
         """Save UI settings to config / 将 UI 设置保存到配置"""
@@ -212,5 +271,8 @@ class SettingsDialog(QDialog):
         self.config.set('show_completion_dialog', self.show_completion_check.isChecked(), save_immediately=False)
         self.config.set('overwrite_original', self.overwrite_original_check.isChecked(), save_immediately=False)
         self.config.set('preserve_modify_date', self.preserve_date_check.isChecked(), save_immediately=False)
-        self.config.set('portable_mode', self.portable_mode_check.isChecked(), save_immediately=True)
+        self.config.set('portable_mode', self.portable_mode_check.isChecked(), save_immediately=False)
+        self.config.set('log_max_size_mb', self.log_size_spin.value(), save_immediately=False)
+        self.config.set('log_backup_count', self.log_backups_spin.value(), save_immediately=False)
+        self.config.set('log_level', self.log_level_combo.currentText(), save_immediately=True)
         self.accept()

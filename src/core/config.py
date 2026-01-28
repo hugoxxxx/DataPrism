@@ -11,7 +11,7 @@ import sys
 import json
 from pathlib import Path
 from typing import Any, Dict, Optional, List
-from src.utils.logger import get_logger
+from src.utils.logger import get_logger, reconfigure_logger
 
 logger = get_logger('DataPrism.Config')
 
@@ -187,6 +187,14 @@ class Config:
 
         self.load()
         self.history = HistoryManager(self.storage_dir)
+        
+        # Apply logging configuration / 应用日志配置
+        reconfigure_logger(
+            self.get_log_path(),
+            level=self.get('log_level', 'INFO'),
+            max_size_mb=self.get('log_max_size_mb', 10),
+            backup_count=self.get('log_backup_count', 5)
+        )
 
     def load(self) -> None:
         """
@@ -306,6 +314,11 @@ class Config:
             logger.info("Migration successful")
         except Exception as e:
             logger.error(f"Migration failed: {e}")
+    
+    def get_log_path(self) -> Path:
+        """Get the absolute path for the log file / 获取日志文件的绝对路径"""
+        filename = self.get('log_file_path', 'dataprism.log')
+        return self.storage_dir / filename
     
     def reset_to_defaults(self) -> None:
         """

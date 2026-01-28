@@ -1,3 +1,20 @@
+# DataPrism Change Log / 变更日志
+
+## [1.0.0] 2026-01-28 - Official Release / 正式版发布
+- **Exe Packaging / 打包封装**: Packaged as a single `.exe` file using PyInstaller (使用 PyInstaller 封装为单文件 exe)。
+- **Size Optimization / 体积优化**: Reduced file size by excluding unused modules (通过排除无用模块减小了文件体积)。
+- **Plain Bilingual Docs / 双语手册**: Updated README and User Guide with plain EN/CN mixed text (更新了中英混写的双语版 README 和使用手册)。
+- **File Isolation / 环境隔离**: Hidden debug scripts and test media from GitHub (在 GitHub 仓库中屏蔽了调试脚本和测试资源)。
+- **UI & Logistics / 界面与逻辑**: Finished settings layout and log control (完善了设置界面布局和日志管理功能)。
+
+## [2026-01-28] Log Management & Sync / 日志管理与同步
+- **Git Sync / 代码同步**: Synced local code with latest GitHub commits (从 GitHub 同步了最新的代码)。
+- **Log Rotation / 自动日志管理**: Added automatic log rotation to prevent large files (增加了日志自动切分功能，防止文件过大)。
+- **Log Settings / 日志设置**: Added UI controls for log size and level (在设置界面增加了日志大小和级别的控制)。
+    - **完善国际化**: 补全了所有新增设置项的中英双语翻译。
+- **稳定性修复 (Bug Fix)**:
+    - 修复了 `settings_dialog.py` 中因导包缺失导致的 `NameError: QDialog is not defined` 启动错误。
+
 ## [2026-01-27] 智能生产力：记忆与便携 (Smart Productivity)
 - **智能历史与自动填充 (Smart History & Auto-fill)**:
     - **全能记忆库**: 引入了独立的 `history.json` 存储引擎，自动记录您使用过的所有相机、镜头和胶卷型号。

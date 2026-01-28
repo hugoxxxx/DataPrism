@@ -1,4 +1,7 @@
 # Project: DataPrism (README_FOR_AI.md) - v0.3.1 Sequential Metadata Injection
+1. 说中文
+2. 所有变化记录到change_log.md
+3. 叫我老大
 
 ## 1. Requirement Refinement: Sequential Matching / 需求细化：基于序号的匹配
 For film photography workflows, timestamps are often unreliable. We must implement a "Sequential Mapping" logic as the primary matching method for external metadata.

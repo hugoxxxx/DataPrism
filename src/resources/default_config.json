@@ -17,5 +17,7 @@
     "portable_mode": false,
     "log_level": "INFO",
     "log_to_file": true,
-    "log_file_path": "dataprism.log"
+    "log_file_path": "dataprism.log",
+    "log_max_size_mb": 10,
+    "log_backup_count": 5
 }

@@ -161,6 +161,11 @@ class TranslationManager:
             "Show Completion Dialog": {"zh": "显示完成对话框", "en": "Show Completion Dialog"},
             "Overwrite Original Files": {"zh": "覆盖原始文件", "en": "Overwrite Original Files"},
             "Preserve File Modify Date": {"zh": "保持文件修改日期", "en": "Preserve File Modify Date"},
+            "Log Max Size (MB)": {"zh": "日志最大容量 (MB)", "en": "Log Max Size (MB)"},
+            "Log Backup Count": {"zh": "日志备份数量", "en": "Log Backup Count"},
+            "Log Level": {"zh": "日志细节级别", "en": "Log Level"},
+            "Engine & System": {"zh": "引擎与系统", "en": "Engine & System"},
+            "Workflow & Behavior": {"zh": "工作流与行为", "en": "Workflow & Behavior"},
             "S": {"zh": "秒", "en": "S"},
             "Switch to Chinese": {"zh": "切换至中文", "en": "Switch to Chinese"},
             "Switch to English": {"zh": "切换至英文", "en": "Switch to English"},
@@ -172,7 +177,14 @@ class TranslationManager:
             },
 
             # Detailed Descriptions / 详细说明
-            "Specify the path to exiftool executable": {"zh": "指定 ExifTool 的路径。它是 DataPrism 的元数据核心引擎。", "en": "Specify the path to ExifTool. It's the core metadata engine."},
+            "Specify the path to exiftool executable": {
+                "zh": "若已加入系统环境变量，输入 'exiftool' 即可；否则请点击浏览选择 exiftool.exe 文件。这也是软件读写元数据的核心引擎。", 
+                "en": "If in system PATH, 'exiftool' is enough; otherwise browse for exiftool.exe. This is the core engine."
+            },
+            "Detail level of log records": {
+                "zh": "DEBUG(详尽排障), INFO(常规流程), WARNING(潜在问题), ERROR(执行失败)。日常建议设为 INFO。", 
+                "en": "DEBUG(Detail), INFO(Normal), WARNING(Warning), ERROR(Failure). INFO is recommended."
+            },
             "Max time to wait for ExifTool (seconds)": {"zh": "ExifTool 操作的最大等待时间（秒）", "en": "Max time to wait for ExifTool (seconds)"},
             "Number of parallel worker threads": {"zh": "批量处理时的并行工作线程数", "en": "Number of parallel worker threads"},
             "Automatically save changes to config.json": {"zh": "自动将修改保存至 config.json", "en": "Automatically save changes to config.json"},
@@ -180,6 +192,8 @@ class TranslationManager:
             "Show summary after batch operations": {"zh": "批量操作完成后显示摘要对话框", "en": "Show summary after batch operations"},
             "Overwrite photos directly or keep backups": {"zh": "直接覆盖照片或保留 .original 备份", "en": "Overwrite photos directly or keep backups"},
             "Keep original file system 'Modify Date'": {"zh": "写入元数据后保持文件的系统修改时间不变", "en": "Keep original file system 'Modify Date'"},
+            "Maximum size of a single log file in megabytes": {"zh": "单个日志文件的最大容量（MB）", "en": "Maximum size of a single log file in megabytes"},
+            "Number of old log files to keep": {"zh": "保留的历史日志文件数量", "en": "Number of old log files to keep"},
         }
     
     def _detect_system_language(self) -> str:

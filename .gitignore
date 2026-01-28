@@ -25,4 +25,18 @@ htmlcov/
 *.JPG
 *.PNG
 *.JPEG
+# Local assets and debug files
+1.jpg
+66.jpg
+67_L.jpg
+test_data/
+debug_table_view.py
+reproduce_issue.py
+README_FOR_AI.md
+GT23_COMPATIBILITY_TEST.md
+JSON_FEATURE_SUMMARY.md
+ARCHITECTURE.md
+
+# Logs
 *.log
+dataprism.log*

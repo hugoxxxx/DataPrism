@@ -52,6 +52,9 @@ def main():
     try:
         # Create application / 创建应用程序
         app = QApplication(sys.argv)
+        app.setApplicationName("DataPrism")
+        app.setApplicationVersion("1.0.0")
+        app.setOrganizationName("DataPrism")
         
         # CRITICAL: Use Fusion style to eliminate Windows-specific rendering artifacts
         # 使用 Fusion 样式以消除 Windows 特定的渲染问题（如蓝色单元格分隔线）
