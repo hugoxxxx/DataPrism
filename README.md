@@ -2,6 +2,14 @@
 
 DataPrism is a tool for managing photo EXIF metadata (元数据管理工具). It uses ExifTool to help you edit photo information in batches (调用 ExifTool 批量修改照片信息).
 
+## 🖼️ UI Preview / 界面预览
+
+| Chinese / 中文 | English / 英文 |
+| :--- | :--- |
+| ![CN 1](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_1.png) | ![EN 1](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_1_en.png) |
+| ![CN 2](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_2.png) | ![EN 2](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_2_en.png) |
+| ![CN 3](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_3.png) | ![EN 3](https://raw.githubusercontent.com/hugoxxxx/photos/main/DataPrism/ScreenShot_3_en.png) |
+
 ## 🌟 Features / 功能特点
 
 - **Metadata Editing / 元数据编辑**: Batch edit Camera, Lens, Film stock, and Exposure data (批量修改相机、镜头、胶卷、曝光等数据).
