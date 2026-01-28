@@ -253,21 +253,31 @@ AppContext.register("photo_model", MockPhotoModel())
 
 ---
 
-## 9. 最佳实践
+## 10. Performance Roadmap (提速路线图)
 
-1. ✅ **始终在工作线程中执行 I/O 操作**
-   - 不要在主线程中调用 `exiftool`
-   
-2. ✅ **使用 Signal/Slot 而不是直接调用**
-   - 线程安全，自动由 Qt 处理
-   
-3. ✅ **合理使用缓存，但要有失效机制**
-   - 当文件被修改时，清除缓存
-   
-4. ✅ **Command 应该是无副作用的**
-   - execute() 和 undo() 应该是幂等的
-   
-5. ✅ **测试异步代码**
-   - 使用 QSignalSpy 或回调来验证异步行为
+Based on developer discussion and community feedback (e.g., Reddit "Over-scripting" concern), the following performance optimization plan is established for future versions.
 
+### Current State (v1.0) - "Stability First"
+- **Pattern**: Asynchronous per-file command execution.
+- **Why**: High robustness, simple error handling, and sufficient for small batches (36-72 frames). 
+- **Trade-off**: High process startup overhead on Windows (~200ms per file).
+
+### Future Optimization (v1.1+) - "Extreme Batching"
+
+#### Phase A: Argfile Mode (The "Pro" Way)
+- **Concept**: Instead of calling `exiftool` N times, generate a temporary `.args` file containing all tasks.
+- **Execution**: `exiftool -@ temp.args`.
+- **Target**: Reduce 100-file processing time from 30s to <2s.
+
+#### Phase B: Process Persistence (`-stay_open`)
+- **Concept**: Keep a single ExifTool instance running in the background via Pipes.
+- **Reliability**: Implement a "watchdog" mechanism to restart the process immediately if it crashes on a corrupt file.
+
+#### Phase C: Concurrent Sharding
+- **Concept**: Spawning multiple ExifTool instances based on CPU cores (e.g., 4 instances for 400 photos).
+- **Target**: Maximize CPU/IO utilization across all hardware threads.
+
+---
+
+*This document serves as the technical mandate for future performance sprints.*
 """
