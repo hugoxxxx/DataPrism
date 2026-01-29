@@ -15,8 +15,8 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QMessageBox, QProgressDialog, QHeaderView,
     QApplication, QFrame, QWidget, QScrollArea, QSizePolicy, QToolButton
 )
-from PySide6.QtCore import Qt, QThread, Signal, QTimer
-from PySide6.QtGui import QFont, QPixmap, QColor
+from PySide6.QtCore import Qt, QThread, Signal, QTimer, QSize
+from PySide6.QtGui import QFont, QPixmap, QColor, QImageReader
 
 import logging
 
@@ -541,12 +541,27 @@ class MetadataEditorDialog(QDialog):
         try:
             if photo_idx is not None and 0 <= photo_idx < len(self.photos):
                 p = self.photos[photo_idx]
-                pix = QPixmap(p.file_path)
-                if not pix.isNull():
-                    s = pix.scaled(300, 300, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-                    self.preview_label.setPixmap(s)
+                
+                # Use QImageReader for memory-efficient loading
+                reader = QImageReader(p.file_path)
+                reader.setAutoTransform(True)
+                # Lift the 256MB safety limit to 2GB for massive TIFFs
+                reader.setAllocationLimit(2048)
+                
+                if reader.canRead():
+                    image_size = reader.size()
+                    target_size = QSize(300, 300)
+                    image_size.scale(target_size, Qt.AspectRatioMode.KeepAspectRatio)
+                    reader.setScaledSize(image_size)
+                    
+                    image = reader.read()
+                    if not image.isNull():
+                        self.preview_label.setPixmap(QPixmap.fromImage(image))
+                    else:
+                        self.preview_label.setText(tr("Preview Failed"))
                 else:
                     self.preview_label.setText(tr("Preview Failed"))
+                
                 self.file_info_label.setText(f"{p.file_name}")
             else:
                 self.preview_label.clear()

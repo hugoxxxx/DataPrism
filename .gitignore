@@ -30,6 +30,9 @@ htmlcov/
 66.jpg
 67_L.jpg
 test_data/
+test_100_batch/
+test_large_tiff/
+test.tif
 debug_table_view.py
 reproduce_issue.py
 README_FOR_AI.md

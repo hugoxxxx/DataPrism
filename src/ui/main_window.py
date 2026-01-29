@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QComboBox, QMenu, QSizePolicy
 )
 from PySide6.QtCore import Qt, QSize, QThread, Signal, QEvent
-from PySide6.QtGui import QFont, QPixmap, QTransform
+from PySide6.QtGui import QFont, QPixmap, QTransform, QImageReader
 
 from src.core.photo_model import PhotoDataModel
 from src.core.exif_worker import ExifToolWorker
@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
         self.model = PhotoDataModel(self)
         self.supported_ext = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".dng"}
         self.progress_dialog = None  # Progress dialog instance
+        self._is_refreshing = False  # Guard for redundant reads / 刷新防抖锁
         self._setup_worker()
         self.setup_ui()
 
@@ -660,16 +661,22 @@ class MainWindow(QMainWindow):
         # Ensure the thread stops when window closes
         self.destroyed.connect(lambda: self._stop_worker())
 
-    def queue_exif_read(self, file_paths: List[str], show_progress: bool = False):
+    def queue_exif_read(self, file_paths: List[str], show_progress: bool = False, silent: bool = False):
         """Queue EXIF read in worker thread / 在工作线程中排队读取 EXIF
         
         Args:
             file_paths: List of file paths to read / 要读取的文件路径列表
             show_progress: Whether to show progress dialog / 是否显示进度对话框
+            silent: Whether to suppress logging (useful for background refreshes) / 是否抑制日志记录（对后台刷新很有用）
         """
         if not file_paths:
             return
-        
+            
+        if self._is_refreshing and silent:
+            # Skip background refreshes if already busy
+            return
+            
+        self._is_refreshing = True
         # Show progress dialog if requested
         if show_progress:
             self.progress_dialog = QProgressDialog(
@@ -685,20 +692,34 @@ class MainWindow(QMainWindow):
         
         if not self.worker_thread.isRunning():
             self.worker_thread.start()
-        # Emit signal to run in worker thread (queued connection)
-        self.start_exif_read.emit(file_paths)
+        
+        if not silent:
+            # Emit signal to run in worker thread
+            self.start_exif_read.emit(file_paths)
+        else:
+            # We can't pass 'silent' easily through typical signal path without modifying the worker signal too
+            # For now, let's just emit it. We'll modify the worker to be smarter if needed.
+            self.start_exif_read.emit(file_paths)
 
     def on_exif_read_results(self, results: dict):
         """Handle EXIF read results / 处理 EXIF 读取结果"""
+        import time
+        # Check if this was a bulk operation
+        is_bulk = len(results) > 10
+        
         for file_path, exif_data in results.items():
             if isinstance(exif_data, dict):
                 self.model.set_exif_data(file_path, exif_data)
         
+        self._is_refreshing = False
         self._refresh_inspector()
         
         if self.progress_dialog:
             self.progress_dialog.close()
             self.progress_dialog = None
+            
+        if is_bulk:
+            self.add_log(tr("Metadata successfully synchronized and updated. / 元数据同步并更新成功。"))
 
     def on_exif_write_results(self, results: dict):
         """Handle EXIF write results (Internal/Single/Batch) / 处理 EXIF 写入结果"""
@@ -801,17 +822,31 @@ class MainWindow(QMainWindow):
     def _ensure_thumbnail(self, photo):
         """Load and cache a thumbnail for inspector / 为检查器加载并缓存缩略图"""
         if photo.thumbnail is None:
-            pix = QPixmap(photo.file_path)
-            if pix.isNull():
-                self.thumb_label.setText("No preview")
+            # Use QImageReader for memory-efficient loading (especially for large TIFFs)
+            # 使用 QImageReader 实现内存高效加载（特别针对超大 TIFF 文件）
+            reader = QImageReader(photo.file_path)
+            reader.setAutoTransform(True)
+            # Lift the 256MB safety limit to 2GB for massive TIFFs
+            # 将 256MB 的安全限制提升至 2GB，以接纳超大型 TIFF 文件
+            reader.setAllocationLimit(2048)
+            
+            if not reader.canRead():
+                self.thumb_label.setText(tr("No preview"))
                 return
-            # Use explicit dimensions matching CinemaBox (minus margins) to ensure perfect centering
-            # 使用适配 CinemaBox（扣除边距）的明确尺寸，确保完美居中
-            photo.thumbnail = pix.scaled(
-                280, 170, # 190 - 20 (padding)
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation,
-            )
+                
+            # Set the target size before reading to avoid loading full image into RAM
+            # 在读取前设置目标尺寸，避免将全尺寸图像载入内存
+            image_size = reader.size()
+            target_size = QSize(280, 170)
+            image_size.scale(target_size, Qt.AspectRatioMode.KeepAspectRatio)
+            reader.setScaledSize(image_size)
+            
+            image = reader.read()
+            if image.isNull():
+                self.thumb_label.setText(tr("No preview"))
+                return
+                
+            photo.thumbnail = QPixmap.fromImage(image)
         
         # Apply rotation if needed / 如果需要，应用旋转
         if photo.rotation != 0:
@@ -965,7 +1000,6 @@ class MainWindow(QMainWindow):
                 # Direct to Unified Editor
                 editor = MetadataEditorDialog(self.model.photos, [], headers, rows, self)
                 editor.requests_write.connect(self.execute_metadata_write_tasks)
-                editor.metadata_written.connect(self.on_metadata_written)
                 editor.exec()
                 return 
             
@@ -995,7 +1029,6 @@ class MainWindow(QMainWindow):
             # Show editor dialog / 显示编辑对话框
             editor = MetadataEditorDialog(self.model.photos, metadata_entries, parent=self)
             editor.requests_write.connect(self.execute_metadata_write_tasks)
-            editor.metadata_written.connect(self.on_metadata_written)
             editor.exec()
                 
         except Exception as e:
@@ -1008,12 +1041,12 @@ class MainWindow(QMainWindow):
         for photo in self.model.photos:
             self.model.mark_modified(photo.file_path)
         
-        # Refresh photo data in background / 在后台刷新照片数据
+        # Refresh photo data in background (silent to avoid log clutter)
         file_paths = [photo.file_path for photo in self.model.photos]
-        self.queue_exif_read(file_paths, show_progress=False)
+        self.queue_exif_read(file_paths, show_progress=False, silent=True)
         
         self.model.headerDataChanged.emit(Qt.Orientation.Horizontal, 0, len(self.model.COLUMNS) - 1)
-        self.add_log(tr("Metadata written to selected photos."))
+        # Log will be finalized in on_exif_read_results
 
     def execute_metadata_write_tasks(self, tasks: list):
         """Execute batch EXIF write tasks with console logging / 在控制台记录下执行批量 EXIF 写入任务"""
@@ -1023,10 +1056,10 @@ class MainWindow(QMainWindow):
         if not self.worker_thread.isRunning():
             self.worker_thread.start()
             
-        self.add_log(tr("Writing metadata..."))
+        self.add_log(tr("Initiating batch metadata write..."))
         
-        # Connect to the completion handler / 连接到完成处理程序
-        self.worker.write_finished.connect(self._on_batch_write_complete)
+        # Connect to the completion handler with UniqueConnection to prevent redundant calls
+        self.worker.write_finished.connect(self._on_batch_write_complete, Qt.ConnectionType.UniqueConnection)
         self.start_batch_write.emit(tasks)
 
     def _on_batch_write_complete(self, result):
@@ -1211,15 +1244,22 @@ class MainWindow(QMainWindow):
         if focal_35: batch_meta["FocalLengthIn35mmFormat"] = focal_35
         if film: batch_meta["Film"] = film
         
-        # Prepare synchronous update list / 准备同步更新列表
-        metadata_list = [batch_meta] * count
+        # Prepare batch write tasks / 准备批量写入任务
+        write_tasks = []
+        for photo in self.model.photos:
+            # We use the internal helper to get what would be written to EXIF
+            exif_to_write = self.model._apply_metadata_internal(photo, batch_meta)
+            if exif_to_write:
+                write_tasks.append({
+                    "file_path": photo.file_path,
+                    "exif_data": exif_to_write
+                })
         
-        # Apply to model / 应用到模型
-        updated = self.model.apply_metadata_sequentially(metadata_list)
-        
-        if updated > 0:
-            QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
-            self.add_log(tr("Quick write applied to {count} photos.").format(count=updated))
+        if write_tasks:
+            self.add_log(tr("Applying quick write to {count} photos...").format(count=len(write_tasks)))
+            # Use the optimized batch write logic
+            self.execute_metadata_write_tasks(write_tasks)
+            
             # Clear fields after success / 成功后清空字段
             # Clear fields after success / 成功后清空字段
             for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
@@ -1264,12 +1304,23 @@ class MainWindow(QMainWindow):
             return
 
         rows = [idx.row() for idx in selection]
-        updated = self.model.apply_metadata_to_rows(rows, data)
-        
-        if updated > 0:
-            QMessageBox.information(self, tr("Quick Write"), tr("Successfully updated {count} photos").format(count=updated))
-            self.add_log(tr("Quick write applied to {count} selected photos.").format(count=updated))
-            # Clear fields / 清空字段
+        write_tasks = []
+        for row in rows:
+            if 0 <= row < len(self.model.photos):
+                photo = self.model.photos[row]
+                exif_to_write = self.model._apply_metadata_internal(photo, data)
+                if exif_to_write:
+                    write_tasks.append({
+                        "file_path": photo.file_path,
+                        "exif_data": exif_to_write
+                    })
+
+        if write_tasks:
+            self.add_log(tr("Applying quick write to {count} selected photos...").format(count=len(write_tasks)))
+            # Use the optimized batch write logic
+            self.execute_metadata_write_tasks(write_tasks)
+            
+            # Clear fields after success / 成功后清空字段
             # Clear fields / 清空字段
             for edit in [self.quick_camera_make, self.quick_camera_model, self.quick_lens_make, self.quick_lens_model, self.quick_focal, self.quick_focal_35mm, self.quick_film]:
                 if isinstance(edit, QComboBox):

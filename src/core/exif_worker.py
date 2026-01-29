@@ -12,6 +12,7 @@ import json
 import time
 import os
 import platform
+import concurrent.futures
 from src.utils.argfile_util import ArgfileManager
 
 # Windows-specific flag to hide console window for subprocesses
@@ -80,13 +81,14 @@ class ExifToolWorker(QObject):
                 self.read_finished.emit({})
                 return
                 
-            self.log_message.emit(tr("Preparing batch read for {count} files...").format(count=total_files))
+            self.log_message.emit(tr("Synchronizing metadata for {count} files...").format(count=total_files))
             
             # Create argfile for batch reading
             argfile_path = ArgfileManager.create_read_args(file_paths)
             
             # Execute exiftool command once for all files
-            cmd = [self.exiftool_path, "-@", argfile_path]
+            # Added -fast2 to skip MakerNotes for maximum speed
+            cmd = [self.exiftool_path, "-fast2", "-@", argfile_path]
             
             self.progress.emit(10) # Start progress
             
@@ -283,82 +285,115 @@ class ExifToolWorker(QObject):
     
     def batch_write_exif(self, write_tasks: List[Dict[str, Any]]) -> None:
         """
-        Batch write EXIF data to multiple files asynchronously using Argfile
-        使用 Argfile 异步批量写入 EXIF 数据到多个文件（极速模式）
+        Batch write EXIF data to multiple files asynchronously using Parallel Argfiles
+        使用多核并发 Argfile 异步批量写入 EXIF 数据到多个文件 (终极提速模式)
         
         Args:
             write_tasks: List of dicts with 'file_path' and 'exif_data' / 包含 'file_path' 和 'exif_data' 的字典列表
         """
-        argfile_path = None
+        temp_files = []
         try:
             total_tasks = len(write_tasks)
-            results = []
-            
             if not write_tasks:
                 self.write_finished.emit({})
                 return
 
-            self.log_message.emit(tr("Preparing high-speed batch write for {count} tasks...").format(count=total_tasks))
+            self.log_message.emit(tr("Starting parallel batch write for {count} tasks...").format(count=total_tasks))
+            self.progress.emit(5)
             
-            # Create argfile for batch writing
-            overwrite = config.get('overwrite_original', True)
-            preserve_date = config.get('preserve_modify_date', True)
-            argfile_path = ArgfileManager.create_write_args(write_tasks, overwrite, preserve_date)
+            # 1. Determine concurrency level / 确定并发数
+            # Max 4 workers to avoid disk thrashing and high RAM usage
+            # 最多 4 个并发进程，平衡磁盘 IO 和内存占用
+            cpu_count = os.cpu_count() or 1
+            max_workers = min(cpu_count, 4) if total_tasks >= 10 else 1
             
-            # Build exiftool command
-            cmd = [self.exiftool_path, "-@", argfile_path]
+            # 2. Shard tasks into chunks / 将任务分片
+            chunk_size = (total_tasks + max_workers - 1) // max_workers
+            chunks = [write_tasks[i:i + chunk_size] for i in range(0, total_tasks, chunk_size)]
             
-            self.progress.emit(10)
+            self.log_message.emit(tr("Using {n} parallel processes for writing...").format(n=len(chunks)))
             
-            # Execute single process for all writes
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=max(60, total_tasks * 1.0), # More generous timeout for writes
-                creationflags=CREATE_NO_WINDOW
-            )
+            # 3. Define the worker function for each chunk / 定义每个分片的执行函数
+            def process_chunk(chunk_tasks):
+                chunk_argfile = None
+                try:
+                    overwrite = config.get('overwrite_original', True)
+                    preserve_date = config.get('preserve_modify_date', True)
+                    chunk_argfile = ArgfileManager.create_write_args(chunk_tasks, overwrite, preserve_date)
+                    
+                    cmd = [self.exiftool_path, "-@", chunk_argfile]
+                    
+                    result = subprocess.run(
+                        cmd,
+                        capture_output=True,
+                        text=True,
+                        timeout=max(60, len(chunk_tasks) * 2.0),
+                        creationflags=CREATE_NO_WINDOW
+                    )
+                    
+                    # Return path for cleanup and status
+                    return {
+                        "success": result.returncode == 0,
+                        "error": result.stderr if result.returncode != 0 else None,
+                        "tasks": chunk_tasks,
+                        "argfile": chunk_argfile
+                    }
+                except Exception as e:
+                    return {
+                        "success": False,
+                        "error": str(e),
+                        "tasks": chunk_tasks,
+                        "argfile": chunk_argfile
+                    }
+
+            # 4. Execute parallel tasks / 执行并行任务
+            results = []
+            final_status_list = []
             
-            self.progress.emit(90)
-            
-            if result.returncode == 0:
-                # In batch mode, we assume success for all if return code is 0
-                # ExifTool output will list which ones were updated
-                for task in write_tasks:
-                    results.append({
-                        "status": "success",
-                        "file": task.get('file_path'),
-                        "message": "EXIF written"
-                    })
-                logger.info(f"Successfully finished batch write via Argfile: {total_tasks} files")
-            else:
-                # If command fails, mark all as potential errors or parse stderr if needed
-                error_msg = result.stderr or "ExifTool batch write failed"
-                for task in write_tasks:
-                    results.append({
-                        "status": "error",
-                        "file": task.get('file_path'),
-                        "message": error_msg
-                    })
-                logger.error(f"Batch write failed: {error_msg}")
-            
-            # Emit results
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_chunk = {executor.submit(process_chunk, c): c for c in chunks}
+                
+                completed = 0
+                for future in concurrent.futures.as_completed(future_to_chunk):
+                    res = future.result()
+                    temp_files.append(res.get('argfile'))
+                    
+                    succ = res.get('success', False)
+                    err_msg = res.get('error')
+                    
+                    for t in res.get('tasks', []):
+                        final_status_list.append({
+                            "status": "success" if succ else "error",
+                            "file": t.get('file_path'),
+                            "message": "EXIF written" if succ else err_msg
+                        })
+                    
+                    completed += 1
+                    self.progress.emit(int(10 + (completed / len(chunks)) * 80))
+
+            # 5. Emit final results / 发送最终结果
             result_dict = {
                 "batch_write": True,
-                "results": results,
+                "results": final_status_list,
                 "total": total_tasks,
-                "success": sum(1 for r in results if r['status'] == 'success'),
-                "failed": sum(1 for r in results if r['status'] == 'error')
+                "success": sum(1 for r in final_status_list if r['status'] == 'success'),
+                "failed": sum(1 for r in final_status_list if r['status'] == 'error')
             }
+            
+            logger.info(tr("Parallel batch write finished: {s}/{t} successful").format(
+                s=result_dict['success'], t=total_tasks))
+            
             self.last_result = result_dict
             self.write_finished.emit(result_dict)
             self.progress.emit(100)
         
         except Exception as e:
-            logger.critical(f"Exception in batch_write_exif: {e}", exc_info=True)
-            self.error_occurred.emit(f"Batch write failed: {str(e)}")
+            logger.critical(f"Exception in parallel_batch_write: {e}", exc_info=True)
+            self.error_occurred.emit(f"Parallel batch write failed: {str(e)}")
         finally:
-            if argfile_path:
-                ArgfileManager.cleanup(argfile_path)
+            # Cleanup all temp files
+            for f in temp_files:
+                if f:
+                    ArgfileManager.cleanup(f)
             self.finished.emit()
 
