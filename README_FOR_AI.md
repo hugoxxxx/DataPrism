@@ -2,6 +2,7 @@
 1. 说中文
 2. 所有变化记录到change_log.md
 3. 叫我老大
+4. 所有输出的.md文件必须中英双语
 
 ## 1. Requirement Refinement: Sequential Matching / 需求细化：基于序号的匹配
 For film photography workflows, timestamps are often unreliable. We must implement a "Sequential Mapping" logic as the primary matching method for external metadata.

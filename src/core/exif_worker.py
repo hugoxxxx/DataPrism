@@ -12,6 +12,7 @@ import json
 import time
 import os
 import platform
+from src.utils.argfile_util import ArgfileManager
 
 # Windows-specific flag to hide console window for subprocesses
 # Windows 特定的标志，用于隐藏子进程的控制台窗口
@@ -64,59 +65,78 @@ class ExifToolWorker(QObject):
     
     def read_exif(self, file_paths: List[str]) -> None:
         """
-        Read EXIF data from multiple files asynchronously
-        异步读取多个文件的 EXIF 数据
+        Read EXIF data from multiple files asynchronously using Argfile batching
+        使用 Argfile 批量异步读取多个文件的 EXIF 数据
         
         Args:
             file_paths: List of image file paths / 图像文件路径列表
         """
+        argfile_path = None
         try:
             total_files = len(file_paths)
             results = {}
             
-            for idx, file_path in enumerate(file_paths):
+            if not file_paths:
+                self.read_finished.emit({})
+                return
+                
+            self.log_message.emit(tr("Preparing batch read for {count} files...").format(count=total_files))
+            
+            # Create argfile for batch reading
+            argfile_path = ArgfileManager.create_read_args(file_paths)
+            
+            # Execute exiftool command once for all files
+            cmd = [self.exiftool_path, "-@", argfile_path]
+            
+            self.progress.emit(10) # Start progress
+            
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=False,
+                timeout=max(30, total_files * 0.5), # Dynamic timeout
+                creationflags=CREATE_NO_WINDOW
+            )
+            
+            self.progress.emit(90) # Command finished
+            
+            stdout = result.stdout.decode("utf-8", errors="replace")
+            stderr = result.stderr.decode("utf-8", errors="replace")
+            
+            if result.returncode == 0:
                 try:
-                    self.log_message.emit(tr("Reading EXIF: {file_path}").format(file_path=file_path))
-                    # Execute exiftool command
-                    # 执行 exiftool 命令
-                    cmd = [self.exiftool_path, "-json", file_path]
-                    result = subprocess.run(
-                        cmd,
-                        capture_output=True,
-                        text=False,  # handle bytes to avoid codec issues
-                        timeout=15,
-                        creationflags=CREATE_NO_WINDOW
-                    )
-
-                    stdout = result.stdout.decode("utf-8", errors="replace")
-                    stderr = result.stderr.decode("utf-8", errors="replace")
-
-                    if result.returncode == 0:
-                        try:
-                            data = json.loads(stdout)
-                            results[file_path] = data[0] if data else {}
-                        except Exception as e:
-                            results[file_path] = {"error": f"JSON parse error: {e}"}
-                    else:
-                        results[file_path] = {"error": stderr or "exiftool failed"}
-                
-                except subprocess.TimeoutExpired:
-                    results[file_path] = {"error": "Timeout reading EXIF"}
-                    logger.warning(f"Timeout reading {file_path}")
+                    data = json.loads(stdout)
+                    # ExifTool returns a list of dicts. Map them back to file paths.
+                    # ExifTool 返回字典列表，将其映射回文件路径。
+                    # Note: SourceFile in JSON is usually the normalized path.
+                    for entry in data:
+                        source_path = entry.get('SourceFile')
+                        if source_path:
+                            # Try to match original path by normalizing both
+                            found = False
+                            for original in file_paths:
+                                if os.path.abspath(original) == os.path.abspath(source_path):
+                                    results[original] = entry
+                                    found = True
+                                    break
+                            if not found:
+                                results[source_path] = entry
                 except Exception as e:
-                    results[file_path] = {"error": str(e)}
-                    logger.error(f"Error reading {file_path}: {e}")
-                
-                # Emit progress signal
-                # 发出进度信号
-                progress = int((idx + 1) / total_files * 100)
-                self.progress.emit(progress)
+                    self.error_occurred.emit(f"JSON parse error: {e}")
+                    logger.error(f"Failed to parse ExifTool JSON output: {e}")
+            else:
+                self.error_occurred.emit(f"ExifTool error: {stderr}")
+                logger.error(f"ExifTool batch read failed: {stderr}")
             
             self.read_finished.emit(results)
-        
+            self.progress.emit(100)
+            
         except Exception as e:
+            logger.error(f"Batch read failed: {e}", exc_info=True)
             self.error_occurred.emit(f"Batch read failed: {str(e)}")
         finally:
+            if argfile_path:
+                ArgfileManager.cleanup(argfile_path)
             self.finished.emit()
     
     def read_exif_sync(self, file_path: str) -> Dict[str, Any]:
@@ -263,81 +283,66 @@ class ExifToolWorker(QObject):
     
     def batch_write_exif(self, write_tasks: List[Dict[str, Any]]) -> None:
         """
-        Batch write EXIF data to multiple files asynchronously
-        异步批量写入 EXIF 数据到多个文件
+        Batch write EXIF data to multiple files asynchronously using Argfile
+        使用 Argfile 异步批量写入 EXIF 数据到多个文件（极速模式）
         
         Args:
             write_tasks: List of dicts with 'file_path' and 'exif_data' / 包含 'file_path' 和 'exif_data' 的字典列表
         """
+        argfile_path = None
         try:
             total_tasks = len(write_tasks)
             results = []
             
-            for idx, task in enumerate(write_tasks):
-                file_path = task.get('file_path')
-                exif_data = task.get('exif_data', {})
-                
-                if not file_path or not exif_data:
-                    results.append({
-                        "status": "error",
-                        "file": file_path,
-                        "message": "Invalid task data"
-                    })
-                    continue
+            if not write_tasks:
+                self.write_finished.emit({})
+                return
 
-                # Build exiftool command / 构建 exiftool 命令
-                cmd = [self.exiftool_path, "-charset", "filename=utf8", "-charset", "utf8"]
-                
-                # Dynamic flags from config / 来自配置的动态标志
-                if config.get('overwrite_original', True):
-                    cmd.append("-overwrite_original")
-                if config.get('preserve_modify_date', True):
-                    cmd.append("-P") # Preserve date/time of original file
-
-                for tag, value in exif_data.items():
-                    if value is not None:
-                        # Even if string is empty, we might want to clear the tag
-                        # 但 ExifTool 写空标签的语法是 -Tag=
-                        cmd.append(f"-{tag}={value}")
-
-                cmd.append(file_path)
-
-                try:
-                    msg = tr("Writing EXIF to: {file_path}").format(file_path=file_path)
-                    logger.info(msg)
-                    self.log_message.emit(msg)
-                    logger.info(f"Full Command: {' '.join(cmd)}")
-                    
-                    # Use retry mechanism / 使用重试机制
-                    result = self._run_exiftool_with_retry(cmd, timeout=30)
-                    
+            self.log_message.emit(tr("Preparing high-speed batch write for {count} tasks...").format(count=total_tasks))
+            
+            # Create argfile for batch writing
+            overwrite = config.get('overwrite_original', True)
+            preserve_date = config.get('preserve_modify_date', True)
+            argfile_path = ArgfileManager.create_write_args(write_tasks, overwrite, preserve_date)
+            
+            # Build exiftool command
+            cmd = [self.exiftool_path, "-@", argfile_path]
+            
+            self.progress.emit(10)
+            
+            # Execute single process for all writes
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=max(60, total_tasks * 1.0), # More generous timeout for writes
+                creationflags=CREATE_NO_WINDOW
+            )
+            
+            self.progress.emit(90)
+            
+            if result.returncode == 0:
+                # In batch mode, we assume success for all if return code is 0
+                # ExifTool output will list which ones were updated
+                for task in write_tasks:
                     results.append({
                         "status": "success",
-                        "file": file_path,
+                        "file": task.get('file_path'),
                         "message": "EXIF written"
                     })
-                    logger.info(f"Successfully wrote EXIF to: {file_path}")
-                except RuntimeError as e:
-                    # Retry mechanism failed / 重试机制失败
+                logger.info(f"Successfully finished batch write via Argfile: {total_tasks} files")
+            else:
+                # If command fails, mark all as potential errors or parse stderr if needed
+                error_msg = result.stderr or "ExifTool batch write failed"
+                for task in write_tasks:
                     results.append({
                         "status": "error",
-                        "file": file_path,
-                        "message": str(e)
+                        "file": task.get('file_path'),
+                        "message": error_msg
                     })
-                    logger.error(f"Failed to write EXIF to {file_path}: {e}")
-                except Exception as e:
-                    results.append({
-                        "status": "error",
-                        "file": file_path,
-                        "message": str(e)
-                    })
-                    logger.error(f"Unexpected error writing {file_path}: {e}")
-                
-                # Emit progress / 发出进度信号
-                progress = int((idx + 1) / total_tasks * 100)
-                self.progress.emit(progress)
+                logger.error(f"Batch write failed: {error_msg}")
             
-            # Emit results / 发出结果
+            # Emit results
             result_dict = {
                 "batch_write": True,
                 "results": results,
@@ -345,15 +350,15 @@ class ExifToolWorker(QObject):
                 "success": sum(1 for r in results if r['status'] == 'success'),
                 "failed": sum(1 for r in results if r['status'] == 'error')
             }
-            # Store result for retrieval in finished handler
             self.last_result = result_dict
-            logger.debug(f"Stored batch write result: {result_dict['success']}/{result_dict['total']} successful")
-            # Emit write_finished for batch results / 发出批量结果信号
             self.write_finished.emit(result_dict)
+            self.progress.emit(100)
         
         except Exception as e:
             logger.critical(f"Exception in batch_write_exif: {e}", exc_info=True)
             self.error_occurred.emit(f"Batch write failed: {str(e)}")
         finally:
+            if argfile_path:
+                ArgfileManager.cleanup(argfile_path)
             self.finished.emit()
 
