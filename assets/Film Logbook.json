@@ -1,0 +1,81 @@
+{
+  "speed": "200",
+  "end": "2026-01-10T07:21:30+0000",
+  "imagecount": 0,
+  "start": "2025-10-19T21:40:04+0000",
+  "name": "October 2015",
+  "pictures": [
+    {
+      "frame_number": 2,
+      "accessories": [],
+      "shutterspeed": "1\/250",
+      "location": "39.9042; 116.4074",
+      "camera": {
+        "megapixel": 0,
+        "format": "35",
+        "name": "Leica CL",
+        "notes": "",
+        "mount": "M"
+      },
+      "additional_exposures": [],
+      "image_reference_uuid": "4AED652D-470B-4230-BC82-B0DE2FFE7EAB",
+      "time": "2025-10-19T21:57:50+0000",
+      "aperture": "f\/8",
+      "speed": "200",
+      "focal_length": "40mm",
+      "exposure_compensation": "0",
+      "camera_name": "Leica CL",
+      "tags": [],
+      "notes": "Path",
+      "lens": {
+        "max_focal_length": 0,
+        "prime": "true",
+        "min_focal_length": -1,
+        "mount": "M",
+        "focal_length": 40,
+        "min_aperture": "f\/2.0",
+        "name": " Leica 40mm",
+        "max_aperture": "f\/16",
+        "notes": "\n"
+      },
+      "lightmeter_reading": "0"
+    },
+    {
+      "notes": "Halloween ",
+      "focal_length": "40mm",
+      "speed": "200",
+      "image_reference_uuid": "5F9B5092-B6F9-4647-9607-630FE41994E6",
+      "lens": {
+        "max_focal_length": 0,
+        "max_aperture": "f\/16",
+        "notes": "\n",
+        "min_aperture": "f\/2.0",
+        "min_focal_length": -1,
+        "focal_length": 40,
+        "name": " Leica 40mm",
+        "mount": "M",
+        "prime": "true"
+      },
+      "additional_exposures": [],
+      "exposure_compensation": "0",
+      "location": "xxx;-xxx",
+      "accessories": [],
+      "camera_name": "Leica CL",
+      "aperture": "f\/2.0",
+      "shutterspeed": "1\/125",
+      "time": "2025-10-31T22:56:24+0000",
+      "tags": [],
+      "camera": {
+        "notes": "",
+        "name": "Leica CL",
+        "megapixel": 0,
+        "format": "35",
+        "mount": "M"
+      },
+      "lightmeter_reading": "0",
+      "frame_number": 3
+    }
+  ],
+  "film": "Kodak  Kodacolor 200 ",
+  "notes": "Developed at lab"
+}

@@ -7,6 +7,7 @@
 - **Compatibility & Robustness / 兼容性与鲁棒性增强**:
     - **Turbo TIFF Previews / 极速 TIFF 预览**: Switched to `QImageReader` for memory-efficient thumbnail loading. Added 2GB allocation limit to handle 100MP+ files without OOM (从 `QPixmap` 升级为 `QImageReader` 流式加载，并解除 256MB 分配限制，支持亿级像素 / 500MB 以上 TIFF 秒开预览)。
     - **Subprocess Stability / 进程稳定性**: Suppressed redundant read calls during background refreshes to prevent UI log clutter (优化后台刷新逻辑，屏蔽冗余读取，保持执行状态栏整洁)。
+    - **Deep JSON Probe / 深度 JSON 探测联**: Implemented recursive mapping for disparate structures (e.g., `Film Logbook`, `Logbook`, `Lightme`). Supports nested objects like `camera.name`, coordinate standardizing (`;`/`,` separators), and Unix timestamp auto-conversion (实现递归映射与深度探测，完美兼容 Film Logbook 及多种 Logbook 变体；支持嵌套对象提取、分号坐标标准化及 Unix 时间戳自动纠错)。
 - **Selective Reading / 精准读取**:
     - **fast2 Optimization / 极速加载**: Integrated `-fast2` flag to skip heavy metadata bloat, resulting in near-instant folder loading (引入 `-fast2` 跳过厂家私大数据，让数码大文件目录的加载几乎“瞬发化”)。
 - **Argfile Framework / 饱和指令架构**:

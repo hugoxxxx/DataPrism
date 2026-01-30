@@ -85,26 +85,42 @@ class MetadataParser:
             
             self.entries = []
             
+            # Support context inheritance (e.g., top-level film stock)
+            context = {}
+            if isinstance(data, dict):
+                for key in ['film', 'film_stock', 'roll_name', 'camera', 'lens', 'speed']:
+                    if key in data and not isinstance(data[key], (list, dict)):
+                        context[key] = data[key]
+                # Special handle for Film Logbook top-level film
+                if 'film' in data: context['film_stock'] = data['film']
+
             # Handle array or object wrapper / 处理数组或对象包装
+            entries_data = []
             if isinstance(data, list):
                 entries_data = data
                 logger.info(f"[DEBUG] JSON is a list with {len(data)} items")
             elif isinstance(data, dict):
                 # Try common wrapper keys / 尝试常见的包装键
-                if 'entries' in data:
-                    entries_data = data['entries']
-                elif 'frames' in data:
-                    entries_data = data['frames']
-                elif 'shots' in data:
-                    entries_data = data['shots']
-                else:
-                    raise ValueError("Unknown JSON structure")
+                for key in ['pictures', 'entries', 'frames', 'shots', 'records', 'items']:
+                    if key in data and isinstance(data[key], list):
+                        entries_data = data[key]
+                        logger.info(f"[DEBUG] Found metadata array in key: {key}")
+                        break
+                
+                # If not found, deep search for the first list of objects
+                if not entries_data:
+                    entries_data = self._probe_for_metadata_list(data)
+                    if entries_data:
+                        logger.info(f"[DEBUG] Auto-detected metadata array via deep probe")
+
+                if not entries_data:
+                    raise ValueError("Unknown JSON structure: Could not find metadata list")
             else:
                 raise ValueError("JSON must be array or object")
             
             # Parse entries / 解析条目
             logger.info(f"[DEBUG] Starting to parse {len(entries_data)} entries...")
-            self.entries = [self._parse_entry(entry) for entry in entries_data]
+            self.entries = [self._parse_entry(entry, context) for entry in entries_data]
             logger.info(f"[DEBUG] Finished parsing. Total entries: {len(self.entries)}")
             
             logger.info(f"Parsed {len(self.entries)} entries from JSON: {file_path}")
@@ -274,125 +290,142 @@ class MetadataParser:
         
         return entry
     
-    def _parse_entry(self, entry: Dict[str, Any]) -> MetadataEntry:
+    def _probe_for_metadata_list(self, data: Any) -> Optional[List[Dict]]:
+        """Deeply probe JSON for the first list of dictionaries"""
+        if isinstance(data, list) and len(data) > 0 and isinstance(data[0], dict):
+            return data
+        
+        if isinstance(data, dict):
+            for val in data.values():
+                res = self._probe_for_metadata_list(val)
+                if res: return res
+        return None
+
+    def _parse_entry(self, entry: Dict[str, Any], context: Dict[str, Any] = None) -> MetadataEntry:
         """
         Parse a single JSON entry / 解析单条 JSON 条目
         (Used for JSON parsing - same logic as json_parser.py)
         Supports both Lightme/Logbook and EXIF field names (Lightroom export)
         """
         metadata = MetadataEntry()
+        # Apply context defaults if available
+        if context:
+            metadata.camera_model = str(context.get('camera', '')) or None
+            metadata.lens_model = str(context.get('lens', '')) or None
+            metadata.film_stock = str(context.get('film_stock', '')) or None
+            metadata.iso = str(context.get('speed', '')) or None
         
         # Field mapping with fallbacks / 字段映射和备选项
         # Support both Lightme format and EXIF field names (Lightroom, etc.)
-        camera_fields = ['camera', 'body', 'camera_body', 'camera_model', 'Make', 'Model']
-        lens_fields = ['lens', 'lensmodel', 'lens_model', 'LensModel', 'LensMake']
-        aperture_fields = ['aperture', 'f_stop', 'f-stop', 'fnumber', 'FNumber', 'MaxApertureValue']
-        shutter_fields = ['shutter_speed', 'shutter', 'exposure_time', 'exposuretime', 'ExposureTime']
-        iso_fields = ['iso', 'sensitivity', 'ISO', 'ISOSpeed']
-        film_fields = ['film', 'film_stock', 'filmstock', 'emulsion', 'Description', 'ReelName', 'SpectralSensitivity']
+        camera_fields = ['camera', 'body', 'camera_body', 'camera_model', 'Make', 'Model', 'camera_name']
+        lens_fields = ['lens', 'lensmodel', 'lens_model', 'LensModel', 'LensMake', 'lens_name', 'optic']
+        aperture_fields = ['aperture', 'f_stop', 'f-stop', 'fnumber', 'FNumber', 'MaxApertureValue', 'f_number']
+        shutter_fields = ['shutter_speed', 'shutter', 'shutterspeed', 'exposure_time', 'exposuretime', 'ExposureTime']
+        iso_fields = ['iso', 'sensitivity', 'ISO', 'ISOSpeed', 'speed', 'film_speed', 'film_rating']
+        film_fields = ['film', 'film_stock', 'filmstock', 'emulsion', 'Description', 'ReelName', 'SpectralSensitivity', 'film_type']
         focal_fields = ['focal_length', 'focallength', 'focal', 'FocalLength']
         focal_35mm_fields = ['focal_length_35mm', 'focal35mm', '35mm_focal', 'FocalLengthIn35mmFormat']
-        timestamp_fields = ['timestamp', 'date', 'time', 'datetime', 'DateTimeOriginal']
+        timestamp_fields = ['timestamp', 'date', 'time', 'datetime', 'DateTimeOriginal', 'shot_time']
         shot_date_fields = ['shot_date', 'shot_date_str', 'date_string', 'DateString', 'DateTimeOriginal', 'DateTime', 'CreateDate', 'ModifyDate', 'SubSecDateTimeOriginal']
         location_fields = ['location', 'geo', 'gps', 'GPSInfo', 'GPSLatitude', 'GPSLongitude', 'GPSAltitude', 'GPSLatitudeRef', 'GPSLongitudeRef']
         frame_fields = ['frame', 'frame_number', 'number', 'shot_number', 'ImageNumber']
         notes_fields = ['notes', 'comments', 'comment', 'UserComment', 'Notes']
         
+        def extract_val(fields, entry_dict):
+            for f in fields:
+                if f in entry_dict and entry_dict[f]:
+                    v = entry_dict[f]
+                    # Handle nested objects (Logbook style)
+                    if isinstance(v, dict) and 'name' in v:
+                        return str(v['name'])
+                    return v
+            return None
+
         # Extract fields / 提取字段
-        metadata.camera_make = entry.get('Make', '') or entry.get('Manufacturer', '') or None
+        metadata.camera_make = entry.get('Make', '') or entry.get('Manufacturer', '') or metadata.camera_make
         
-        for field in ['Model', 'model', 'camera_model', 'camera', 'body', 'camera_body']:
-            if field in entry and entry[field]:
-                metadata.camera_model = str(entry[field])
-                break
+        val = extract_val(camera_fields, entry)
+        if val: metadata.camera_model = str(val)
 
         # Split Lens Make and Model
-        metadata.lens_make = entry.get('LensMake', '') or None
-        for field in ['LensModel', 'lensmodel', 'lens_model', 'lens', 'Lens']:
-            if field in entry and entry[field]:
-                metadata.lens_model = str(entry[field])
-                break
+        metadata.lens_make = entry.get('LensMake', '') or metadata.lens_make
+        val = extract_val(lens_fields, entry)
+        if val: metadata.lens_model = str(val)
         
-        for field in aperture_fields:
-            if field in entry and entry[field]:
-                value = entry[field]
-                if isinstance(value, (int, float)):
-                    metadata.aperture = str(value)
+        val = extract_val(aperture_fields, entry)
+        if val:
+            if isinstance(val, (int, float)):
+                metadata.aperture = str(val)
+            else:
+                metadata.aperture = str(val).replace('f/', '').replace('F/', '').replace(' ', '')
+
+        val = extract_val(shutter_fields, entry)
+        if val:
+            if isinstance(val, (int, float)):
+                if val < 1:
+                    denom = round(1 / val)
+                    metadata.shutter_speed = f"1/{denom}"
                 else:
-                    metadata.aperture = str(value).replace('f/', '').replace('F/', '')
-                break
+                    metadata.shutter_speed = f"{val:.1f}"
+            else:
+                metadata.shutter_speed = str(val).replace('\\', '') # Fix escaped slashes
+
+        val = extract_val(iso_fields, entry)
+        if val:
+            if isinstance(val, (int, float)):
+                metadata.iso = str(int(val))
+            else:
+                metadata.iso = str(val)
+
+        val = extract_val(film_fields, entry)
+        if val: metadata.film_stock = str(val)
         
-        for field in shutter_fields:
-            if field in entry and entry[field]:
-                value = entry[field]
-                if isinstance(value, (int, float)):
-                    if value < 1:
-                        denom = round(1 / value)
-                        metadata.shutter_speed = f"1/{denom}"
-                    else:
-                        metadata.shutter_speed = f"{value:.1f}"
-                else:
-                    metadata.shutter_speed = str(value)
-                break
+        val = extract_val(focal_fields, entry)
+        if val:
+            if isinstance(val, (int, float)):
+                metadata.focal_length = f"{int(val)}mm"
+            else:
+                metadata.focal_length = str(val).replace(' ', '')
         
-        for field in iso_fields:
-            if field in entry and entry[field]:
-                value = entry[field]
-                # Handle numeric ISO values / 处理数字 ISO 值
-                if isinstance(value, (int, float)):
-                    metadata.iso = str(int(value))
-                else:
-                    metadata.iso = str(value)
-                break
-        
-        for field in film_fields:
-            if field in entry and entry[field]:
-                metadata.film_stock = str(entry[field])
-                break
-        
-        for field in focal_fields:
-            if field in entry and entry[field]:
-                value = entry[field]
-                # Handle numeric focal length (EXIF FocalLength) / 处理数字焦距
-                if isinstance(value, (int, float)):
-                    metadata.focal_length = f"{int(value)}mm"
-                else:
-                    metadata.focal_length = str(value)
-                break
-        
-        for field in focal_35mm_fields:
-            if field in entry and entry[field]:
-                value = entry[field]
-                if isinstance(value, (int, float)):
-                    metadata.focal_length_35mm = f"{int(value)}mm"
-                else:
-                    metadata.focal_length_35mm = str(value)
-                break
+        val = extract_val(focal_35mm_fields, entry)
+        if val:
+            if isinstance(val, (int, float)):
+                metadata.focal_length_35mm = f"{int(val)}mm"
+            else:
+                metadata.focal_length_35mm = str(val).replace(' ', '')
         
         # Parse timestamp / 解析时间戳
-        for field in timestamp_fields:
-            if field in entry and entry[field]:
-                try:
-                    ts_str = entry[field]
+        val = extract_val(timestamp_fields, entry)
+        if val:
+            try:
+                ts_str = str(val)
+                # Try Unix timestamp first if it's numeric
+                if ts_str.replace('.', '').isdigit():
+                    try:
+                        metadata.timestamp = datetime.fromtimestamp(float(ts_str))
+                    except:
+                        pass
+                
+                if not metadata.timestamp:
                     # Try multiple formats / 尝试多种格式
                     for fmt in ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S', '%Y/%m/%d %H:%M:%S',
+                               '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dZ',
                                '%Y-%m-%d', '%Y/%m/%d', '%Y:%m:%d']:
                         try:
-                            metadata.timestamp = datetime.strptime(ts_str, fmt)
+                            # Standardize 'Z' and handles common variations
+                            clean_ts = ts_str.replace('Z', '+0000').replace('/', ':').replace('-', ':')
+                            metadata.timestamp = datetime.strptime(clean_ts, fmt.replace('/', ':').replace('-', ':'))
                             break
                         except:
                             continue
-                except Exception as e:
-                    logger.warning(f"Could not parse timestamp '{entry[field]}': {e}")
-                break
+            except Exception as e:
+                logger.warning(f"Could not parse timestamp '{val}': {e}")
         
         # Parse shot date string / 解析拍摄日期字符串
-        for field in shot_date_fields:
-            if field in entry and entry[field]:
-                metadata.shot_date = str(entry[field]).strip()
-                break
+        val = extract_val(shot_date_fields, entry)
+        if val: metadata.shot_date = str(val).strip()
         
-        # Parse location / 解析地理位置（优先拼接 GPS 经纬度并标准化）
+        # Parse location / 解析地理位置
         gps_lat = entry.get('GPSLatitude')
         gps_lon = entry.get('GPSLongitude')
         gps_lat_ref = entry.get('GPSLatitudeRef')
@@ -411,7 +444,17 @@ class MetadataParser:
                     elif isinstance(value, (list, tuple)):
                         metadata.location = ', '.join(str(x) for x in value)
                     else:
-                        metadata.location = str(value).strip()
+                        loc_str = str(value).strip()
+                        # Try to standardize if it looks like coordinates (comma or semicolon)
+                        if any(c in loc_str for c in [',', ';']):
+                            sep = ';' if ';' in loc_str and ',' not in loc_str else ','
+                            parts = [p.strip() for p in loc_str.split(sep) if p.strip()]
+                            if len(parts) >= 2:
+                                formatted = gps_utils.format_gps_pair(parts[0], None, parts[1], None, strict=True)
+                                if formatted:
+                                    metadata.location = formatted
+                                    break
+                        metadata.location = loc_str
                     break
         
         # Parse frame number / 解析帧编号
