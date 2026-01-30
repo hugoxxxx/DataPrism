@@ -6573,3 +6573,7 @@ NameError: name 'QGridLayout' is not defined. Did you mean: 'QVBoxLayout'?
 [2026-01-29 22:44:35] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\xuyh\AppData\Roaming\DataPrism\config.json
 [2026-01-29 22:44:35] [DataPrism.Config] [INFO] Loading history from: C:\Users\xuyh\AppData\Roaming\DataPrism\history.json
 [2026-01-29 22:44:35] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8
+[2026-01-30 08:53:41] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-30 08:53:41] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\xuyh\AppData\Roaming\DataPrism\config.json
+[2026-01-30 08:53:41] [DataPrism.Config] [INFO] Loading history from: C:\Users\xuyh\AppData\Roaming\DataPrism\history.json
+[2026-01-30 08:53:41] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=9, Films=8

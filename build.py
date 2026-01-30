@@ -4,12 +4,12 @@ import sys
 import shutil
 
 def build():
-    print("🚀 Starting DataPrism 1.0.0 Build Process (Optimized)...")
+    print("[BUILD] Starting DataPrism 1.1.0 test Build Process (Optimized)...")
     
     # 1. Clean previous builds
     for folder in ['build', 'dist']:
         if os.path.exists(folder):
-            print(f"🧹 Cleaning {folder}...")
+            print(f"[CLEAN] Cleaning {folder}...")
             shutil.rmtree(folder)
             
     # 2. Detect PyInstaller Path
@@ -19,9 +19,9 @@ def build():
     
     if os.path.exists(pyinstaller_exe):
         pyinstaller_path = pyinstaller_exe
-        print(f"📍 Found local PyInstaller: {pyinstaller_path}")
+        print(f"[INFO] Found local PyInstaller: {pyinstaller_path}")
     else:
-        print(f"⚠️ Local PyInstaller not found at {pyinstaller_exe}, trying system 'pyinstaller'...")
+        print(f"[WARN] Local PyInstaller not found at {pyinstaller_exe}, trying system 'pyinstaller'...")
     
     # 3. Size Optimization: Exclude unused large Qt modules
     excludes = [
@@ -38,7 +38,7 @@ def build():
         pyinstaller_path,
         "--onefile",
         "--noconsole",
-        "--name=DataPrism",
+        "--name=1.1.0 test",
         "--add-data=src/resources;src/resources",
         "--icon=assets/icon.ico" if os.path.exists("assets/icon.ico") else None,
         "--clean"
@@ -57,18 +57,18 @@ def build():
     upx_dir = os.getcwd() # Look in project root
     upx_exe = os.path.join(upx_dir, "upx.exe")
     if os.path.exists(upx_exe):
-        print(f"💎 UPX found: {upx_exe}. Enabling maximum compression...")
+        print(f"[UPX] UPX found: {upx_exe}. Enabling maximum compression...")
         cmd.extend(["--upx-dir", upx_dir])
     else:
-        print("💡 Tip: Place 'upx.exe' in project root to reduce EXE size by ~40%!")
+        print("Tip: Place 'upx.exe' in project root to reduce EXE size by ~40%!")
         
-    print(f"📦 Running Optimized Build: {' '.join(cmd)}")
+    print(f"[RUN] Running Optimized Build: {' '.join(cmd)}")
     
     try:
         subprocess.run(cmd, check=True)
-        print("\n✅ Build Successful! Check the 'dist' folder for DataPrism.exe")
+        print("\n[SUCCESS] Build Successful! Check the 'dist' folder for 1.1.0 test.exe")
     except subprocess.CalledProcessError as e:
-        print(f"\n❌ Build Failed: {e}")
+        print(f"\n[ERROR] Build Failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
