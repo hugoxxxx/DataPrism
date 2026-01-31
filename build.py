@@ -38,7 +38,7 @@ def build():
         pyinstaller_path,
         "--onefile",
         "--noconsole",
-        "--name=1.1.0 test",
+        "--name=DataPrism",
         "--add-data=src/resources;src/resources",
         "--icon=assets/icon.ico" if os.path.exists("assets/icon.ico") else None,
         "--clean"
