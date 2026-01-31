@@ -25,6 +25,9 @@ htmlcov/
 *.JPG
 *.PNG
 *.JPEG
+*.tif
+*.tiff
+*.dng   
 # Local assets and debug files
 1.jpg
 66.jpg

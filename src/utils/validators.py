@@ -148,13 +148,19 @@ class MetadataValidator:
         Raises:
             ValueError: If value is invalid / 如果值无效
         """
-        if not value or not str(value).strip():
-            raise ValueError("日期时间不能为空 / DateTime cannot be empty")
+        # Standardize delimiters for validation
+        raw_val = str(value).strip()
+        norm = raw_val.replace('-', ':').replace('/', ':')
         
-        # EXIF datetime format: YYYY:MM:DD HH:MM:SS
+        # Support both full datetime and date-only
+        if re.match(r'^\d{4}:\d{2}:\d{2}$', norm):
+            norm += " 00:00:00"
+            
         pattern = r'^\d{4}:\d{2}:\d{2} \d{2}:\d{2}:\d{2}$'
-        if not re.match(pattern, str(value).strip()):
-            raise ValueError(f"无效的日期时间格式，应为 YYYY:MM:DD HH:MM:SS / Invalid datetime format: {value}")
+        if not re.match(pattern, norm):
+            raise ValueError(f"无效的日期时间格式，请使用 YYYY-MM-DD HH:MM:SS / Invalid datetime format: {value}")
+        
+        value = norm # Continue validation with colon format
         
         # Validate ranges / 验证范围
         parts = str(value).strip().split()

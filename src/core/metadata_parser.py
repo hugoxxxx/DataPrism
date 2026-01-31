@@ -85,14 +85,17 @@ class MetadataParser:
             
             self.entries = []
             
-            # Support context inheritance (e.g., top-level film stock)
+            # Support context inheritance (e.g., top-level film stock, date)
             context = {}
             if isinstance(data, dict):
-                for key in ['film', 'film_stock', 'roll_name', 'camera', 'lens', 'speed']:
+                # Common top-level fields in film log exports
+                for key in ['film', 'film_stock', 'roll_name', 'camera', 'lens', 'speed', 'date', 'shot_date', 'time', 'shooting_date', 'create_time', 'lens_model', 'camera_model']:
                     if key in data and not isinstance(data[key], (list, dict)):
                         context[key] = data[key]
-                # Special handle for Film Logbook top-level film
+                # Special handle for common app variations
                 if 'film' in data: context['film_stock'] = data['film']
+                if 'date' in data: context['shot_date'] = data['date']
+                if 'shooting_date' in data: context['shot_date'] = data['shooting_date']
 
             # Handle array or object wrapper / 处理数组或对象包装
             entries_data = []
@@ -127,8 +130,49 @@ class MetadataParser:
             return self.entries
         
         except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
-            raise ValueError(f"Invalid JSON format: {e}")
+            # Try to fix common JSON errors (trailing commas, comments)
+            # 尝试修复常见的 JSON 错误（尾修逗号、注释）
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Strip trailing commas from objects and arrays
+                content = re.sub(r',\s*([}\]])', r'\1', content)
+                # Strip single-line comments //
+                content = re.sub(r'//.*', '', content)
+                
+                data = json.loads(content)
+                self.entries = []
+                
+                # Re-run the main logic if cleaning worked
+                # 如果清理成功，重复执行核心解析逻辑
+                context = {}
+                if isinstance(data, dict):
+                    for key in ['film', 'film_stock', 'roll_name', 'camera', 'lens', 'speed']:
+                        if key in data and not isinstance(data[key], (list, dict)):
+                            context[key] = data[key]
+                    if 'film' in data: context['film_stock'] = data['film']
+
+                entries_data = []
+                if isinstance(data, list):
+                    entries_data = data
+                elif isinstance(data, dict):
+                    for key in ['pictures', 'entries', 'frames', 'shots', 'records', 'items']:
+                        if key in data and isinstance(data[key], list):
+                            entries_data = data[key]
+                            break
+                    if not entries_data:
+                        entries_data = self._probe_for_metadata_list(data)
+                
+                if entries_data:
+                    self.entries = [self._parse_entry(entry, context) for entry in entries_data]
+                    logger.info(f"Parsed {len(self.entries)} entries via robust JSON cleaning: {file_path}")
+                    return self.entries
+                else:
+                    raise ValueError("Unknown JSON structure after cleaning")
+            except Exception as inner_e:
+                logger.error(f"Robust JSON parsing failed: {inner_e}")
+                raise ValueError(f"Invalid JSON format: {e}")
         except Exception as e:
             logger.error(f"Error parsing JSON: {e}")
             raise
@@ -314,10 +358,13 @@ class MetadataParser:
             metadata.lens_model = str(context.get('lens', '')) or None
             metadata.film_stock = str(context.get('film_stock', '')) or None
             metadata.iso = str(context.get('speed', '')) or None
+            metadata.shot_date = str(context.get('shot_date', '')) or None
+            metadata.camera_make = str(context.get('camera_make', '')) or None
         
         # Field mapping with fallbacks / 字段映射和备选项
         # Support both Lightme format and EXIF field names (Lightroom, etc.)
-        camera_fields = ['camera', 'body', 'camera_body', 'camera_model', 'Make', 'Model', 'camera_name']
+        # Make MUST NOT be in camera_fields, otherwise it overwrites Model if Model is missing or checked later
+        camera_fields = ['camera_model', 'Model', 'camera', 'body', 'camera_body', 'camera_name']
         lens_fields = ['lens', 'lensmodel', 'lens_model', 'LensModel', 'LensMake', 'lens_name', 'optic']
         aperture_fields = ['aperture', 'f_stop', 'f-stop', 'fnumber', 'FNumber', 'MaxApertureValue', 'f_number']
         shutter_fields = ['shutter_speed', 'shutter', 'shutterspeed', 'exposure_time', 'exposuretime', 'ExposureTime']
@@ -325,19 +372,24 @@ class MetadataParser:
         film_fields = ['film', 'film_stock', 'filmstock', 'emulsion', 'Description', 'ReelName', 'SpectralSensitivity', 'film_type']
         focal_fields = ['focal_length', 'focallength', 'focal', 'FocalLength']
         focal_35mm_fields = ['focal_length_35mm', 'focal35mm', '35mm_focal', 'FocalLengthIn35mmFormat']
-        timestamp_fields = ['timestamp', 'date', 'time', 'datetime', 'DateTimeOriginal', 'shot_time']
-        shot_date_fields = ['shot_date', 'shot_date_str', 'date_string', 'DateString', 'DateTimeOriginal', 'DateTime', 'CreateDate', 'ModifyDate', 'SubSecDateTimeOriginal']
-        location_fields = ['location', 'geo', 'gps', 'GPSInfo', 'GPSLatitude', 'GPSLongitude', 'GPSAltitude', 'GPSLatitudeRef', 'GPSLongitudeRef']
-        frame_fields = ['frame', 'frame_number', 'number', 'shot_number', 'ImageNumber']
-        notes_fields = ['notes', 'comments', 'comment', 'UserComment', 'Notes']
+        timestamp_fields = ['timestamp', 'date', 'time', 'datetime', 'DateTimeOriginal', 'shot_time', 'shooting_date', 'create_time', 'created_at']
+        shot_date_fields = ['shot_date', 'shot_date_str', 'date_string', 'DateString', 'DateTimeOriginal', 'DateTime', 'CreateDate', 'ModifyDate', 'SubSecDateTimeOriginal', 'date', 'time', 'datetime']
+        location_fields = ['location', 'geo', 'gps', 'GPSInfo', 'GPSLatitude', 'GPSLongitude', 'GPSAltitude', 'GPSLatitudeRef', 'GPSLongitudeRef', 'place', 'address']
+        frame_fields = ['frame', 'frame_number', 'number', 'shot_number', 'ImageNumber', 'frame_id']
+        notes_fields = ['notes', 'comments', 'comment', 'UserComment', 'Notes', 'remarks', 'description']
         
         def extract_val(fields, entry_dict):
             for f in fields:
                 if f in entry_dict and entry_dict[f]:
                     v = entry_dict[f]
-                    # Handle nested objects (Logbook style)
-                    if isinstance(v, dict) and 'name' in v:
-                        return str(v['name'])
+                    if isinstance(v, dict):
+                        # Hunt for common value keys in nested objects
+                        for key in ['name', 'iso', 'formatted', 'value', 'text', 'display_name', 'label']:
+                            if key in v and v[key]:
+                                return str(v[key])
+                        # If it's a simple key-value pair, maybe just use the first value
+                        if len(v) == 1:
+                            return str(next(iter(v.values())))
                     return v
             return None
 
@@ -402,18 +454,26 @@ class MetadataParser:
                 # Try Unix timestamp first if it's numeric
                 if ts_str.replace('.', '').isdigit():
                     try:
-                        metadata.timestamp = datetime.fromtimestamp(float(ts_str))
+                        val_float = float(ts_str)
+                        # Detect milliseconds (e.g., 1716163200000)
+                        if val_float > 1e11: 
+                            val_float /= 1000.0
+                        metadata.timestamp = datetime.fromtimestamp(val_float)
                     except:
                         pass
                 
                 if not metadata.timestamp:
                     # Try multiple formats / 尝试多种格式
-                    for fmt in ['%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S', '%Y/%m/%d %H:%M:%S',
-                               '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dZ',
-                               '%Y-%m-%d', '%Y/%m/%d', '%Y:%m:%d']:
+                    formats = [
+                        '%Y-%m-%d %H:%M:%S', '%Y:%m:%d %H:%M:%S', '%Y/%m/%d %H:%M:%S',
+                        '%Y-%m-%dT%H:%M:%S%z', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dZ',
+                        '%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
+                        '%Y-%m-%d', '%Y/%m/%d', '%Y:%m:%d'
+                    ]
+                    for fmt in formats:
                         try:
-                            # Standardize 'Z' and handles common variations
-                            clean_ts = ts_str.replace('Z', '+0000').replace('/', ':').replace('-', ':')
+                            # Standardize 'Z', 'T' and handles common variations
+                            clean_ts = ts_str.replace('Z', '+0000').replace('T', ' ').replace('/', ':').replace('-', ':')
                             metadata.timestamp = datetime.strptime(clean_ts, fmt.replace('/', ':').replace('-', ':'))
                             break
                         except:
@@ -423,7 +483,33 @@ class MetadataParser:
         
         # Parse shot date string / 解析拍摄日期字符串
         val = extract_val(shot_date_fields, entry)
-        if val: metadata.shot_date = str(val).strip()
+        if val: 
+            val_str = str(val).strip()
+            # If the "date" field is just a numeric timestamp, let fallback handle it
+            if val_str.replace('.', '').isdigit() and len(val_str) >= 10:
+                pass
+            else:
+                # 1. Standardize separators and remove ISO clutter
+                # 标准化分隔符并移除 ISO 杂质 (T, Z, +00:00)
+                s = val_str.replace('T', ' ').replace('Z', '').split('+')[0].split('Z')[0].strip()
+                # 2. Format specifically: YYYY-MM-DD HH:MM:SS
+                if ' ' in s:
+                    d_p, t_p = s.split(' ', 1)
+                    metadata.shot_date = f"{d_p.replace(':', '-').replace('/', '-')} {t_p.replace('-', ':')}"
+                else:
+                    metadata.shot_date = s.replace(':', '-').replace('/', '-')
+                
+                # Trim subseconds / 裁剪毫秒级后缀
+                if '.' in metadata.shot_date:
+                    metadata.shot_date = metadata.shot_date.split('.')[0]
+                metadata.shot_date = metadata.shot_date.strip()
+        
+        if not metadata.shot_date and metadata.timestamp:
+            # Fallback: use timestamp if no explicit string date field
+            # 兜底：如果没有显式的日期字符串，则使用解析出的时间戳
+            # Use user-friendly format for UI; converted back to EXIF standard on write
+            # 使用用户友好的 UI 格式；写入时再转换回 EXIF 标准
+            metadata.shot_date = metadata.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         
         # Parse location / 解析地理位置
         gps_lat = entry.get('GPSLatitude')

@@ -201,7 +201,6 @@ class StyleManager:
                 margin: 4px 0px;
             }}
             
-            /* Tooltip Styling */
             QToolTip {{
                 background-color: {cls.c("bg_card")};
                 color: {cls.c("text_primary")};
@@ -210,6 +209,15 @@ class StyleManager:
                 padding: 4px;
             }}
         """
+
+    @classmethod
+    def create_menu(cls, parent=None):
+        """Create a styled QMenu / 创建一个已样式的 QMenu"""
+        from PySide6.QtWidgets import QMenu
+        menu = QMenu(parent)
+        # Apply style specifically to ensure consistency
+        menu.setStyleSheet(cls.get_main_style()) 
+        return menu
 
     @classmethod
     def get_button_style(cls, tier='secondary'):

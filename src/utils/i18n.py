@@ -171,6 +171,14 @@ class TranslationManager:
             "Switch to English": {"zh": "切换至英文", "en": "Switch to English"},
             "About": {"zh": "关于", "en": "About"},
             "About DataPrism": {"zh": "关于 DataPrism", "en": "About DataPrism"},
+            "Smart Match By Filename": {"zh": "智能序号对齐", "en": "Smart Match By Filename"},
+            "Remove Photo": {"zh": "移除这张照片", "en": "Remove Photo"},
+            "Remove Record": {"zh": "移除这条记录", "en": "Remove Record"},
+            "Exclude '{name}' from this task?": {"zh": "本轮任务是否剔除照片 '{name}'？", "en": "Exclude '{name}' from this task?"},
+            "Delete this metadata record?": {"zh": "是否删除这条元数据记录？", "en": "Delete this metadata record?"},
+            "Matched {count} records based on filename numbers": {"zh": "已根据文件名序号自动对齐 {count} 条记录", "en": "Matched {count} records based on filename numbers"},
+            "No frame numbers found in metadata. Try mapping 'Frame Number' first.": {"zh": "元数据中未发现帧编号。请先在映射面板中勾选 Frame Number 字段。", "en": "No frame numbers found in metadata. Try mapping 'Frame Number' first."},
+            "Loading preview...": {"zh": "正在载入预览...", "en": "Loading preview..."},
             "DataPrism v1.0.0\nA professional EXIF metadata editor.": {
                 "zh": "DataPrism v1.0.0\n基于 ExifTool 的元数据编辑器。\n\nGitHub: https://github.com/hugoxxxx/DataPrism\nEmail: xjames007@gmail.com", 
                 "en": "DataPrism v1.0.0\nA metadata editor based on ExifTool.\n\nGitHub: https://github.com/hugoxxxx/DataPrism\nEmail: xjames007@gmail.com"

@@ -120,10 +120,16 @@ class FilmLogParser:
                 try:
                     # Try multiple datetime formats / 尝试多种日期时间格式
                     ts_str = entry[field]
-                    for fmt in ['%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', 
-                                '%Y/%m/%d %H:%M:%S', '%Y-%m-%d %H:%M:%S.%f']:
+                    for fmt in [
+                        '%Y-%m-%d %H:%M:%S', '%Y-%m-%dT%H:%M:%S', 
+                        '%Y/%m/%d %H:%M:%S', '%Y-%m-%d %H:%M:%S.%f',
+                        '%Y-%m-%d %H:%M', '%Y/%m/%d %H:%M',
+                        '%Y-%m-%d', '%Y/%m/%d'
+                    ]:
                         try:
-                            log_entry.timestamp = datetime.strptime(ts_str, fmt)
+                            # Handle T separator / 处理 T 分隔符
+                            clean_ts = ts_str.replace('T', ' ')
+                            log_entry.timestamp = datetime.strptime(clean_ts, fmt)
                             break
                         except:
                             continue

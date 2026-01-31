@@ -15,8 +15,9 @@ from PySide6.QtWidgets import (
     QMessageBox, QProgressDialog, QDialog, QLineEdit, QPlainTextEdit,
     QComboBox, QMenu, QSizePolicy
 )
-from PySide6.QtCore import Qt, QSize, QThread, Signal, QEvent
-from PySide6.QtGui import QFont, QPixmap, QTransform, QImageReader
+from PySide6.QtCore import Qt, QSize, QThread, Signal, QEvent, QThreadPool
+from PySide6.QtGui import QFont, QPixmap, QTransform, QImageReader, QIcon
+from src.core.thumbnail_worker import ThumbnailWorker
 
 from src.core.photo_model import PhotoDataModel
 from src.core.exif_worker import ExifToolWorker
@@ -75,11 +76,18 @@ class MainWindow(QMainWindow):
         """Initialize main window / 初始化主窗口"""
         super().__init__()
         self.setWindowTitle("DataPrism")
+        
+        # Set Application Icon / 设置应用图标
+        icon_path = Path(__file__).parent.parent / "resources" / "app_icon.png"
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+            
         self.setGeometry(100, 100, 1200, 800)
         self.model = PhotoDataModel(self)
         self.supported_ext = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".dng"}
         self.progress_dialog = None  # Progress dialog instance
         self._is_refreshing = False  # Guard for redundant reads / 刷新防抖锁
+        self.threadpool = QThreadPool.globalInstance() # Shared pool for IO tasks / 共享线程池
         self._setup_worker()
         self.setup_ui()
 
@@ -293,9 +301,15 @@ class MainWindow(QMainWindow):
         header.setSectionsMovable(False)    # Disable section reordering / 禁用区块重排
         header.setMinimumSectionSize(60)    # Minimum width for readability / 最小宽度以保证可读性
         
-        # Industrial Interactive Layout: Enable manual resizing for all columns
         # 工业级交互式布局：允许手动调整所有列宽
         header.setSectionResizeMode(QHeaderView.ResizeMode.Interactive)
+        
+        # Enable Column Customization via Context Menu / 启用列自定义右键菜单
+        header.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        header.customContextMenuRequested.connect(self._on_header_context_menu)
+        
+        # Apply initially loaded column visibility / 应用初始加载的列可见性
+        self._apply_column_visibility()
         
         # Initial smart sizing: Set sensible starting widths for columns
         # 初始智能调宽：设置合理的起始宽度，防止关键信息被截断
@@ -353,7 +367,8 @@ class MainWindow(QMainWindow):
         # 1. Thumbnail Card (置顶 - 强化居中黑盒设计)
         self.thumb_card = QWidget()
         self.thumb_card.setObjectName("CinemaBox")
-        self.thumb_card.setFixedSize(280, 190) # Explicit box size
+        # Must fit within the 300px sidebar / 必须适配 300px 的侧边栏
+        self.thumb_card.setFixedSize(280, 210) 
         # Force black background and border / 强制黑色背景与边框
         self.thumb_card.setStyleSheet(f"""
             QWidget#CinemaBox {{
@@ -363,16 +378,18 @@ class MainWindow(QMainWindow):
             }}
         """)
         
-        thumb_layout = QVBoxLayout(self.thumb_card)
-        thumb_layout.setContentsMargins(0, 10, 0, 10) # 10px vertical breath margins / 10px 垂直呼吸边距
+        thumb_vbox = QVBoxLayout(self.thumb_card)
+        thumb_vbox.setContentsMargins(0, 0, 0, 0)
         
         self.thumb_label = QLabel()
-        # Scale pixmap to fit this area while maintaining aspect ratio
         self.thumb_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.thumb_label.setStyleSheet("border: none; background: transparent;")
-        thumb_layout.addWidget(self.thumb_label)
+        # Fix size to container to let AlignCenter do its job
+        # 锁定到容器尺寸，让内部的 AlignCenter 真正发挥居中作用
+        self.thumb_label.setFixedSize(280, 210)
+        thumb_vbox.addWidget(self.thumb_label)
         
-        # Center the box itself in the right layout / 在右侧布局中居中整个盒子
+        # Center the box itself in the right layout
         right_layout.addWidget(self.thumb_card, alignment=Qt.AlignmentFlag.AlignCenter)
         
         # 2. Rotation Controls (独立布局 - 移出卡片以获得更多呼吸感)
@@ -794,7 +811,9 @@ class MainWindow(QMainWindow):
         gps_lon = exif.get("GPSLongitude")
         gps_str = f"{gps_lat}, {gps_lon}" if gps_lat and gps_lon else None
         self.info_location.setText(photo.location or gps_str or exif.get("ImageDescription", "--"))
-        self.info_date.setText(photo.exif_data.get("DateTimeOriginal", "--") if photo.exif_data else "--")
+        raw_date = exif.get("DateTimeOriginal", "--") if photo.exif_data else "--"
+        self.info_date.setText(self._format_date_for_ui(raw_date))
+        
         status_display = tr(photo.status) + (tr(" (Modified)") if photo.is_modified else "")
         self.info_status.setText(status_display)
         
@@ -821,46 +840,64 @@ class MainWindow(QMainWindow):
 
     def _ensure_thumbnail(self, photo):
         """Load and cache a thumbnail for inspector / 为检查器加载并缓存缩略图"""
-        if photo.thumbnail is None:
-            # Use QImageReader for memory-efficient loading (especially for large TIFFs)
-            # 使用 QImageReader 实现内存高效加载（特别针对超大 TIFF 文件）
-            reader = QImageReader(photo.file_path)
-            reader.setAutoTransform(True)
-            # Lift the 256MB safety limit to 2GB for massive TIFFs
-            # 将 256MB 的安全限制提升至 2GB，以接纳超大型 TIFF 文件
-            reader.setAllocationLimit(2048)
-            
-            if not reader.canRead():
+        if photo.thumbnail is not None:
+            self._update_display_pixmap(photo, photo.thumbnail)
+            return
+
+        # Load asynchronously to avoid blocking UI / 异步加载以避免阻塞 UI
+        self.thumb_label.setText(tr("Loading preview..."))
+        # Studio-grade ultra-res target (2048px) for absolute fidelity
+        worker = ThumbnailWorker(photo.file_path, QSize(2048, 2048))
+        worker.signals.finished.connect(lambda path, pix: self._on_thumbnail_loaded(photo, path, pix))
+        worker.signals.error.connect(lambda path, err: self._on_thumbnail_error(photo, path, err))
+        self.threadpool.start(worker)
+
+    def _on_thumbnail_loaded(self, photo, file_path, pixmap):
+        """Callback when thumbnail is ready / 缩略图就绪时的回调"""
+        # Ensure we're still looking at the same file
+        # 确保我们仍在查看同一文件
+        photo.thumbnail = pixmap
+        selected = self.table_view.selectedIndexes()
+        if selected:
+            current_photo = self.model.photos[selected[0].row()]
+            if current_photo.file_path == file_path:
+                self._update_display_pixmap(photo, pixmap)
+
+    def _on_thumbnail_error(self, photo, file_path, error_msg):
+        """Callback when loading failed / 加载失败时的回调"""
+        logger.error(f"Async thumbnail error for {file_path}: {error_msg}")
+        selected = self.table_view.selectedIndexes()
+        if selected:
+            current_photo = self.model.photos[selected[0].row()]
+            if current_photo.file_path == file_path:
                 self.thumb_label.setText(tr("No preview"))
-                return
-                
-            # Set the target size before reading to avoid loading full image into RAM
-            # 在读取前设置目标尺寸，避免将全尺寸图像载入内存
-            image_size = reader.size()
-            target_size = QSize(280, 170)
-            image_size.scale(target_size, Qt.AspectRatioMode.KeepAspectRatio)
-            reader.setScaledSize(image_size)
-            
-            image = reader.read()
-            if image.isNull():
-                self.thumb_label.setText(tr("No preview"))
-                return
-                
-            photo.thumbnail = QPixmap.fromImage(image)
-        
-        # Apply rotation if needed / 如果需要，应用旋转
+
+    def _update_display_pixmap(self, photo, pixmap):
+        """Unified method to scale and rotate pixmap for UI / 统一的 UI 缩放与旋转方法"""
+        if pixmap is None or pixmap.isNull():
+            self.thumb_label.setText(tr("No preview"))
+            return
+
+        # 1. Apply Rotation / 应用旋转
         if photo.rotation != 0:
             transform = QTransform().rotate(photo.rotation)
-            rotated_pix = photo.thumbnail.transformed(transform, Qt.TransformationMode.SmoothTransformation)
-            # Scale again to ensure it fits the box / 再次缩放以适配盒子
-            final_pix = rotated_pix.scaled(
-                280, 170,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation,
-            )
-            self.thumb_label.setPixmap(final_pix)
-        else:
-            self.thumb_label.setPixmap(photo.thumbnail)
+            pixmap = pixmap.transformed(transform, Qt.TransformationMode.SmoothTransformation)
+        
+        # 2. High-DPI aware scaling within sidebar constraints (280x210)
+        # 在侧边栏限制内进行高 DPI 缩放
+        dpr = self.devicePixelRatioF()
+        # Max available space in the label
+        max_w, max_h = 270, 200
+        
+        # Scale to match physical pixels for "Retina" clarity
+        display_pix = pixmap.scaled(int(max_w * dpr), int(max_h * dpr), 
+                                  Qt.AspectRatioMode.KeepAspectRatio, 
+                                  Qt.TransformationMode.SmoothTransformation)
+        # Tell Qt to treat this as a 'dpr' resolution image
+        display_pix.setDevicePixelRatio(dpr)
+        
+        # Set to label - label's fixed size + AlignCenter will handle the rest
+        self.thumb_label.setPixmap(display_pix)
 
     def rotate_photo(self, angle: int):
         """Rotate the currently selected photo / 旋转当前选中的照片"""
@@ -1147,7 +1184,7 @@ class MainWindow(QMainWindow):
             return
             
         # Parent menu to the view to try and keep context / 将菜单父级设置为视图以保持上下文
-        menu = QMenu(view)
+        menu = StyleManager.create_menu(view)
         delete_action = menu.addAction(tr("Remove '{text}'").format(text=text))
         
         # Prevent popup from closing / 防止弹出窗口关闭
@@ -1333,10 +1370,9 @@ class MainWindow(QMainWindow):
         if not self.table_view.selectionModel().hasSelection():
             return
             
-        from PySide6.QtWidgets import QMenu
         from PySide6.QtGui import QAction
         
-        menu = QMenu(self)
+        menu = StyleManager.create_menu(self)
         remove_action = QAction(tr("Remove"), self)
         remove_action.triggered.connect(self.remove_selected_photos)
         menu.addAction(remove_action)
@@ -1384,3 +1420,60 @@ class MainWindow(QMainWindow):
         # Re-read EXIF for all photos with progress dialog / 重新读取所有照片的 EXIF 并显示进度
         file_paths = [photo.file_path for photo in self.model.photos]
         self.queue_exif_read(file_paths, show_progress=True)
+
+    def _format_date_for_ui(self, val):
+        """Standardize date string for UI display / 为 UI 显示标准化日期字符串"""
+        if not val or val == "--": return "--"
+        # Clean technical ISO markers
+        s = str(val).replace('T', ' ').replace('Z', '').split('+')[0].strip()
+        if ' ' in s:
+            parts = s.split(' ')
+            d_p = parts[0]
+            t_p = parts[1] if len(parts) > 1 else "00:00:00"
+            return f"{d_p.replace(':', '-').replace('/', '-')} {t_p.replace('-', ':')}"
+        return s.replace(':', '-').replace('/', '-')
+    def _on_header_context_menu(self, pos):
+        """Show context menu to toggle column visibility / 显示右键菜单切换列可见性"""
+        menu = StyleManager.create_menu(self)
+        
+        for i, col_name in enumerate(PhotoDataModel.COLUMNS):
+            # Special case for "File" (index 0) - usually always visible
+            # "File" 列（索引 0）通常始终显示
+            action = menu.addAction(tr(col_name))
+            action.setCheckable(True)
+            action.setChecked(not self.table_view.isColumnHidden(i))
+            
+            # Disable unchecking the "File" column to ensure at least one column is visible
+            if i == 0:
+                action.setEnabled(False)
+                
+            # Use data attribute to pass column index
+            action.setData(i)
+            action.triggered.connect(lambda checked, idx=i: self._toggle_column_visibility(idx, checked))
+            
+        menu.exec(self.table_view.horizontalHeader().mapToGlobal(pos))
+
+    def _toggle_column_visibility(self, col_idx, visible):
+        """Show/hide column and save to config / 显示/隐藏列并保存到配置"""
+        self.table_view.setColumnHidden(col_idx, not visible)
+        
+        # Update and save config
+        visible_list = []
+        for i in range(self.model.columnCount()):
+            if not self.table_view.isColumnHidden(i):
+                visible_list.append(PhotoDataModel.COLUMNS[i])
+        
+        get_config().set("visible_columns", visible_list)
+        logger.debug(f"Column visibility updated in config: {visible_list}")
+
+    def _apply_column_visibility(self):
+        """Load and apply visibility from config / 从配置加载并应用可见性"""
+        visible_cols = get_config().get("visible_columns", None)
+        if visible_cols is None:
+            return
+            
+        for i, col_name in enumerate(PhotoDataModel.COLUMNS):
+            if col_name not in visible_cols and i != 0: # File (0) is always shown
+                self.table_view.setColumnHidden(i, True)
+            else:
+                self.table_view.setColumnHidden(i, False)

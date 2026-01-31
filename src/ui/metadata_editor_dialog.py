@@ -15,8 +15,9 @@ from PySide6.QtWidgets import (
     QTableWidget, QTableWidgetItem, QMessageBox, QProgressDialog, QHeaderView,
     QApplication, QFrame, QWidget, QScrollArea, QSizePolicy, QToolButton
 )
-from PySide6.QtCore import Qt, QThread, Signal, QTimer, QSize
-from PySide6.QtGui import QFont, QPixmap, QColor, QImageReader
+from PySide6.QtCore import Qt, QThread, Signal, QTimer, QSize, QThreadPool
+from PySide6.QtGui import QFont, QPixmap, QColor, QImageReader, QIcon
+from src.core.thumbnail_worker import ThumbnailWorker
 
 import logging
 
@@ -58,8 +59,17 @@ class MetadataEditorDialog(QDialog):
         self.current_index = 0
         self.offset = 0
         self._completion_handled = False
+        self.thumb_cache = {} # Local preview cache for performance / 预览缓存提升性能
+        self.threadpool = QThreadPool.globalInstance()
         
         self.setWindowTitle(tr("Metadata Editor"))
+        
+        # Set Dialog Icon / 设置对话框图标
+        from pathlib import Path
+        icon_path = Path(__file__).parent.parent / "resources" / "app_icon.png"
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
+            
         self.setMinimumSize(1250, 800)
         
         self._current_metadata_idx = None
@@ -208,16 +218,47 @@ class MetadataEditorDialog(QDialog):
         photo_box = QWidget(nav_container)
         photo_vbox = QVBoxLayout(photo_box)
         photo_vbox.setContentsMargins(0, 0, 0, 0)
-        photo_title = QLabel(tr("Photos"), photo_box)
+        
+        photo_header = QWidget()
+        photo_h_layout = QHBoxLayout(photo_header)
+        photo_h_layout.setContentsMargins(0, 0, 0, 0)
+        photo_title = QLabel(tr("Photos"), photo_header)
         photo_title.setFont(QFont(StyleManager.FONT_FAMILY_MAIN, 11, QFont.Bold))
+        
+        # Add Reverse Order Button / 倒序排列按钮 (更明显的样式)
+        self.reverse_btn = QPushButton(f" {tr('Reverse')} ")
+        self.reverse_btn.setToolTip(tr("Reverse photo sequence order"))
+        self.reverse_btn.setStyleSheet(StyleManager.get_button_style(tier='secondary'))
+        self.reverse_btn.clicked.connect(self.reverse_photo_order)
+        
+        photo_h_layout.addWidget(photo_title)
+        photo_h_layout.addStretch()
+        photo_h_layout.addWidget(self.reverse_btn)
+        
         self.photo_list = QListWidget(photo_box)
         self.photo_list.setStyleSheet(StyleManager.get_list_style())
+        
+        # Enable Drag and Drop / 开启手动拖拽排序
+        self.photo_list.setDragEnabled(True)
+        self.photo_list.setAcceptDrops(True)
+        self.photo_list.setDragDropMode(QListWidget.DragDropMode.InternalMove)
+        # Sync data when moved / 拖拽后实时同步内存数据
+        self.photo_list.model().rowsMoved.connect(self._on_photo_reordered)
+        
         for i, photo in enumerate(self.photos):
             item = QListWidgetItem(photo.file_name or tr("Photo {num}").format(num=i+1))
             item.setData(Qt.ItemDataRole.UserRole, i)
+            # Store full path for robust synchronization after reordering
+            # 存储完整路径，以便重排后进行可靠的数据同步
+            item.setData(Qt.ItemDataRole.UserRole + 1, photo.file_path)
             self.photo_list.addItem(item)
         self.photo_list.itemClicked.connect(self.on_photo_selected)
-        photo_vbox.addWidget(photo_title)
+        
+        # Add context menu for removal
+        self.photo_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.photo_list.customContextMenuRequested.connect(self._on_photo_context_menu)
+        
+        photo_vbox.addWidget(photo_header)
         photo_vbox.addWidget(self.photo_list)
         
         # Records list
@@ -237,6 +278,11 @@ class MetadataEditorDialog(QDialog):
             item.setData(Qt.ItemDataRole.UserRole, i)
             self.metadata_list.addItem(item)
         self.metadata_list.itemClicked.connect(self.on_metadata_selected)
+        
+        # Add context menu for removal / 添加右键移除功能
+        self.metadata_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.metadata_list.customContextMenuRequested.connect(self._on_metadata_context_menu)
+        
         record_vbox.addWidget(record_title)
         record_vbox.addWidget(self.metadata_list)
         
@@ -380,7 +426,7 @@ class MetadataEditorDialog(QDialog):
         
         self.preview_label = QLabel(right_widget)
         self.preview_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.preview_label.setMinimumSize(300, 300)
+        self.preview_label.setMinimumSize(320, 320)
         self.preview_label.setStyleSheet("background: transparent; border: none;")
         right_vbox.addWidget(self.preview_label)
         
@@ -470,9 +516,13 @@ class MetadataEditorDialog(QDialog):
             self.metadata_list.addItem(item)
 
     def on_photo_selected(self, item):
+        if not item: return
         self._save_current_metadata()
-        idx = item.data(Qt.ItemDataRole.UserRole)
-        self.load_photo(idx)
+        # Row index in QListWidget matches the index in self.photos after reordering
+        # QListWidget 中的行索引在重排后与 self.photos 中的索引一致
+        idx = self.photo_list.row(item)
+        if idx >= 0:
+            self.load_photo(idx)
 
     def on_metadata_selected(self, item):
         self._save_current_metadata()
@@ -503,9 +553,13 @@ class MetadataEditorDialog(QDialog):
                 
                 p_idx = meta_index - self.offset
                 if 0 <= p_idx < len(self.photos):
+                    # CRITICAL: Sync current_index so async preview worker accepts the result
+                    # 关键：同步 current_index，确保异步预览加载器接受返回结果
+                    self.current_index = p_idx
                     self.photo_list.setCurrentRow(p_idx)
                     self._update_preview(p_idx)
                 else:
+                    self.current_index = -1
                     self.photo_list.clearSelection()
                     self._update_preview(None)
         except RuntimeError: pass
@@ -541,26 +595,40 @@ class MetadataEditorDialog(QDialog):
         try:
             if photo_idx is not None and 0 <= photo_idx < len(self.photos):
                 p = self.photos[photo_idx]
+                dpr = self.devicePixelRatio()
                 
-                # Use QImageReader for memory-efficient loading
-                reader = QImageReader(p.file_path)
-                reader.setAutoTransform(True)
-                # Lift the 256MB safety limit to 2GB for massive TIFFs
-                reader.setAllocationLimit(2048)
+                # Use cache if available / 如果有缓存则使用缓存
+                if p.file_path in self.thumb_cache:
+                    cached_pix = self.thumb_cache[p.file_path]
+                    # Ensure aspect ratio is preserved and sharp for high DPI
+                    scaled_pix = cached_pix.scaled(self.preview_label.width() * dpr, 
+                                                 self.preview_label.height() * dpr, 
+                                                 Qt.AspectRatioMode.KeepAspectRatio, 
+                                                 Qt.TransformationMode.SmoothTransformation)
+                    scaled_pix.setDevicePixelRatio(dpr)
+                    self.preview_label.setPixmap(scaled_pix)
+                    self.file_info_label.setText(f"{p.file_name}")
+                    return
+
+                # Async load to keep UI responsive / 异步加载保持 UI 响应
+                self.preview_label.setText(tr("Loading preview..."))
+                # Studio-grade preview resolution (Standardized to 1024)
+                worker = ThumbnailWorker(p.file_path, QSize(1024, 1024))
                 
-                if reader.canRead():
-                    image_size = reader.size()
-                    target_size = QSize(300, 300)
-                    image_size.scale(target_size, Qt.AspectRatioMode.KeepAspectRatio)
-                    reader.setScaledSize(image_size)
-                    
-                    image = reader.read()
-                    if not image.isNull():
-                        self.preview_label.setPixmap(QPixmap.fromImage(image))
-                    else:
-                        self.preview_label.setText(tr("Preview Failed"))
-                else:
-                    self.preview_label.setText(tr("Preview Failed"))
+                def on_done(path, pix):
+                    if 0 <= self.current_index < len(self.photos) and self.photos[self.current_index].file_path == path:
+                        self.thumb_cache[path] = pix # Cache the high-res source
+                        # Scale to fit label sharply
+                        scaled_pix = pix.scaled(self.preview_label.width() * dpr, 
+                                              self.preview_label.height() * dpr, 
+                                              Qt.AspectRatioMode.KeepAspectRatio, 
+                                              Qt.TransformationMode.SmoothTransformation)
+                        scaled_pix.setDevicePixelRatio(dpr)
+                        self.preview_label.setPixmap(scaled_pix)
+                
+                worker.signals.finished.connect(on_done)
+                worker.signals.error.connect(lambda path, err: self.preview_label.setText(tr("Preview Failed")))
+                self.threadpool.start(worker)
                 
                 self.file_info_label.setText(f"{p.file_name}")
             else:
@@ -672,3 +740,114 @@ class MetadataEditorDialog(QDialog):
             
         if entry.notes: exif['UserComment'] = entry.notes
         return exif
+
+    def _on_photo_context_menu(self, pos):
+        item = self.photo_list.itemAt(pos)
+        if not item: return
+        
+        # Use row index for current state
+        idx = self.photo_list.row(item)
+        menu = StyleManager.create_menu(self)
+        remove_act = menu.addAction(tr("Remove Photo"))
+        remove_act.triggered.connect(lambda: self.remove_photo(idx))
+        menu.exec(self.photo_list.mapToGlobal(pos))
+
+    def _on_metadata_context_menu(self, pos):
+        item = self.metadata_list.itemAt(pos)
+        if not item: return
+        
+        idx = item.data(Qt.ItemDataRole.UserRole)
+        menu = StyleManager.create_menu(self)
+        remove_act = menu.addAction(tr("Remove Record"))
+        remove_act.triggered.connect(lambda: self.remove_metadata_record(idx))
+        menu.exec(self.metadata_list.mapToGlobal(pos))
+
+    def remove_photo(self, index):
+        if len(self.photos) <= 1:
+            QMessageBox.warning(self, tr("Remove Photo"), tr("Cannot remove the last photo"))
+            return
+        
+        reply = QMessageBox.question(self, tr("Remove Photo"), 
+                                   tr("Exclude '{name}' from this task?").format(name=self.photos[index].file_name))
+        if reply == QMessageBox.Yes:
+            self.photos.pop(index)
+            self._refresh_photo_list()
+            # Safety: clamp index
+            new_idx = min(index, len(self.photos) - 1)
+            self.load_photo(new_idx)
+            self.check_count_match()
+
+    def remove_metadata_record(self, index):
+        if len(self.metadata_entries) <= 1:
+            QMessageBox.warning(self, tr("Remove Record"), tr("Cannot remove the last record"))
+            return
+            
+        reply = QMessageBox.question(self, tr("Remove Record"), tr("Delete this metadata record?"))
+        if reply == QMessageBox.Yes:
+            self.metadata_entries.pop(index)
+            self._refresh_metadata_list()
+            # Safety child load
+            new_idx = min(index, len(self.metadata_entries) - 1)
+            self.load_metadata(new_idx)
+            self.check_count_match()
+
+    def _refresh_photo_list(self):
+        self.photo_list.blockSignals(True)
+        self.photo_list.clear()
+        for i, photo in enumerate(self.photos):
+            item = QListWidgetItem(photo.file_name or tr("Photo {num}").format(num=i+1))
+            item.setData(Qt.ItemDataRole.UserRole, i)
+            # Carry path for robust sync
+            item.setData(Qt.ItemDataRole.UserRole + 1, photo.file_path)
+            self.photo_list.addItem(item)
+        self.photo_list.blockSignals(False)
+
+    def reverse_photo_order(self):
+        """Reverse the order of photos in the list / 一键倒序排列照片"""
+        selected_path = None
+        if self.current_index is not None and 0 <= self.current_index < len(self.photos):
+            selected_path = self.photos[self.current_index].file_path
+            
+        self.photos.reverse()
+        self._refresh_photo_list()
+        
+        # Restore selection by path / 按路径恢复选中状态
+        if selected_path:
+            for i in range(self.photo_list.count()):
+                if self.photo_list.item(i).data(Qt.ItemDataRole.UserRole + 1) == selected_path:
+                    self.photo_list.setCurrentRow(i)
+                    self.current_index = i
+                    break
+        
+        logger.info("Photos order reversed.")
+        # Trigger UI update / 触发界面刷新
+        current = self.photo_list.currentItem()
+        if current:
+            self.on_photo_selected(current)
+        elif self.photo_list.count() > 0:
+            self.photo_list.setCurrentRow(0)
+            self.on_photo_selected(self.photo_list.item(0))
+
+    def _on_photo_reordered(self, parent, start, end, destination, row):
+        """Handle Drag & Drop completion / 处理拖拽完成"""
+        # Small delay to ensure the list model has finished moving items
+        QTimer.singleShot(100, self._sync_photos_from_ui_list)
+
+    def _sync_photos_from_ui_list(self):
+        """Snapshot current QListWidget order to internal photos list / 同步 UI 顺序到内存列表"""
+        photo_map = {p.file_path: p for p in self.photos}
+        new_photos = []
+        for i in range(self.photo_list.count()):
+            item = self.photo_list.item(i)
+            path = item.data(Qt.ItemDataRole.UserRole + 1)
+            if path in photo_map:
+                new_photos.append(photo_map[path])
+        
+        if len(new_photos) == len(self.photos):
+            self.photos = new_photos
+            # Sync selection state / 同步当前选中态
+            current = self.photo_list.currentItem()
+            if current:
+                self.current_index = self.photo_list.row(current)
+                logger.info(f"Internal photos sequence synced. Primary focus: {self.current_index}")
+                self.on_photo_selected(current)

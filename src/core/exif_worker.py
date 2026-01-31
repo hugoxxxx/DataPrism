@@ -319,9 +319,25 @@ class ExifToolWorker(QObject):
                 try:
                     overwrite = config.get('overwrite_original', True)
                     preserve_date = config.get('preserve_modify_date', True)
-                    chunk_argfile = ArgfileManager.create_write_args(chunk_tasks, overwrite, preserve_date)
+                    
+                    # Pass False/False to create_write_args so flags are NOT in the file head
+                    chunk_argfile = ArgfileManager.create_write_args(chunk_tasks, False, False)
                     
                     cmd = [self.exiftool_path, "-@", chunk_argfile]
+                    
+                    # Use -common_args to enforce flags across ALL -execute blocks
+                    # Must be the LAST option on the command line
+                    common_flags = []
+                    if overwrite:
+                        common_flags.append("-overwrite_original")
+                    if preserve_date:
+                        common_flags.append("-P")
+                    
+                    # -charset filename=utf8 is also good to enforce globally if not in argfile
+                    # but our argfile handles charset. We strictly put overwrite/preserve here.
+                    if common_flags:
+                        cmd.append("-common_args")
+                        cmd.extend(common_flags)
                     
                     result = subprocess.run(
                         cmd,

@@ -1,18 +1,16 @@
 # DataPrism Change Log / 变更日志
 
-## [1.1.0-alpha] 2026-01-29 - High-Performance Parallel Batching / 高性能并发批量处理
-- **Multi-core Parallelism / 多核并发技术**:
-    - **Performance Milestone / 性能里程碑**: Achieved a massive **21.4x speedup** for large batches using Multi-core Sharding and Argfile patterns (通过多核分片并行处理与 Argfile 指令集技术，在处理 100 张以上大批量任务时实现了 **21.4 倍** 的性能跨越)。
-    - **Benchmark / 压力测试**: Processing 100 photos reduced from 135.8s down to **6.34s** (100 张照片全流程写操作从 135.8s 缩减至 6.3s)。
-- **Compatibility & Robustness / 兼容性与鲁棒性增强**:
-    - **Turbo TIFF Previews / 极速 TIFF 预览**: Switched to `QImageReader` for memory-efficient thumbnail loading. Added 2GB allocation limit to handle 100MP+ files without OOM (从 `QPixmap` 升级为 `QImageReader` 流式加载，并解除 256MB 分配限制，支持亿级像素 / 500MB 以上 TIFF 秒开预览)。
-    - **Subprocess Stability / 进程稳定性**: Suppressed redundant read calls during background refreshes to prevent UI log clutter (优化后台刷新逻辑，屏蔽冗余读取，保持执行状态栏整洁)。
-    - **Deep JSON Probe / 深度 JSON 探测联**: Implemented recursive mapping for disparate structures (e.g., `Film Logbook`, `Logbook`, `Lightme`). Supports nested objects like `camera.name`, coordinate standardizing (`;`/`,` separators), and Unix timestamp auto-conversion (实现递归映射与深度探测，完美兼容 Film Logbook 及多种 Logbook 变体；支持嵌套对象提取、分号坐标标准化及 Unix 时间戳自动纠错)。
-- **Selective Reading / 精准读取**:
-    - **fast2 Optimization / 极速加载**: Integrated `-fast2` flag to skip heavy metadata bloat, resulting in near-instant folder loading (引入 `-fast2` 跳过厂家私大数据，让数码大文件目录的加载几乎“瞬发化”)。
-- **Argfile Framework / 饱和指令架构**:
-    - Both reading and writing now leverage the Command Argfile pattern to eliminate platform-specific startup overhead (读写两端全面实装 Argfile 指令集架构，彻底终结了子进程启动的效率陷阱)。
-- **Benchmarking Tools / 性能跑分工具**: Enhanced `benchmark_performance.py` with multi-core simulation and unique file collision avoidance (升级了跑分脚本，支持多核模拟与自动文件冲突避让)。
+## [1.1.0] 2026-01-31 - The "Prism" Update / 棱镜更新
+- **Brand Identity / 品牌视觉**:
+    - **Visual Overhaul / 视觉重塑**: Removed white border from app icon for a cleaner, frameless look (移除应用图标白框，实现无边框透明设计).
+    - **Icon Stability / 图标稳定性**: Fixed resource loading paths to ensure icon appears correctly in all dialogs (修复资源路径，确图标在所有窗口稳定加载).
+- **Core Stability / 核心稳定性**:
+    - **ExifTool Robustness / ExifTool 鲁棒性**: Refactored `batch_write_exif` with `-common_args` to ensure flags like `-overwrite_original` persist across all batch tasks (使用 `-common_args` 重构批量写入，彻底解决多文件处理时的配置失效拥堵).
+    - **Parser Priority / 解析优先级**: Fixed `MetadataParser` logic to prioritize `Model` over `Make`, ensuring correct camera model detection (修复解析器优先级，防止将厂商名误认为型号).
+- **High-Performance Parallel Batching / 高性能并发批量处理**:
+    - **Multi-core Parallelism / 多核并发技術**: Achieved 21.4x speedup (6s for 100 photos) using Multi-core Sharding and Argfile patterns (通过多核分片与 Argfile 技术实现 21.4 倍性能提升).
+    - **Turbo TIFF Previews / 极速 TIFF 预览**: Switched to `QImageReader` to handle 500MB+ TIFFs without OOM (升级预览加载引擎，支持亿级像素 TIFF 秒开).
+    - **Deep JSON Probe / 深度 JSON 探测**: Recursive mapping for complex metadata structures (支持深度递归解析复杂 JSON 元数据).
 
 ## [1.0.0] 2026-01-28 - Official Release / 正式版发布
 - **Exe Packaging / 打包封装**: Packaged as a single `.exe` file using PyInstaller (使用 PyInstaller 封装为单文件 exe)。

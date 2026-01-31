@@ -364,6 +364,13 @@ class PhotoDataModel(QAbstractTableModel):
                 if photo.exif_data is None:
                     return tr("Loading...") if role == Qt.ItemDataRole.DisplayRole else ""
                 val = photo.exif_data.get("DateTimeOriginal", "")
+                if val and role == Qt.ItemDataRole.DisplayRole:
+                    # Clean up technical formats for UI (YYYY:MM:DD -> YYYY-MM-DD)
+                    s = str(val).replace('T', ' ').replace('Z', '').split('+')[0].strip()
+                    if ' ' in s:
+                        d_p, t_p = s.split(' ', 1)
+                        return f"{d_p.replace(':', '-').replace('/', '-')} {t_p.replace('-', ':')}"
+                    return s.replace(':', '-').replace('/', '-')
                 return val if val else ("--" if role == Qt.ItemDataRole.DisplayRole else "")
         
         return None
