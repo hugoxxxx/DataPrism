@@ -10,6 +10,7 @@ jobs:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
 
@@ -39,11 +40,10 @@ jobs:
     - name: Build with PyInstaller (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        # Generate macOS icns if needed (simplified for now by using png directly if pyinstaller supports it or just skip icon for macos if not ready)
-        # But we can try to use --icon if it's a png, pyinstaller sometimes handles it on macos
+        # macOS icon requires .icns format which we haven't generated yet
+        # For now, build without icon to ensure CI passes
         pyinstaller --onefile --noconsole --name="DataPrism-macOS" \
           --add-data "src/resources:src/resources" \
-          --icon "src/resources/app_icon.png" \
           main.py
         # Create a zip of the result
         cd dist
