@@ -8,6 +8,7 @@ DataPrism 的主窗口，采用 macOS 美学设计
 from pathlib import Path
 from typing import List
 import re
+import os
 
 from PySide6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,

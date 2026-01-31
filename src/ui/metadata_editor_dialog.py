@@ -8,6 +8,7 @@ Metadata editor dialog for previewing and modifying imported metadata
 from typing import List, Dict, Optional
 from datetime import datetime, timedelta
 import re
+import os
 
 from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
