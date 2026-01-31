@@ -8,6 +8,7 @@ Entry point / 程序入口
 import sys
 import traceback
 from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtCore import QThreadPool
 from src.ui.main_window import MainWindow
 from src.utils.logger import setup_logger, get_logger
 from src.core.config import init_config, get_config
@@ -53,7 +54,7 @@ def main():
         # Create application / 创建应用程序
         app = QApplication(sys.argv)
         app.setApplicationName("DataPrism")
-        app.setApplicationVersion("1.1.0-test")
+        app.setApplicationVersion("1.1.0")
         app.setOrganizationName("DataPrism")
         
         # CRITICAL: Use Fusion style to eliminate Windows-specific rendering artifacts
@@ -64,6 +65,11 @@ def main():
         # Initialize Design System / 初始化设计系统
         from src.ui.style_manager import StyleManager
         StyleManager.load_theme("studio_dark")
+        
+        # Limit thread pool to prevent OOM during batch thumbnail generation
+        # 限制线程池并发数，防止批量加载缩略图时内存溢出
+        # 36 photos * 50MB RAM = ~1.8GB, but QImageReader might spike. Safer to serialization.
+        QThreadPool.globalInstance().setMaxThreadCount(4)
         
         # Set application metadata / 设置应用程序元数据
         window = MainWindow()

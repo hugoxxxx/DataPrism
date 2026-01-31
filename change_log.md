@@ -1,6 +1,8 @@
 # DataPrism Change Log / 变更日志
 
 ## [1.1.0] 2026-01-31 - The "Prism" Update / 棱镜更新
+- **Critical Stability / 核心稳定性**:
+    - **Crash Fixes / 崩溃修复**: Fixed application freeze on bulk import (thread optimization) and editor crash on reordering (修复了批量导入卡死和编辑器排序报错的问题).
 - **Brand Identity / 品牌视觉**:
     - **Visual Overhaul / 视觉重塑**: Removed white border from app icon for a cleaner, frameless look (移除应用图标白框，实现无边框透明设计).
     - **Icon Stability / 图标稳定性**: Fixed resource loading paths to ensure icon appears correctly in all dialogs (修复资源路径，确图标在所有窗口稳定加载).
