@@ -6709,3 +6709,59 @@ NameError: name 'QGridLayout' is not defined. Did you mean: 'QVBoxLayout'?
 [2026-01-31 14:35:37] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
 [2026-01-31 14:35:37] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
 [2026-01-31 14:35:37] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:16:20] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:16:20] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:16:20] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:16:20] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:20:38] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:20:38] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:20:38] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:20:38] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:27:01] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:27:01] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:27:01] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:27:01] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:36:40] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:36:40] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:36:40] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:36:40] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:37:23] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:37:23] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:37:23] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:37:23] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:39:56] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:39:56] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:39:56] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:39:56] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 15:41:38] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 15:41:38] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 15:41:38] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 15:41:38] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:11:55] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:11:55] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:11:55] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:11:55] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:13:20] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:13:20] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:13:20] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:13:20] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:17:04] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:17:04] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:17:04] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:17:04] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:18:01] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:18:01] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:18:01] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:18:01] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:20:04] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:20:04] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:20:04] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:20:04] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:23:11] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:23:11] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:23:11] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:23:11] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8
+[2026-01-31 16:23:53] [DataPrism.Config] [INFO] Starting in STANDARD (AppData) mode
+[2026-01-31 16:23:53] [DataPrism.Config] [INFO] Configuration loaded from C:\Users\Administrator\AppData\Roaming\DataPrism\config.json
+[2026-01-31 16:23:53] [DataPrism.Config] [INFO] Loading history from: C:\Users\Administrator\AppData\Roaming\DataPrism\history.json
+[2026-01-31 16:23:53] [DataPrism.Config] [INFO] Loaded history stats: Cameras=8, Lenses=10, Films=8

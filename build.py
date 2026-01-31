@@ -4,7 +4,7 @@ import sys
 import shutil
 
 def build():
-    print("[BUILD] Starting DataPrism 1.1.0 test Build Process (Optimized)...")
+    print("[BUILD] Starting DataPrism 1.1.0 Optimized Build Process...")
     
     # 1. Clean previous builds
     for folder in ['build', 'dist']:
@@ -12,18 +12,14 @@ def build():
             print(f"[CLEAN] Cleaning {folder}...")
             shutil.rmtree(folder)
             
-    # 2. Detect PyInstaller Path
-    pyinstaller_path = "pyinstaller" # Default
-    scripts_dir = os.path.dirname(sys.executable)
-    pyinstaller_exe = os.path.join(scripts_dir, "pyinstaller.exe")
-    
-    if os.path.exists(pyinstaller_exe):
-        pyinstaller_path = pyinstaller_exe
-        print(f"[INFO] Found local PyInstaller: {pyinstaller_path}")
-    else:
-        print(f"[WARN] Local PyInstaller not found at {pyinstaller_exe}, trying system 'pyinstaller'...")
+    # 2. PyInstaller Path Detection
+    current_python_dir = os.path.dirname(sys.executable)
+    pyinstaller_path = os.path.join(current_python_dir, "Scripts", "pyinstaller.exe")
+    if not os.path.exists(pyinstaller_path):
+        pyinstaller_path = os.path.join(current_python_dir, "pyinstaller.exe")
     
     # 3. Size Optimization: Exclude unused large Qt modules
+    # These were likely excluded in v1.0.0 to Achieve the 40MB size.
     excludes = [
         "PySide6.QtNetwork", "PySide6.QtSql", "PySide6.QtXml", "PySide6.QtTest",
         "PySide6.QtDBus", "PySide6.QtWebEngine", "PySide6.QtPdf", "PySide6.QtMultimedia",
@@ -33,7 +29,7 @@ def build():
         "PySide6.QtRemoteObjects", "PySide6.QtDesigner", "PySide6.QtHelp"
     ]
     
-    # 4. PyInstaller Command
+    # 4. Command Construction
     cmd = [
         pyinstaller_path,
         "--onefile",
@@ -44,34 +40,20 @@ def build():
         "--clean"
     ]
     
-    # Check icon explicitly
-    if not os.path.exists("assets/icon.ico"):
-        print("[ERROR] assets/icon.ico NOT FOUND! Build will likely fail or have no icon.")
-        # We don't exit here, we let PyInstaller fail or warn, but we printed it.
-    
-    # Add exclusions
     for mod in excludes:
         cmd.extend(["--exclude-module", mod])
         
     cmd.append("main.py")
     
-    # Filter out None values (e.g. if icon not found)
-    cmd = [c for c in cmd if c is not None]
-    
-    # 5. UPX Optimization (Optional)
-    upx_dir = os.getcwd() # Look in project root
-    upx_exe = os.path.join(upx_dir, "upx.exe")
-    if os.path.exists(upx_exe):
-        print(f"[UPX] UPX found: {upx_exe}. Enabling maximum compression...")
-        cmd.extend(["--upx-dir", upx_dir])
-    else:
-        print("Tip: Place 'upx.exe' in project root to reduce EXE size by ~40%!")
+    # 5. UPX Optimization (Optional, if exists in root)
+    if os.path.exists("upx.exe"):
+        cmd.append("--upx-dir=.")
         
-    print(f"[RUN] Running Optimized Build: {' '.join(cmd)}")
+    print(f"[RUN] {' '.join(cmd)}")
     
     try:
         subprocess.run(cmd, check=True)
-        print("\n[SUCCESS] Build Successful! Check the 'dist' folder for 1.1.0 test.exe")
+        print("\n[SUCCESS] Build Successful! Check dist/DataPrism.exe")
     except subprocess.CalledProcessError as e:
         print(f"\n[ERROR] Build Failed: {e}")
         sys.exit(1)
