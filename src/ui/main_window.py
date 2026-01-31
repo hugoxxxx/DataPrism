@@ -33,6 +33,7 @@ from src.ui.borderless_delegate import BorderlessDelegate
 from src.core.config import get_config
 from src.ui.borderless_table_view import BorderlessTableView
 from src.ui.borderless_style import BorderlessStyle
+from src.utils.resource_mgr import get_resource_path
 
 logger = get_logger('DataPrism.MainWindow')
 
@@ -78,9 +79,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("DataPrism")
         
         # Set Application Icon / 设置应用图标
-        icon_path = Path(__file__).parent.parent / "resources" / "app_icon.png"
-        if icon_path.exists():
-            self.setWindowIcon(QIcon(str(icon_path)))
+        icon_path = get_resource_path(os.path.join("src", "resources", "app_icon.png"))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
             
         self.setGeometry(100, 100, 1200, 800)
         self.model = PhotoDataModel(self)
@@ -88,6 +89,7 @@ class MainWindow(QMainWindow):
         self.progress_dialog = None  # Progress dialog instance
         self._is_refreshing = False  # Guard for redundant reads / 刷新防抖锁
         self.threadpool = QThreadPool.globalInstance() # Shared pool for IO tasks / 共享线程池
+        self._loading_thumbnails = {} # {file_path: PhotoItem}
         self._setup_worker()
         self.setup_ui()
 
@@ -844,13 +846,36 @@ class MainWindow(QMainWindow):
             self._update_display_pixmap(photo, photo.thumbnail)
             return
 
-        # Load asynchronously to avoid blocking UI / 异步加载以避免阻塞 UI
+        # Prevent duplicate loads for the same path
+        # 防止同一路径的重复加载
+        if photo.file_path in self._loading_thumbnails:
+            return
+
+        # Load asynchronously to avoid blocking UI / 异步加载保持 UI 响应
         self.thumb_label.setText(tr("Loading preview..."))
-        # Studio-grade ultra-res target (2048px) for absolute fidelity
-        worker = ThumbnailWorker(photo.file_path, QSize(2048, 2048))
-        worker.signals.finished.connect(lambda path, pix: self._on_thumbnail_loaded(photo, path, pix))
-        worker.signals.error.connect(lambda path, err: self._on_thumbnail_error(photo, path, err))
+        self._loading_thumbnails[photo.file_path] = photo
+        
+        # Studio-grade ultra-res target (1024px is enough for Retina sidebar)
+        worker = ThumbnailWorker(photo.file_path, QSize(1024, 1024))
+        
+        # Explicitly connect to methods to ensure QueuedConnection (Main Thread execution)
+        # 显式连接到方法以确保使用队列连接（在主线程执行）
+        worker.signals.finished.connect(self._on_thumbnail_ready)
+        worker.signals.error.connect(self._on_thumbnail_error_handler)
         self.threadpool.start(worker)
+
+    def _on_thumbnail_ready(self, file_path, image):
+        """Finalize thumbnail in GUI thread / 在 GUI 线程完成缩略图"""
+        photo = self._loading_thumbnails.pop(file_path, None)
+        if photo:
+            pixmap = QPixmap.fromImage(image)
+            self._on_thumbnail_loaded(photo, file_path, pixmap)
+
+    def _on_thumbnail_error_handler(self, file_path, error_msg):
+        """Handle error in GUI thread / 在 GUI 线程处理错误"""
+        photo = self._loading_thumbnails.pop(file_path, None)
+        if photo:
+            self._on_thumbnail_error(photo, file_path, error_msg)
 
     def _on_thumbnail_loaded(self, photo, file_path, pixmap):
         """Callback when thumbnail is ready / 缩略图就绪时的回调"""

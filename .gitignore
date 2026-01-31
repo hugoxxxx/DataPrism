@@ -27,7 +27,11 @@ htmlcov/
 *.JPEG
 *.tif
 *.tiff
-*.dng   
+*.dng
+
+# Force include branding assets
+!src/resources/app_icon.png
+!assets/icon.ico
 # Local assets and debug files
 1.jpg
 66.jpg

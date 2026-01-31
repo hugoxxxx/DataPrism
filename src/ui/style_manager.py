@@ -9,6 +9,8 @@ import json
 import os
 from typing import Dict, Any
 
+from src.utils.resource_mgr import get_resource_path
+
 class StyleManager:
     """
     Decoupled Style Manager supporting external JSON themes.
@@ -22,9 +24,7 @@ class StyleManager:
         """Load theme from resources/themes/*.json"""
         try:
             # Look for theme file / 寻找主题文件
-            # Assuming current file is in src/ui/
-            base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            theme_path = os.path.join(base_path, "resources", "themes", f"{theme_name}.json")
+            theme_path = get_resource_path(os.path.join("src", "resources", "themes", f"{theme_name}.json"))
             
             if os.path.exists(theme_path):
                 with open(theme_path, 'r', encoding='utf-8') as f:

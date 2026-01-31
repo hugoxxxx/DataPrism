@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 from src.utils.logger import get_logger, reconfigure_logger
+from src.utils.resource_mgr import get_resource_path
 
 logger = get_logger('DataPrism.Config')
 
@@ -81,8 +82,7 @@ class HistoryManager:
     def _load_from_template(self):
         """Initialize data from default template and save / 从默认模板初始化数据并保存"""
         try:
-            base_dir = Path(__file__).parent.parent 
-            template_path = base_dir / 'resources' / 'default_history.json'
+            template_path = Path(get_resource_path(os.path.join('src', 'resources', 'default_history.json')))
             
             if template_path.exists():
                 with open(template_path, 'r', encoding='utf-8') as f:
@@ -214,8 +214,7 @@ class Config:
     def _load_from_template(self):
         """Initialize config from default template and save / 从默认模板初始化配置并保存"""
         try:
-            base_dir = Path(__file__).parent.parent 
-            template_path = base_dir / 'resources' / 'default_config.json'
+            template_path = Path(get_resource_path(os.path.join('src', 'resources', 'default_config.json')))
             
             if template_path.exists():
                 with open(template_path, 'r', encoding='utf-8') as f:

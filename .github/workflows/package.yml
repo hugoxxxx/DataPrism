@@ -39,7 +39,12 @@ jobs:
     - name: Build with PyInstaller (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        pyinstaller --onefile --noconsole --name="DataPrism-macOS" --add-data "src/resources:src/resources" main.py
+        # Generate macOS icns if needed (simplified for now by using png directly if pyinstaller supports it or just skip icon for macos if not ready)
+        # But we can try to use --icon if it's a png, pyinstaller sometimes handles it on macos
+        pyinstaller --onefile --noconsole --name="DataPrism-macOS" \
+          --add-data "src/resources:src/resources" \
+          --icon "src/resources/app_icon.png" \
+          main.py
         # Create a zip of the result
         cd dist
         zip -r DataPrism-macOS.zip DataPrism-macOS

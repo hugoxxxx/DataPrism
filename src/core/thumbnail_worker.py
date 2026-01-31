@@ -8,12 +8,13 @@ Asynchronous thumbnail loader using thread pool to avoid UI blocking
 from PySide6.QtCore import QObject, QRunnable, Signal, QSize, Qt
 from PySide6.QtGui import QImageReader, QPixmap, QImage
 import logging
+import time
 
 logger = logging.getLogger('DataPrism.ThumbnailWorker')
 
 class ThumbnailSignals(QObject):
     """Signals for thumbnail loading / 缩略图加载信号"""
-    finished = Signal(str, QPixmap)  # file_path, pixmap
+    finished = Signal(str, QImage)  # file_path, image
     error = Signal(str, str)         # file_path, error_msg
 
 class ThumbnailWorker(QRunnable):
@@ -27,37 +28,39 @@ class ThumbnailWorker(QRunnable):
         self.signals = ThumbnailSignals()
 
     def run(self):
+        start_t = time.time()
         try:
             reader = QImageReader(self.file_path)
             reader.setAutoTransform(True)
-            reader.setAllocationLimit(2048) # Allow 2GB RAM for large TIFFs
+            # Reduced to 512MB to avoid OOM/thrashing while still supporting large files
+            reader.setAllocationLimit(512) 
             
             if not reader.canRead():
+                logger.error(f"Cannot read: {self.file_path}")
                 self.signals.error.emit(self.file_path, "Cannot read image")
                 return
 
-            # High-quality two-step scaling: 
-            # 1. Hardware/Loader-level scaling to 2x target for pixel redundancy
-            # 1. 硬件/加载器层级缩放到目标的 2 倍，以保留像素冗余
             image_size = reader.size()
             if image_size.isValid():
-                oversample_size = self.target_size * 2
-                image_size.scale(oversample_size, Qt.AspectRatioMode.KeepAspectRatio)
-                reader.setScaledSize(image_size)
+                if image_size.width() > self.target_size.width() or image_size.height() > self.target_size.height():
+                    scale_size = image_size.scaled(self.target_size, Qt.AspectRatioMode.KeepAspectRatio)
+                    reader.setScaledSize(scale_size)
             
+            # Decoding happens here
             image = reader.read()
             if image.isNull():
                 self.signals.error.emit(self.file_path, "Decoded image is null")
                 return
             
-            # Additional high-quality smooth scaling for final presentation
-            # 为最终呈现提供额外的高质量平滑缩放
+            # Post-decode smooth scaling if setScaledSize wasn't perfect or supported
             if image.width() > self.target_size.width() or image.height() > self.target_size.height():
                 image = image.scaled(self.target_size, Qt.AspectRatioMode.KeepAspectRatio, 
                                    Qt.TransformationMode.SmoothTransformation)
             
-            pixmap = QPixmap.fromImage(image)
-            self.signals.finished.emit(self.file_path, pixmap)
+            duration = (time.time() - start_t) * 1000
+            logger.debug(f"Thumbnail decoded in {duration:.1f}ms: {self.file_path}")
+            
+            self.signals.finished.emit(self.file_path, image)
             
         except Exception as e:
             logger.error(f"Error loading thumbnail for {self.file_path}: {e}")

@@ -30,6 +30,7 @@ from src.utils.i18n import tr
 from src.utils.logger import get_logger
 from src.utils.validators import MetadataValidator
 from src.ui.style_manager import StyleManager
+from src.utils.resource_mgr import get_resource_path
 
 logger = get_logger('DataPrism.MetadataEditor')
 
@@ -61,14 +62,14 @@ class MetadataEditorDialog(QDialog):
         self._completion_handled = False
         self.thumb_cache = {} # Local preview cache for performance / 预览缓存提升性能
         self.threadpool = QThreadPool.globalInstance()
+        self._loading_thumbnails = {} # {file_path: bool} - tracked for safety
         
         self.setWindowTitle(tr("Metadata Editor"))
         
         # Set Dialog Icon / 设置对话框图标
-        from pathlib import Path
-        icon_path = Path(__file__).parent.parent / "resources" / "app_icon.png"
-        if icon_path.exists():
-            self.setWindowIcon(QIcon(str(icon_path)))
+        icon_path = get_resource_path(os.path.join("src", "resources", "app_icon.png"))
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
             
         self.setMinimumSize(1250, 800)
         
@@ -611,23 +612,18 @@ class MetadataEditorDialog(QDialog):
                     return
 
                 # Async load to keep UI responsive / 异步加载保持 UI 响应
+                if p.file_path in self._loading_thumbnails:
+                    return
+                
                 self.preview_label.setText(tr("Loading preview..."))
+                self._loading_thumbnails[p.file_path] = True
+                
                 # Studio-grade preview resolution (Standardized to 1024)
                 worker = ThumbnailWorker(p.file_path, QSize(1024, 1024))
                 
-                def on_done(path, pix):
-                    if 0 <= self.current_index < len(self.photos) and self.photos[self.current_index].file_path == path:
-                        self.thumb_cache[path] = pix # Cache the high-res source
-                        # Scale to fit label sharply
-                        scaled_pix = pix.scaled(self.preview_label.width() * dpr, 
-                                              self.preview_label.height() * dpr, 
-                                              Qt.AspectRatioMode.KeepAspectRatio, 
-                                              Qt.TransformationMode.SmoothTransformation)
-                        scaled_pix.setDevicePixelRatio(dpr)
-                        self.preview_label.setPixmap(scaled_pix)
-                
-                worker.signals.finished.connect(on_done)
-                worker.signals.error.connect(lambda path, err: self.preview_label.setText(tr("Preview Failed")))
+                # Explicitly connect to slots for main thread safety
+                worker.signals.finished.connect(self._on_thumbnail_ready)
+                worker.signals.error.connect(self._on_thumbnail_error_handler)
                 self.threadpool.start(worker)
                 
                 self.file_info_label.setText(f"{p.file_name}")
@@ -636,6 +632,27 @@ class MetadataEditorDialog(QDialog):
                 self.preview_label.setText(tr("No Photo Linked"))
                 self.file_info_label.setText("")
         except RuntimeError: pass
+
+    def _on_thumbnail_ready(self, path, image):
+        """Handle thumbnail completion in main thread"""
+        self._loading_thumbnails.pop(path, None)
+        dpr = self.devicePixelRatio()
+        pix = QPixmap.fromImage(image)
+        
+        # Check if the photo is still selected
+        if 0 <= self.current_index < len(self.photos) and self.photos[self.current_index].file_path == path:
+            self.thumb_cache[path] = pix
+            scaled_pix = pix.scaled(self.preview_label.width() * dpr, 
+                                 self.preview_label.height() * dpr, 
+                                 Qt.AspectRatioMode.KeepAspectRatio, 
+                                 Qt.TransformationMode.SmoothTransformation)
+            scaled_pix.setDevicePixelRatio(dpr)
+            self.preview_label.setPixmap(scaled_pix)
+
+    def _on_thumbnail_error_handler(self, path, err):
+        """Handle thumbnail error in main thread"""
+        self._loading_thumbnails.pop(path, None)
+        self.preview_label.setText(tr("Preview Failed"))
 
     def on_offset_changed(self):
         self._save_current_metadata()

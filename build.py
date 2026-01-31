@@ -40,7 +40,7 @@ def build():
         "--noconsole",
         "--name=DataPrism",
         "--add-data=src/resources;src/resources",
-        "--icon=assets/icon.ico",
+        f"--icon={os.path.abspath('assets/icon.ico')}",
         "--clean"
     ]
     
