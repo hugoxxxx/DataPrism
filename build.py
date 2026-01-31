@@ -40,9 +40,14 @@ def build():
         "--noconsole",
         "--name=DataPrism",
         "--add-data=src/resources;src/resources",
-        "--icon=assets/icon.ico" if os.path.exists("assets/icon.ico") else None,
+        "--icon=assets/icon.ico",
         "--clean"
     ]
+    
+    # Check icon explicitly
+    if not os.path.exists("assets/icon.ico"):
+        print("[ERROR] assets/icon.ico NOT FOUND! Build will likely fail or have no icon.")
+        # We don't exit here, we let PyInstaller fail or warn, but we printed it.
     
     # Add exclusions
     for mod in excludes:
