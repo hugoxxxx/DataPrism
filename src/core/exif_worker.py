@@ -14,6 +14,7 @@ import os
 import platform
 import concurrent.futures
 from src.utils.argfile_util import ArgfileManager
+from src.utils.resource_mgr import get_exiftool_path
 
 # Windows-specific flag to hide console window for subprocesses
 # Windows 特定的标志，用于隐藏子进程的控制台窗口
@@ -55,8 +56,18 @@ class ExifToolWorker(QObject):
         """
         super().__init__()
         
-        # Use config values / 使用配置值
-        self.exiftool_path = exiftool_path or config.get('exiftool_path', 'exiftool')
+        # Try bundled first, then user config, then system default
+        # 优先尝试内置，然后是用户配置，最后是系统默认
+        self.exiftool_path = exiftool_path or get_exiftool_path()
+        
+        # If get_exiftool_path returned "exiftool" (fallback), check if user has a custom path
+        # 如果 get_exiftool_path 返回的是 "exiftool"（兜底值），检查用户是否有自定义路径
+        if self.exiftool_path == "exiftool":
+            user_config_path = config.get('exiftool_path')
+            if user_config_path and user_config_path != "exiftool":
+                self.exiftool_path = user_config_path
+
+        logger.info(f"Using ExifTool at: {self.exiftool_path}")
         self.MAX_RETRIES = config.get('exiftool_max_retries', 3)
         self.RETRY_DELAY = 0.5  # Fixed delay / 固定延迟
         
