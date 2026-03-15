@@ -32,6 +32,10 @@ htmlcov/
 # Force include branding assets
 !src/resources/app_icon.png
 !assets/icon.ico
+
+# Force include bundled ExifTool for portability
+!src/resources/bin/exiftool.exe
+!src/resources/bin/exiftool_files/
 # Local assets and debug files
 1.jpg
 66.jpg
