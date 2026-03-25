@@ -4,7 +4,7 @@ import sys
 import shutil
 
 def build():
-    print("[BUILD] Starting DataPrism 1.1.0 Optimized Build Process...")
+    print("[BUILD] Starting DataPrism 1.2.0 Optimized Build Process...")
     
     # 1. Clean previous builds
     for folder in ['build', 'dist']:
