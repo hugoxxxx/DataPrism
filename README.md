@@ -20,6 +20,13 @@ DataPrism is a tool for managing photo EXIF metadata (元数据管理工具). It
 - **Bilingual / 双语界面**: Full support for English and Simplified Chinese (完整支持中英文界面).
 - **Core Stability / 核心稳定性**: Improved ExifTool robustness and parsing accuracy (增强了 ExifTool 的鲁棒性及元数据解析精度).
 
+## 🆕 What's New in v1.2.0
+- **📦 Zero-Dependency / 零依赖内置引擎**:
+  - **Embedded ExifTool**: Bundled the ExifTool engine directly into the binary (内置 ExifTool 引擎，真正实现“开箱即用”，无需手动安装配置).
+  - **Portable Excellence**: Perfected dynamic path resolution for ultimate portability (优化了路径溯源逻辑，确保在不同电脑上都能稳定运行).
+- **🧹 Optimized Repository / 仓库持续优化**:
+  - **Clean Sync**: Refined `.gitignore` to balance core binary tracking with local noise isolation (精细化 Git 管理，确保核心引擎被追踪的同时保持仓库整洁).
+
 ## 🆕 What's New in v1.1.0
 - **⚡ Supercharged Performance / 性能飞跃**:
   - **21x Speedup**: Multi-core parallel processing for massive batches (多核并发引擎，大批量处理速度提升 21 倍).
@@ -38,7 +45,7 @@ DataPrism is a tool for managing photo EXIF metadata (元数据管理工具). It
 
 ### Prerequisites / 环境要求
 - Python 3.10+
-- [ExifTool](https://exiftool.org/) (installed and path set in app / 已安装并在程序中设置好路径).
+- **ExifTool (Now Bundled! / 已内置！)**: No manual installation required for end-users (普通用户无需手动安装配置).
 
 ### Installation / 安装
 1. Clone / 克隆: `git clone https://github.com/your-username/DataPrism.git`

@@ -1,5 +1,16 @@
 # DataPrism Change Log / 变更日志
 
+## [1.2.0] 2026-03-15 - Zero-Dependency & Portability / 零依赖与便携性强化
+- **ExifTool Bundling / 集成 ExifTool 引擎**:
+    - **Engine Integration / 引擎内置**: Bundled `exiftool.exe` and its libraries directly into `src/resources/bin` (直接将 ExifTool 引擎及类库整合至 bin 目录，彻底消除外部依赖).
+    - **Zero-Config / 零配置使用**: Application now auto-detects and prioritizes the internal bundled ExifTool, achieving "batteries-included" portability (程序自动优先调用内置引擎，实现真正意义上的“开箱即用”与便携性).
+- **Repository Maintenance / 仓库维护与清理**:
+    - **Binary Tracking / 二进制追踪**: Configured `.gitignore` to force-include essential binaries while maintaining exclusion for local media (优化 Git 忽略规则，在保持媒体文件隔离的同时确保核心引擎被正确追踪).
+    - **Log Isolation / 日志隔离**: Untracked `dataprism.log` to keep the repository clean from local runtime noise (将运行日志移出版本控制，确保仓库整洁).
+- **Core Logic Refinement / 核心逻辑优化**:
+    - **Smart Path Resolution / 智能路径溯源**: Enhanced `ExifToolWorker` path resolution logic to seamlessly transition between development and packaged (PyInstaller) environments (重构路径解析逻辑，完美兼容开发环境与打包后的单文件环境).
+
+
 ## [1.1.0] 2026-01-31 - The "Prism" Update / 棱镜更新
 - **Critical Stability / 核心稳定性**:
     - **Crash Fixes / 崩溃修复**: Fixed application freeze on bulk import (thread optimization) and editor crash on reordering (修复了批量导入卡死和编辑器排序报错的问题).
